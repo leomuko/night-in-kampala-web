@@ -1,6 +1,6 @@
 # Local foundations: P1.01–P1.10
 
-Implemented against the approved measurements and the spacious white boards. Baseline `873bc7f` precedes feature/file-scoped commits. The owner subsequently supplied project `night-in-kampala`; its SDK setup is documented in [FIREBASE_SETUP.md](FIREBASE_SETUP.md). No push, cloud provisioning by this agent, region selection or production deployment was performed.
+Implemented against approved measurements/white boards; baseline `873bc7f` precedes the feature commits. The registered `night-in-kampala` app is recorded, but cloud use now requires explicit target/config; ordinary built previews are offline. See [FIREBASE_SETUP.md](FIREBASE_SETUP.md) and [DEPLOYMENT_PREPARATION.md](DEPLOYMENT_PREPARATION.md). No push, cloud provisioning or deployment was performed.
 
 ## Requirements and run commands
 
@@ -62,7 +62,7 @@ Hosting uses 5500 because another local service already occupied 5000. Do not st
 
 Twelve image renditions total 641,980 bytes across all responsive sizes, rather than shipping the archived multi-megabyte PNGs. The browser chooses the needed rendition. This is an asset-size record, not a measured Core Web Vitals claim.
 
-The homepage uses read-only fixtures. Startup initializes Firebase core: demo by default in development, the registered app in production. Auth/Firestore/Storage clients load on explicit use. `localFirebase.js` continues to reject cloud/non-development/non-loopback use; `firebase.js` supplies separate cloud getters, and cloud Functions needs an explicit region. Analytics remains off. Initial rules expose only published content and deny client writes/private records, including to staff claims. Storage remains closed until Phase 2 publication paths exist. No staff editing or checkout is implemented yet.
+The homepage uses read-only fixtures. Startup initializes demo Firebase in development; the default optimised build initializes no Firebase app. Cloud targets/configs and Functions regions must be explicit. `localFirebase.js` still rejects non-development/non-loopback use; offline previews reject all service getters. Analytics is off. Rules expose only published content and deny client writes/private records, including staff claims. Storage remains closed until Phase 2 publication paths exist. Staff editing and ordering remain unimplemented.
 
 ## Checks completed
 
@@ -71,6 +71,8 @@ npm run lint
 npm test
 npm run build
 npm run test:rules
+npm run test:deployment
+npm run check
 ```
 
 - 13 behaviour/connection-boundary tests passed: placeholder purchase exclusion, exact menu links, cancel/focus return, route navigation, encoded search, region preference, private order protection, deferred/unknown routes, accessible field errors and the local Firebase boundary.
@@ -83,4 +85,6 @@ npm run test:rules
 
 The installed Firebase SDK pinned an older gRPC transport. A same-major `@grpc/grpc-js` override to 1.14.7 removes the high findings; application and emulator tests pass with it. The post-fix production dependency audit reports **zero advisories**. The full dependency audit still reports **17 moderate advisories**, confined to development tooling paths (Firebase CLI and ESLint, including their transitive dependencies). No forced major-version downgrades or incompatible runtime upgrades were applied. Revisit supported upstream tool updates with the later toolchain maintenance work; a clean production audit is not a claim that all development packages are advisory-free.
 
-P1.11 email selection is deferred by the owner. P1.12–P1.15 remain unfinished: full shell QA, remaining service placement/staging topology, staging and owner-confirmed WhatsApp preview. Shared-link rendering is emulator-only until those deployment requirements are resolved; actual CDN expiry is not proven by the emulator. Catalogue and commerce pages are honest placeholders. Search currently carries the query to the shop shell; live catalogue, admin publishing, on-site orders and dashboard alerts await their planned phases. [Sales-first launch](SALES_FIRST_LAUNCH.md) now prioritises staff follow-up and cash/manual payment; merchant onboarding and email no longer block launch. Real garments/photos, owner/staff contacts, approved cash/collection/delivery arrangements and stock policy are still needed.
+Latest review evidence: `npm run check` passes lint/build and 78 tests (40 app, 15 metadata, six deployment, five rules, 12 HTTP). Browser checks confirm optional-share fallback/default JPEG and no old order-email promise, with no console errors. Four 1200×630 JPEG social renditions augment the 12 storefront WebP renditions; store images cache one day, fonts one week, hashed JS/CSS one year. The workflow is committed locally but has not run remotely because no push was requested.
+
+P1.11 email selection is deferred. P1.12–P1.15 still need full shell QA, remaining project/location decisions, real staging readiness/deployment and owner-confirmed WhatsApp preview. Cloud preparation is implemented, but no approved real profile or deployment exists; the actual CDN/phone check remains unverified. Catalogue/orders/admin are placeholders. [Manual-order requirements](MANUAL_ORDER_REQUIREMENTS.md) now govern later WhatsApp handoff/recent-order record, Requested availability, server limits and spam controls. Real stock/contact/cash/delivery terms, overdue threshold and confirmed-hold/Sold transition policy are still needed.
