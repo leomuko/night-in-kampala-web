@@ -9,13 +9,14 @@ A planned React JavaScript storefront and Firebase backend for reworked clothing
 - [Phase 1 tasks](docs/PHASE_1_TASKS.md): ordered foundations work with an acceptance check for each task.
 - [Design foundations](docs/DESIGN_FOUNDATIONS.md): approved Anton/Inter/Newsreader and measured layout values.
 - [Local development](docs/LOCAL_DEVELOPMENT.md): commands, completed P1.01–P1.08 checks and remaining limits.
+- [Firebase SDK setup](docs/FIREBASE_SETUP.md): registered project configuration, emulator/cloud behaviour and optional Analytics.
 - [Standalone placeholder images](docs/implementation-assets/placeholders/README.md): generated development assets and their provenance.
 - [Firebase location decision](docs/FIREBASE_REGION_DECISION.md): explicit gate before cloud resource creation/staging.
 - [Phase 2/3 design checks](docs/PRE_PHASE_2_3_DESIGN_CHECKS.md): missing views and checkout/product corrections.
 
 - [Visual concepts](docs/design-concepts/README.md): round-1 mockups and the [round-2 image prompts](docs/design-concepts/PROMPTS-ROUND-2.md).
 
-Status: the white theme, boards and numerical measurements are approved. P1.01–P1.08 are implemented locally: tokens, React shell, self-hosted fonts, shared controls/routes, responsive homepage and Firebase emulators. Build, lint, 13 behaviour tests and 5 rule tests passed. Catalogue/checkout remain placeholders; later Phase 1 work and cloud provisioning are unfinished. Foundations are recorded in small feature/file-scoped commits after baseline `873bc7f`.
+Status: P1.01–P1.08 are implemented locally. The owner's `night-in-kampala` web-app configuration is now wired into the SDK; development still defaults to demo emulators and Analytics remains off. Build, lint and 32 application/SDK tests pass; the prior five emulator rule tests passed and those rules are unchanged. Catalogue/checkout remain placeholders. Later Phase 1 work and cloud provisioning are unfinished. Work is recorded in small feature/file-scoped commits after baseline `873bc7f`.
 
 ## Run locally
 

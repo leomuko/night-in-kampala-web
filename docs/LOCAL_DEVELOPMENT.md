@@ -1,6 +1,6 @@
 # Local foundations: P1.01–P1.08
 
-Implemented against the approved measurements and the spacious white boards. Baseline `873bc7f` precedes the application work, which is now recorded in small feature/file-scoped commits. See `git log --oneline` for hashes. No push, cloud Firebase provisioning, region selection or production deployment was performed.
+Implemented against the approved measurements and the spacious white boards. Baseline `873bc7f` precedes feature/file-scoped commits. The owner subsequently supplied project `night-in-kampala`; its SDK setup is documented in [FIREBASE_SETUP.md](FIREBASE_SETUP.md). No push, cloud provisioning by this agent, region selection or production deployment was performed.
 
 ## Requirements and run commands
 
@@ -30,7 +30,7 @@ npm run emulators:seed
 npm run test:rules
 ```
 
-The runner always selects `demo-night-in-kampala`, loopback listeners and project-local caches. It disables cloud metadata-server discovery. There is no default real project in `.firebaserc`. The separate rules-test project is `demo-night-in-kampala-rules`, also synthetic. P1.13's region decision still precedes any cloud provisioning. The `us-central1` path used by the local health endpoint is an emulator convention, not a selected cloud location.
+The runner always selects `demo-night-in-kampala`, loopback listeners and project-local caches. It disables cloud metadata-server discovery. `.firebaserc` has a `connected` alias for the owner's project but no default real project. The rules-test project is `demo-night-in-kampala-rules`. P1.13's decision still precedes cloud provisioning; the local health endpoint's `us-central1` path is only an emulator convention.
 
 | Local service | Address |
 | --- | --- |
@@ -58,7 +58,7 @@ Hosting uses 5500 because another local service already occupied 5000. Do not st
 
 Twelve image renditions total 641,980 bytes across all responsive sizes, rather than shipping the archived multi-megabyte PNGs. The browser chooses the needed rendition. This is an asset-size record, not a measured Core Web Vitals claim.
 
-The homepage uses read-only local fixtures. The opt-in `src/services/localFirebase.js` adapter refuses cloud/non-development/non-loopback connections and is not loaded by the homepage. Initial Firestore rules expose only published content and deny client writes/private records, including to staff claims. Storage reads/uploads remain closed until Phase 2's authorised publishing paths exist. No actual admin permissions or checkout are implemented by these foundations.
+The homepage uses read-only fixtures. Startup initializes Firebase core: demo by default in development, the registered app in production. Auth/Firestore/Storage clients load on explicit use. `localFirebase.js` continues to reject cloud/non-development/non-loopback use; `firebase.js` supplies separate cloud getters, and cloud Functions needs an explicit region. Analytics remains off. Initial rules expose only published content and deny client writes/private records, including to staff claims. Storage remains closed until Phase 2 publication paths exist. No staff editing or checkout is implemented yet.
 
 ## Checks completed
 

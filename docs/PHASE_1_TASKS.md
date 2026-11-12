@@ -8,6 +8,8 @@ Pre-build gates are complete: named fonts are **Anton / Inter / Newsreader**, st
 
 The added region task makes this a 15-task sequence: original P1.13 staging is now P1.14, and original P1.14 preview closure is now P1.15. [FIREBASE_REGION_DECISION.md](FIREBASE_REGION_DECISION.md) must be completed before any cloud database/bucket creation or staging deployment. [Pre-Phase 2/3 design checks](PRE_PHASE_2_3_DESIGN_CHECKS.md) capture the remaining shop, mobile product, size, email and checkout-screen work.
 
+The owner has since created project `night-in-kampala` and its default Firestore database. CLI metadata confirms `eur3`; preserve that database/location. The web SDK is installed and configured, with development defaulting to demo emulators. P1.13 now resolves only the remaining service placement/staging topology, rather than selecting a new Firestore location. See [FIREBASE_SETUP.md](FIREBASE_SETUP.md).
+
 ## Approved visual references
 
 - [Board 04: white style frame](design-concepts/04-style-frame-white.png): colour, typography, borders and controls.
