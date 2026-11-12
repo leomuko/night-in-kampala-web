@@ -1,4 +1,4 @@
-# Local foundations: P1.01–P1.08
+# Local foundations: P1.01–P1.10
 
 Implemented against the approved measurements and the spacious white boards. Baseline `873bc7f` precedes feature/file-scoped commits. The owner subsequently supplied project `night-in-kampala`; its SDK setup is documented in [FIREBASE_SETUP.md](FIREBASE_SETUP.md). No push, cloud provisioning by this agent, region selection or production deployment was performed.
 
@@ -16,7 +16,7 @@ npm run assets
 npm run dev
 ```
 
-The Vite preview is at `http://127.0.0.1:5173/` when running. `npm run assets` reproducibly creates responsive WebP renditions from the archived generated PNGs and copies self-hosted font files/licences from pinned packages. Original generated source images remain in docs. The asset pipeline is separate from the ordinary build and does not regenerate images or contact an image service.
+The Vite preview is at `http://127.0.0.1:5173/` when running. Per-item raw-HTML previews require the built Hosting emulator at port 5500, not the Vite dev server. `npm run assets` reproducibly creates responsive WebP renditions from the archived generated PNGs and copies self-hosted font files/licences from pinned packages. Original generated source images remain in docs. The asset pipeline is separate from the ordinary build and does not regenerate images or contact an image service. The ordinary build also packages the matching HTML into `functions/generated/index.html`.
 
 To run the emulators, first build Hosting's local files, then use two terminals:
 
@@ -28,6 +28,8 @@ npm run emulators
 ```sh
 npm run emulators:seed
 npm run test:rules
+npm run test:metadata
+npm run test:hosting
 ```
 
 The runner always selects `demo-night-in-kampala`, loopback listeners and project-local caches. It disables cloud metadata-server discovery. `.firebaserc` has a `connected` alias for the owner's project but no default real project. The rules-test project is `demo-night-in-kampala-rules`. P1.13's decision still precedes cloud provisioning; the local health endpoint's `us-central1` path is only an emulator convention.
@@ -55,6 +57,8 @@ Hosting uses 5500 because another local service already occupied 5000. Do not st
 | P1.06 | Fixed five-link navigation, white header/footer, mobile menu, search-to-shop navigation and a remembered region preference. UGX remains the display currency; choosing international does not claim conversion or worldwide delivery. |
 | P1.07 | Spacious homepage, three desktop/two phone columns, separate responsive assets and visible generated-placeholder labels. Narrow-phone wordmark uses board 04's compact two-line arrangement without shrinking the approved type size. Below 360px the product grid can use one column. |
 | P1.08 | All five emulators started together; synthetic published/draft/sold content and identities seeded; health and Hosting deep link verified; five access-rule tests passed. |
+| P1.09 | Published product, collection, event and lookbook metadata is embedded in built HTML; escaped values, explicit origin, sold pieces and safe 404/503 behaviour tested. React preserves server titles and error screens. |
+| P1.10 | Hosting routes details to the Function, keeps listings/static assets working, and delivers 60-second shared-cache headers for published HTML with uncached failures/404s. Edits/unpublish/republish verified at the local origin. Actual CDN expiry remains a staging check. |
 
 Twelve image renditions total 641,980 bytes across all responsive sizes, rather than shipping the archived multi-megabyte PNGs. The browser chooses the needed rendition. This is an asset-size record, not a measured Core Web Vitals claim.
 
@@ -72,11 +76,11 @@ npm run test:rules
 - 13 behaviour/connection-boundary tests passed: placeholder purchase exclusion, exact menu links, cancel/focus return, route navigation, encoded search, region preference, private order protection, deferred/unknown routes, accessible field errors and the local Firebase boundary.
 - Five emulator rules tests passed: published/sold visibility, constrained list queries, blocked financial/role/stock writes, private records and private media/uploads. Expected permission-denied logs are successful negative tests.
 - Real browser checks at 360, 390, 768, 1024 and 1440px found no horizontal page overflow. A narrow-header collision was corrected. Native Tab/Shift+Tab wrapping, Escape and focus return were checked. All four images loaded and no browser warnings/errors were observed during the final check. This is initial shell verification, not full P1.12 accessibility/performance certification.
-- Local Functions health returned a synthetic local-only response. A direct `/events/fixture-published` request through Hosting returned the built SPA. This does not implement the per-item raw-HTML metadata function in P1.09.
+- Local Functions health returned a synthetic local-only response. P1.09–P1.10 now add per-item raw HTML through Hosting: 13 metadata tests and 11 HTTP integration tests pass. The application/SDK suite now has 36 passing tests, including server-title preservation and error screens; the historical 13-test record above describes the original foundation checks. See [SHARED_LINK_PREVIEWS.md](SHARED_LINK_PREVIEWS.md) for schema, cache behaviour and reproduction commands.
 - Local browser screenshots are under ignored `artifacts/`, including `home-desktop.jpg`, `home-desktop-1440.jpg`, `home-mobile-360.jpg`, `home-mobile-390.jpg` and `home-tablet-768.jpg`.
 
 ## Dependency audit and limits
 
 The installed Firebase SDK pinned an older gRPC transport. A same-major `@grpc/grpc-js` override to 1.14.7 removes the high findings; application and emulator tests pass with it. The post-fix production dependency audit reports **zero advisories**. The full dependency audit still reports **17 moderate advisories**, confined to development tooling paths (Firebase CLI and ESLint, including their transitive dependencies). No forced major-version downgrades or incompatible runtime upgrades were applied. Revisit supported upstream tool updates with the later toolchain maintenance work; a clean production audit is not a claim that all development packages are advisory-free.
 
-P1.09–P1.15 remain unfinished: raw-HTML sharing previews, cache/publication contract, email service, full shell QA, cloud region decision, staging and owner-confirmed WhatsApp preview. Catalogue and commerce pages are honest placeholders. Search currently carries the query to the shop shell; newsletter subscription, live catalogue, checkout and staff editing await their planned phases. Real garments/photos, owner contacts, merchant onboarding and shipping details remain necessary.
+P1.11–P1.15 remain unfinished: email service, full shell QA, remaining service placement/staging topology, staging and owner-confirmed WhatsApp preview. Shared-link rendering is emulator-only until those deployment requirements are resolved; actual CDN expiry is not proven by the emulator. Catalogue and commerce pages are honest placeholders. Search currently carries the query to the shop shell; newsletter subscription, live catalogue, checkout and staff editing await their planned phases. Real garments/photos, owner contacts, merchant onboarding and shipping details remain necessary.

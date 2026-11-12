@@ -1,6 +1,6 @@
 # Phase 1: design and foundations
 
-The owner approved the white theme, roomier homepage, boards 06–09 and numerical measurements. Local tasks **P1.01–P1.08 are implemented and verified**; later Phase 1 tasks remain open. Section 9 of [PROJECT_PLAN.md](PROJECT_PLAN.md) governs scope. See [LOCAL_DEVELOPMENT.md](LOCAL_DEVELOPMENT.md) for commands, evidence and limitations.
+The owner approved the white theme, roomier homepage, boards 06–09 and numerical measurements. Local tasks **P1.01–P1.10 are implemented and verified**; later Phase 1 tasks remain open. Actual CDN expiry and real shared-link previews still require staging and owner verification. Section 9 of [PROJECT_PLAN.md](PROJECT_PLAN.md) governs scope. See [LOCAL_DEVELOPMENT.md](LOCAL_DEVELOPMENT.md) and [SHARED_LINK_PREVIEWS.md](SHARED_LINK_PREVIEWS.md) for commands, evidence and limitations.
 
 ## Pre-build review gates
 
@@ -21,7 +21,7 @@ Use paper `#FFFFFF`, ink `#0B0B0C`, fog `#F1F1EF`, and hairline `#E2E2DF`. Keep 
 
 ## Ordered build tasks
 
-**Current status:** P1.01–P1.08 complete; P1.09–P1.15 not completed. The rows below retain their deliverables and acceptance checks. Task 11 depends on sending requirements; task 12 is the full shell review, beyond the initial browser checks already performed; task 13 records regions before cloud work.
+**Current status:** P1.01–P1.10 complete locally; P1.11–P1.15 not completed. P1.09–P1.10 have raw-HTML and real-emulator HTTP evidence; they do not claim production CDN or WhatsApp verification. The rows below retain their deliverables and acceptance checks. Task 11 depends on sending requirements; task 12 is the full shell review, beyond the initial browser checks already performed; task 13 records regions before cloud work.
 
 | ID | Small task | Acceptance check | Depends on |
 | --- | --- | --- | --- |
@@ -41,7 +41,7 @@ Use paper `#FFFFFF`, ink `#0B0B0C`, fog `#F1F1EF`, and hairline `#E2E2DF`. Keep 
 | P1.14 | Publish foundations to owner-provided staging using the explicit region decision and synthetic content. | HTTPS staging serves shell/metadata routes; locations match P1.13; assets/direct links work. No production customer data, exposed secrets or live payments. Record deployment. | P1.12, P1.13; staging access and billing setup |
 | P1.15 | Verify a real shared-product preview and close Phase 1. | Owner manually confirms the correct title/photograph in a WhatsApp preview of a staging product URL. Check other content types/404s on staging. Record email-domain/merchant status; outstanding preview verification or merchant submissions keep Phase 1 incomplete. | P1.14; owner preview check and merchant submissions |
 
-Only the completion status above claims delivered work. No cloud deployments or per-item HTML previews exist yet.
+Only the completion status above claims delivered work. Per-item HTML previews exist locally; no cloud deployment has occurred. P1.14 must test real edge-cache expiry and matching Function/Hosting assets; P1.15 still requires the owner's WhatsApp check.
 
 ## Route map for the shell
 
@@ -73,7 +73,7 @@ Do not request account passwords or paste private provider keys into documentati
 
 ## Review and scope boundary
 
-The list and numerical specification were approved before building. P1.01–P1.08 are recorded in the local-development report; the remaining tasks and Phase 2/3 design checks still apply.
+The list and numerical specification were approved before building. P1.01–P1.08 are recorded in the local-development report; P1.09–P1.10 are recorded in the shared-link preview report. The remaining tasks and Phase 2/3 design checks still apply.
 
 Tooling references for P1.02: [ESLint](https://eslint.org/docs/latest/use/getting-started), [Vitest](https://vitest.dev/guide/), [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/). Check configuration and version compatibility when installing.
 
