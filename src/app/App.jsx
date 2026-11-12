@@ -1,24 +1,28 @@
-import { lazy, Suspense, useEffect } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { Routes, Route, Outlet, useLocation } from 'react-router-dom';
 import Header from '../components/Header.jsx';
 import Footer from '../components/Footer.jsx';
-import { LoadingState } from '../components/UI.jsx';
+import { LoadingState, ErrorState } from '../components/UI.jsx';
 import HomePage from '../features/home/HomePage.jsx';
 import PlaceholderPage from './PlaceholderPage.jsx';
 import NotFoundPage from './NotFoundPage.jsx';
+import { createRouteHeadManager } from './routeHead.js';
 const AdminShell = lazy(() => import('../features/admin/AdminShell.jsx'));
 const ComponentPage = import.meta.env.DEV ? lazy(() => import('./ComponentPage.jsx')) : null;
 
 function Layout() {
   const location = useLocation();
+  const [routeHead] = useState(() => createRouteHeadManager(document));
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
     if (location.pathname !== '/') document.getElementById('main-content')?.focus({ preventScroll: true });
     const section = location.pathname.split('/')[1];
     const names = { shop: 'Shop', collections: 'Drops', about: 'Our process', lookbooks: 'Lookbook', events: 'Events', cart: 'Your bag', admin: 'Staff access' };
-    document.title = `${names[section] || 'Reworked in Kampala'} — Night in Kampala`;
-  }, [location.pathname]);
-  return <><a className="skip-link" href="#main-content">Skip to content</a><Header /><main id="main-content" tabIndex="-1"><Suspense fallback={<div className="container page-section"><LoadingState /></div>}><Outlet /></Suspense></main><Footer /></>;
+    routeHead.apply(location.pathname, `${names[section] || 'Reworked in Kampala'} — Night in Kampala`);
+  }, [location.pathname, routeHead]);
+  const serverStatus = routeHead.statusFor(location.pathname);
+  const page = serverStatus === 404 ? <NotFoundPage /> : serverStatus === 503 ? <div className="container page-section"><ErrorState>This page is temporarily unavailable. Please refresh to try again.</ErrorState></div> : <Outlet />;
+  return <><a className="skip-link" href="#main-content">Skip to content</a><Header /><main id="main-content" tabIndex="-1"><Suspense fallback={<div className="container page-section"><LoadingState /></div>}>{page}</Suspense></main><Footer /></>;
 }
 
 export default function App() {
