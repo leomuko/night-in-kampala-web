@@ -78,7 +78,9 @@ export function createSharedLinkHandler({ origin, template, readDocument, report
   return async ({ method = 'GET', url }) => {
     if (!['GET', 'HEAD'].includes(method)) return { status: 405, headers: { Allow: 'GET, HEAD', 'Cache-Control': 'no-store' }, body: '' };
     const route = parseDetailPath(url);
-    if (!route) return errorPage(404);
+    if (!route) {
+      return errorPage(404, url.split('?')[0].replace(/\/$/, '') || '/');
+    }
     try {
       const document = await readDocument(route.collection, route.slug);
       if (!document || document.status !== 'published') return errorPage(404, route.path);

@@ -13,7 +13,7 @@ export function createRouteHeadManager(document) {
   const path = document.head.querySelector('meta[name="nik:route"]')?.content;
   const status = Number(document.head.querySelector('meta[name="nik:status"]')?.content);
   const original = [...document.head.querySelectorAll(selector)].map(node => node.cloneNode(true));
-  const matches = pathname => Boolean(path && normalPath(pathname) === path);
+  const matches = pathname => Boolean(path && normalPath(pathname) === normalPath(path));
   return {
     statusFor: pathname => matches(pathname) ? status : null,
     apply(pathname, fallbackTitle) {

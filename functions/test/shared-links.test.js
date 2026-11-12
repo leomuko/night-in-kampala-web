@@ -62,7 +62,9 @@ test('invalid paths never read Firestore; queries and optional trailing slash ca
   const render = handler(document, { readDocument: async () => assert.fail('Unexpected read') });
   for (const path of ['/orders/private', '/products/a/b', '/products/%2Fsecret', '/products/../private', '/products/%ZZ', '/products/UPPER', `/products/${'a'.repeat(121)}`, '/products/a%00']) {
     assert.equal(parseDetailPath(path), null);
-    assert.equal((await render({ url: path })).status, 404);
+    const result = await render({ url: path });
+    assert.equal(result.status, 404);
+    assert.equal(head(result).querySelector('meta[name="nik:route"]').content, path);
   }
   assert.equal(parseDetailPath('/products/fixture/?q=anything').path, '/products/fixture');
 });
