@@ -12,6 +12,7 @@
     "build:production": "vite build --mode production && node scripts/prepare-preview-template.mjs",
     "preview": "vite preview --host 127.0.0.1",
     "lint": "eslint .",
+    "check": "npm run lint && npm test && npm run test:metadata && npm run test:deployment && npm run build && npm run test:rules && npm run test:hosting",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:metadata": "node --test functions/test/shared-links.test.js",
