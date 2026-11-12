@@ -1,0 +1,7 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Media publication and staff uploads are deliberately closed until Phase 2.
+    match /{allPaths=**} { allow read, write: if false; }
+  }
+}

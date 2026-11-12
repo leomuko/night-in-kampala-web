@@ -1,0 +1,13 @@
+{
+  "projectId": "demo-night-in-kampala",
+  "products": {
+    "fixture-published": { "name": "Illustrative denim", "status": "published", "availability": "available", "isRealCatalogueStock": false, "purchasable": false, "priceUGX": 160000 },
+    "fixture-draft": { "name": "Unpublished fixture", "status": "draft", "isRealCatalogueStock": false, "purchasable": false },
+    "fixture-sold": { "name": "Sold illustrative piece", "status": "published", "availability": "sold", "isRealCatalogueStock": false, "purchasable": false }
+  },
+  "content": {
+    "collections": { "title": "Illustrative drop" },
+    "events": { "title": "Event title to be supplied" },
+    "lookbooks": { "title": "Illustrative lookbook" }
+  }
+}
