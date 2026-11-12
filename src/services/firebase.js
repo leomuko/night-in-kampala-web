@@ -3,6 +3,7 @@ import { connectLocalFirebase } from './localFirebase.js';
 
 let cloudServices;
 export async function getFirebaseServices() {
+  if (getFirebaseRuntime().mode === 'preview') throw new Error('Offline preview: configure an explicit staging or production target before using Firebase services.');
   if (getFirebaseRuntime().mode === 'emulator') {
     const { app, auth, db, storage } = await connectLocalFirebase();
     return { app, auth, db, storage };
@@ -20,6 +21,7 @@ export async function getFirebaseServices() {
 }
 
 export async function getFirebaseFunctions() {
+  if (getFirebaseRuntime().mode === 'preview') throw new Error('Offline preview: cloud Functions are disabled.');
   if (getFirebaseRuntime().mode === 'emulator') return (await connectLocalFirebase()).functions;
   const region = import.meta.env.VITE_FIREBASE_FUNCTIONS_REGION;
   if (!region || !/^[a-z]+-[a-z]+\d+$/.test(region)) {

@@ -7,7 +7,9 @@
   "workspaces": ["functions"],
   "scripts": {
     "dev": "vite --host 127.0.0.1",
-    "build": "vite build && node scripts/prepare-preview-template.mjs",
+    "build": "vite build --mode preview && node scripts/prepare-preview-template.mjs",
+    "build:staging": "vite build --mode staging && node scripts/prepare-preview-template.mjs",
+    "build:production": "vite build --mode production && node scripts/prepare-preview-template.mjs",
     "preview": "vite preview --host 127.0.0.1",
     "lint": "eslint .",
     "test": "vitest run",

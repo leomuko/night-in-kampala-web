@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { firebaseConfig } from './firebaseConfig.js';
 
 const sdk = vi.hoisted(() => ({ isSupported: vi.fn(), getAnalytics: vi.fn(), setConsent: vi.fn(), setAnalyticsCollectionEnabled: vi.fn() }));
 vi.mock('firebase/analytics', () => sdk);
@@ -8,6 +9,8 @@ beforeEach(() => {
   sdk.getAnalytics.mockReturnValue({ kind: 'analytics' });
   vi.stubEnv('DEV', false);
   vi.stubEnv('VITE_USE_EMULATORS', 'false');
+  vi.stubEnv('VITE_FIREBASE_TARGET', 'production');
+  vi.stubEnv('VITE_FIREBASE_CONFIG', JSON.stringify(firebaseConfig));
   vi.stubEnv('VITE_ENABLE_ANALYTICS', 'true');
 });
 afterEach(() => { vi.unstubAllEnvs(); });

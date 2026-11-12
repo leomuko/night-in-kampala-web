@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { firebaseConfig } from './firebaseConfig.js';
 
 const sdk = vi.hoisted(() => ({
   getAuth: vi.fn(), getFirestore: vi.fn(), getStorage: vi.fn(), getFunctions: vi.fn(),
@@ -21,6 +22,8 @@ afterEach(() => { vi.unstubAllEnvs(); });
 
 test('cloud clients use the supplied app and never attach emulator endpoints', async () => {
   vi.stubEnv('VITE_USE_EMULATORS', 'false');
+  vi.stubEnv('VITE_FIREBASE_TARGET', 'production');
+  vi.stubEnv('VITE_FIREBASE_CONFIG', JSON.stringify(firebaseConfig));
   const { getFirebaseServices } = await import('./firebase.js');
   const [first, concurrent] = await Promise.all([getFirebaseServices(), getFirebaseServices()]);
   expect(first).toBe(concurrent);
@@ -46,6 +49,8 @@ test('development clients use all local endpoints exactly once on concurrent cal
 
 test('cloud Functions refuses to silently choose a region', async () => {
   vi.stubEnv('VITE_USE_EMULATORS', 'false');
+  vi.stubEnv('VITE_FIREBASE_TARGET', 'production');
+  vi.stubEnv('VITE_FIREBASE_CONFIG', JSON.stringify(firebaseConfig));
   vi.stubEnv('VITE_FIREBASE_FUNCTIONS_REGION', undefined);
   const { getFirebaseFunctions } = await import('./firebase.js');
   await expect(getFirebaseFunctions()).rejects.toThrow(/approved VITE_FIREBASE_FUNCTIONS_REGION/);
@@ -54,7 +59,17 @@ test('cloud Functions refuses to silently choose a region', async () => {
 
 test('cloud Functions receives only the explicitly configured region', async () => {
   vi.stubEnv('VITE_USE_EMULATORS', 'false');
+  vi.stubEnv('VITE_FIREBASE_TARGET', 'production');
+  vi.stubEnv('VITE_FIREBASE_CONFIG', JSON.stringify(firebaseConfig));
   vi.stubEnv('VITE_FIREBASE_FUNCTIONS_REGION', 'europe-west1'); // Test input, not the deployment decision.
   const { getFirebaseFunctions } = await import('./firebase.js');
   expect((await getFirebaseFunctions()).region).toBe('europe-west1');
+});
+test('offline previews cannot initialise cloud data or Functions clients', async () => {
+  vi.stubEnv('DEV', false);
+  const { getFirebaseServices, getFirebaseFunctions } = await import('./firebase.js');
+  await expect(getFirebaseServices()).rejects.toThrow(/Offline preview/);
+  await expect(getFirebaseFunctions()).rejects.toThrow(/Offline preview/);
+  expect(sdk.getFirestore).not.toHaveBeenCalled();
+  expect(sdk.getFunctions).not.toHaveBeenCalled();
 });

@@ -8,13 +8,21 @@ describe('Firebase target selection', () => {
   test('development defaults to a synthetic project even with cloud configuration installed', () => {
     expect(resolveFirebaseRuntime({ development: true, hostname: 'localhost' })).toMatchObject({ mode: 'emulator', config: demoFirebaseConfig });
   });
-  test('production uses the registered project without selecting a Functions region', () => {
+  test('an ordinary built preview has no cloud project', () => {
     const result = resolveFirebaseRuntime({ development: false, hostname: 'store.example.test' });
-    expect(result).toMatchObject({ mode: 'cloud', config: firebaseConfig });
+    expect(result).toMatchObject({ mode: 'preview', config: null });
     expect(result).not.toHaveProperty('functionsRegion');
   });
-  test('a developer can explicitly choose the cloud app', () => {
-    expect(resolveFirebaseRuntime({ development: true, hostname: 'localhost', useEmulators: 'false' }).mode).toBe('cloud');
+  test('cloud access requires an explicit target and complete project config', () => {
+    expect(resolveFirebaseRuntime({ development: true, hostname: 'localhost', useEmulators: 'false' }).mode).toBe('preview');
+    expect(() => resolveFirebaseRuntime({ development: false, target: 'staging' })).toThrow(/complete/);
+    expect(resolveFirebaseRuntime({ development: false, target: 'production', cloudConfig: firebaseConfig })).toMatchObject({ mode: 'cloud', target: 'production', config: firebaseConfig });
+  });
+  test('staging rejects the registered project and cross-project Storage/Auth', () => {
+    const staging = { ...firebaseConfig, projectId: 'nik-example-staging', authDomain: 'nik-example-staging.firebaseapp.com', storageBucket: 'nik-example-staging.firebasestorage.app' };
+    expect(() => resolveFirebaseRuntime({ development: false, target: 'staging', cloudConfig: firebaseConfig })).toThrow(/protected/);
+    expect(resolveFirebaseRuntime({ development: false, target: 'staging', cloudConfig: staging }).config.projectId).toBe(staging.projectId);
+    expect(() => resolveFirebaseRuntime({ development: false, target: 'staging', cloudConfig: { ...staging, storageBucket: firebaseConfig.storageBucket } })).toThrow(/belong/);
   });
   test.each([
     { development: false, hostname: 'localhost', useEmulators: 'true' },
