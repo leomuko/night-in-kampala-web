@@ -51,6 +51,7 @@ for (const kind of kinds) {
     const photo = await fetch(image);
     assert.equal(photo.status, 200);
     assert.match(photo.headers.get('content-type'), /image\/jpeg/);
+    assert.match(photo.headers.get('cache-control'), /max-age=86400/);
     const bytes = Buffer.from(await photo.arrayBuffer());
     assert.deepEqual([...bytes.subarray(0, 3)], [0xff, 0xd8, 0xff]);
   });
@@ -104,7 +105,11 @@ test('built scripts, styles and fonts remain reachable from a nested detail URL'
     assert.equal(response.status, 200);
     assert.ok(!response.headers.get('content-type').includes('text/html'));
     if (path.startsWith('/assets/')) assert.match(response.headers.get('cache-control'), /max-age=31536000, immutable/);
+    if (path.startsWith('/fonts/')) assert.match(response.headers.get('cache-control'), /max-age=604800/);
   }
+  const image = await fetch(`${origin}/assets/painted-denim-640.webp`);
+  assert.equal(image.status, 200);
+  assert.match(image.headers.get('cache-control'), /max-age=86400/);
 });
 test('listing and ordinary SPA routes stay static; malformed detail paths do not bypass the function', async () => {
   for (const path of ['/shop', '/collections', '/events', '/lookbooks', '/about', '/help/shipping']) {

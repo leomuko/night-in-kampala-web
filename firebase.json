@@ -8,7 +8,9 @@
     "headers": [
       { "source": "/", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },
       { "source": "/@(index.html|favicon.svg|asset-provenance.json|shop|collections|archive|about|lookbooks|events|contact|cart|checkout|admin)", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },
-      { "source": "/@(help|orders|admin|assets|fonts)/**", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },
+      { "source": "/@(help|orders|admin)/**", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },
+      { "source": "/@(assets|share)/**", "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400" }] },
+      { "source": "/fonts/**", "headers": [{ "key": "Cache-Control", "value": "public, max-age=604800" }] },
       { "source": "/assets/**/*-????????.@(js|css)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }] }
     ],
     "rewrites": [
