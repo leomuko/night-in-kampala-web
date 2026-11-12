@@ -2,6 +2,16 @@
   "status": "development_only",
   "assets": [
     {
+      "file": "share/campaign.jpg",
+      "width": 1200,
+      "height": 630,
+      "bytes": 82452,
+      "sha256": "839e0666ef105d2e8daebfaada97c1f259cdabbb6d06abdbb3ffadbe77afe705",
+      "kind": "ai_generated_placeholder",
+      "requiresVisibleLabel": true,
+      "isRealCatalogueStock": false
+    },
+    {
       "file": "assets/campaign-480.webp",
       "width": 480,
       "bytes": 16054,
@@ -24,6 +34,16 @@
       "width": 1440,
       "bytes": 108790,
       "sha256": "3aa504ef13e5e327679b85c3c88baf78dff27d268c8402353c0852f24bcf41a4",
+      "kind": "ai_generated_placeholder",
+      "requiresVisibleLabel": true,
+      "isRealCatalogueStock": false
+    },
+    {
+      "file": "share/graphic-tee.jpg",
+      "width": 1200,
+      "height": 630,
+      "bytes": 16480,
+      "sha256": "b4c3d6dfcfcf96bc92f4617f6e6476fafa039ca20112f75140c8220b5e0548eb",
       "kind": "ai_generated_placeholder",
       "requiresVisibleLabel": true,
       "isRealCatalogueStock": false
@@ -56,6 +76,16 @@
       "isRealCatalogueStock": false
     },
     {
+      "file": "share/painted-denim.jpg",
+      "width": 1200,
+      "height": 630,
+      "bytes": 30723,
+      "sha256": "2ffb6d3f5145fe38dd6e389ed27c45f9b9476d48fe34900925ff56392f8e03a8",
+      "kind": "ai_generated_placeholder",
+      "requiresVisibleLabel": true,
+      "isRealCatalogueStock": false
+    },
+    {
       "file": "assets/painted-denim-320.webp",
       "width": 320,
       "bytes": 12914,
@@ -78,6 +108,16 @@
       "width": 960,
       "bytes": 171526,
       "sha256": "c04677d9a767dcee8e4d620577b96b8e4808338d3ef2b6c64226e12a20949f08",
+      "kind": "ai_generated_placeholder",
+      "requiresVisibleLabel": true,
+      "isRealCatalogueStock": false
+    },
+    {
+      "file": "share/workwear-jacket.jpg",
+      "width": 1200,
+      "height": 630,
+      "bytes": 23249,
+      "sha256": "e4b0433453eea0de567400304855e737b53c7283a3bb0bec79e4f8655497bafd",
       "kind": "ai_generated_placeholder",
       "requiresVisibleLabel": true,
       "isRealCatalogueStock": false

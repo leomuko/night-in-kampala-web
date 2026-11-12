@@ -50,9 +50,9 @@ for (const kind of kinds) {
     assert.equal(image, `${origin}${data.share.imageUrl}`);
     const photo = await fetch(image);
     assert.equal(photo.status, 200);
-    assert.match(photo.headers.get('content-type'), /image\/webp/);
+    assert.match(photo.headers.get('content-type'), /image\/jpeg/);
     const bytes = Buffer.from(await photo.arrayBuffer());
-    assert.equal(bytes.subarray(0, 4).toString(), 'RIFF');
+    assert.deepEqual([...bytes.subarray(0, 3)], [0xff, 0xd8, 0xff]);
   });
 }
 test('all four unpublished and missing detail URLs return safe uncached HTTP 404s', async () => {
@@ -70,6 +70,16 @@ test('sold published product remains shareable', async () => {
   const { response, html } = await request('/products/http-fixture-sold');
   assert.equal(response.status, 200);
   assert.equal(html.title, 'Sold illustrative piece — Night in Kampala');
+});
+test('incomplete share metadata still returns the app and a reachable default JPEG', async () => {
+  await write('products', 'http-fixture-incomplete', { name: 'Illustrative incomplete piece', status: 'published' });
+  const { response, html } = await request('/products/http-fixture-incomplete');
+  assert.equal(response.status, 200);
+  assert.equal(html.title, 'Illustrative incomplete piece — Night in Kampala');
+  assert.match(html.querySelector('meta[name="description"]').content, /Illustrative incomplete piece/);
+  const photo = await fetch(html.querySelector('meta[property="og:image"]').content);
+  assert.equal(photo.status, 200);
+  assert.match(photo.headers.get('content-type'), /image\/jpeg/);
 });
 test('HTTP metadata is escaped and cannot inject an executable script', async () => {
   const attack = `</title><script>alert("fixture")</script> & 'quoted'`;

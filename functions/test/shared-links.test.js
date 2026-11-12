@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { JSDOM } from 'jsdom';
-import { configuredOrigin, createSharedLinkHandler, HEAD_START, HEAD_END, parseDetailPath } from '../shared-links.js';
+import { configuredOrigin, createSharedLinkHandler, DEFAULT_SHARE_IMAGE, HEAD_START, HEAD_END, parseDetailPath } from '../shared-links.js';
 
 const template = `<!doctype html><html><head>${HEAD_START}<title>Default</title><meta name="description" content="Default" />${HEAD_END}<script type="module" src="/assets/app-hash.js"></script></head><body><div id="root"></div></body></html>`;
 const share = { description: 'An illustrative reworked piece. AI-generated placeholder.', imageUrl: '/assets/placeholder.webp', imageAlt: 'Illustrative garment' };
@@ -73,12 +73,22 @@ test('origin is explicit and rejects untrusted origin forms', () => {
   assert.throws(() => configuredOrigin('http://127.0.0.1:5500'));
   assert.equal(configuredOrigin('http://127.0.0.1:5500', { emulator: true }), 'http://127.0.0.1:5500');
 });
-test('unsafe images and incomplete published metadata fail closed without caching', async () => {
+test('unsafe and missing share images fall back safely without breaking published pages', async () => {
   for (const imageUrl of ['javascript:alert(1)', '//evil.test/image', '/\\evil.test/image', 'http://example.test/p.jpg', 'https://name:password@example.test/p.jpg', 'https://example.test/p.jpg#fragment', undefined]) {
     const result = await handler({ ...document, share: { ...share, imageUrl } })({ url: '/products/fixture' });
-    assert.equal(result.status, 503);
-    assert.equal(result.headers['Cache-Control'], 'no-store');
-    assert.ok(!result.body.includes(document.name));
+    assert.equal(result.status, 200);
+    assert.equal(head(result).querySelector('meta[property="og:image"]').content, `https://example.test${DEFAULT_SHARE_IMAGE}`);
+    assert.equal(head(result).title, `${document.name} — Night in Kampala`);
+  }
+});
+test('missing or invalid optional share text falls back to the public name', async () => {
+  for (const share of [undefined, {}, { description: '', imageAlt: null }, { description: 'x'.repeat(501) }]) {
+    const result = await handler({ ...document, share })({ url: '/products/fixture' });
+    const html = head(result);
+    assert.equal(result.status, 200);
+    assert.equal(html.title, `${document.name} — Night in Kampala`);
+    assert.match(html.querySelector('meta[name="description"]').content, /Illustrative denim/);
+    assert.ok(html.querySelector('#root'));
   }
 });
 test('Firestore failures are a safe 503, not a cached 404', async () => {

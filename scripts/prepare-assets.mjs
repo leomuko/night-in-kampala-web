@@ -10,10 +10,16 @@ const sourceManifest = JSON.parse(await readFile(path.join(imageSource, 'manifes
 const assets = [];
 await mkdir('public/assets', { recursive: true });
 await mkdir('public/fonts', { recursive: true });
+await mkdir('public/share', { recursive: true });
 for (const item of sourceManifest.assets) {
   const original = await readFile(path.join(imageSource, item.file));
   if (hash(original) !== item.sha256) throw new Error(`Source checksum mismatch: ${item.file}`);
   const name = item.file.replace('-placeholder.png', '');
+  // Dedicated JPEG social renditions; storefront images remain responsive WebP.
+  const shareFile = `share/${name}.jpg`;
+  const shareData = await sharp(original).resize({ width: 1200, height: 630, fit: name === 'campaign' ? 'cover' : 'contain', background: '#F1F1EF' }).flatten({ background: '#F1F1EF' }).jpeg({ quality: 82, mozjpeg: true }).toBuffer();
+  await writeFile(path.join('public', shareFile), shareData);
+  assets.push({ file: shareFile, width: 1200, height: 630, bytes: shareData.length, sha256: hash(shareData), kind: 'ai_generated_placeholder', requiresVisibleLabel: true, isRealCatalogueStock: false });
   const widths = name === 'campaign' ? [480, 960, 1440] : [320, 640, 960];
   for (const width of widths) {
     const output = `assets/${name}-${width}.webp`;

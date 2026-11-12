@@ -1,13 +1,13 @@
 {
   "projectId": "demo-night-in-kampala",
   "products": {
-    "fixture-published": { "name": "Illustrative denim", "status": "published", "availability": "available", "isRealCatalogueStock": false, "purchasable": false, "priceUGX": 160000, "share": { "description": "Illustrative reworked denim. AI-generated placeholder; unavailable for purchase.", "imageUrl": "/assets/painted-denim-960.webp", "imageAlt": "AI-generated illustrative denim" } },
-    "fixture-draft": { "name": "Unpublished fixture", "status": "draft", "isRealCatalogueStock": false, "purchasable": false, "share": { "description": "UNPUBLISHED_FIXTURE_DO_NOT_RENDER", "imageUrl": "/assets/painted-denim-960.webp", "imageAlt": "Unpublished illustrative denim" } },
-    "fixture-sold": { "name": "Sold illustrative piece", "status": "published", "availability": "sold", "isRealCatalogueStock": false, "purchasable": false, "share": { "description": "Illustrative sold archive piece. AI-generated placeholder; unavailable for purchase.", "imageUrl": "/assets/painted-denim-960.webp", "imageAlt": "AI-generated illustrative denim" } }
+    "fixture-published": { "name": "Illustrative denim", "status": "published", "availability": "available", "isRealCatalogueStock": false, "purchasable": false, "priceUGX": 160000, "share": { "description": "Illustrative reworked denim. AI-generated placeholder; unavailable for purchase.", "imageUrl": "/share/painted-denim.jpg", "imageAlt": "AI-generated illustrative denim" } },
+    "fixture-draft": { "name": "Unpublished fixture", "status": "draft", "isRealCatalogueStock": false, "purchasable": false, "share": { "description": "UNPUBLISHED_FIXTURE_DO_NOT_RENDER", "imageUrl": "/share/painted-denim.jpg", "imageAlt": "Unpublished illustrative denim" } },
+    "fixture-sold": { "name": "Sold illustrative piece", "status": "published", "availability": "sold", "isRealCatalogueStock": false, "purchasable": false, "share": { "description": "Illustrative sold archive piece. AI-generated placeholder; unavailable for purchase.", "imageUrl": "/share/painted-denim.jpg", "imageAlt": "AI-generated illustrative denim" } }
   },
   "content": {
-    "collections": { "title": "Illustrative drop", "share": { "description": "An illustrative collection of reworked clothing. No live stock.", "imageUrl": "/assets/painted-denim-960.webp", "imageAlt": "AI-generated illustrative garment" } },
-    "events": { "title": "Event title to be supplied", "share": { "description": "Fashion-event page fixture. Date, venue and photography await owner approval.", "imageUrl": "/assets/campaign-1440.webp", "imageAlt": "AI-generated campaign placeholder, not an event photograph" } },
-    "lookbooks": { "title": "Illustrative lookbook", "share": { "description": "Illustrative reworked-clothing campaign. AI-generated placeholder photography.", "imageUrl": "/assets/campaign-1440.webp", "imageAlt": "AI-generated campaign placeholder" } }
+    "collections": { "title": "Illustrative drop", "share": { "description": "An illustrative collection of reworked clothing. No live stock.", "imageUrl": "/share/painted-denim.jpg", "imageAlt": "AI-generated illustrative garment" } },
+    "events": { "title": "Event title to be supplied", "share": { "description": "Fashion-event page fixture. Date, venue and photography await owner approval.", "imageUrl": "/share/campaign.jpg", "imageAlt": "AI-generated campaign placeholder, not an event photograph" } },
+    "lookbooks": { "title": "Illustrative lookbook", "share": { "description": "Illustrative reworked-clothing campaign. AI-generated placeholder photography.", "imageUrl": "/share/campaign.jpg", "imageAlt": "AI-generated campaign placeholder" } }
   }
 }

@@ -19,7 +19,7 @@ for (const item of previewProducts) batch.set(db.doc(`products/${item.slug}`), {
   availability: 'illustrative', isRealCatalogueStock: false, purchasable: false,
   share: {
     description: 'AI-generated development placeholder. Illustrative clothing; unavailable for purchase.',
-    imageUrl: `/assets/${item.image}-960.webp`, imageAlt: item.alt,
+    imageUrl: `/share/${item.image}.jpg`, imageAlt: item.alt,
   },
 });
 for (const [collection, data] of Object.entries(fixture.content)) {

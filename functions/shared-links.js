@@ -4,6 +4,7 @@ export const PREVIEW_CACHE_SECONDS = 60;
 export const PREVIEW_CACHE_CONTROL = `public, max-age=0, s-maxage=${PREVIEW_CACHE_SECONDS}, must-revalidate`;
 export const HEAD_START = '<!-- shared-link-head:start -->';
 export const HEAD_END = '<!-- shared-link-head:end -->';
+export const DEFAULT_SHARE_IMAGE = '/share/campaign.jpg';
 
 export function configuredOrigin(value, { emulator = false } = {}) {
   const url = new URL(value);
@@ -30,6 +31,10 @@ function escapeHtml(value) {
 function text(value, limit) {
   if (typeof value !== 'string' || !value.trim() || value.length > limit) throw new Error('Incomplete public share metadata.');
   return value.trim().replace(/\s+/g, ' ');
+}
+
+function optionalText(value, limit, fallback) {
+  try { return text(value, limit); } catch { return fallback; }
 }
 
 function publicImage(value, origin) {
@@ -84,14 +89,17 @@ export function createSharedLinkHandler({ origin, template, readDocument, report
     try {
       const document = await readDocument(route.collection, route.slug);
       if (!document || document.status !== 'published') return errorPage(404, route.path);
-      const title = text(route.collection === 'products' ? document.name : document.title, 200);
+      const title = optionalText(route.collection === 'products' ? document.name : document.title, 200, 'Explore Night in Kampala');
       const share = document.share;
+      let image;
+      try { image = publicImage(share?.imageUrl, origin); }
+      catch { image = publicImage(DEFAULT_SHARE_IMAGE, origin); }
       const metadata = {
         title: `${title} — Night in Kampala`,
-        description: text(share?.description, 500),
+        description: optionalText(share?.description, 500, `${title}. Explore reworked clothing, stories and fashion from Night in Kampala.`),
         canonical: `${origin}${route.path}`,
-        image: publicImage(share?.imageUrl, origin),
-        imageAlt: text(share?.imageAlt, 300),
+        image,
+        imageAlt: optionalText(share?.imageAlt, 300, image === `${origin}${DEFAULT_SHARE_IMAGE}` ? 'Night in Kampala — AI-generated campaign placeholder' : title),
       };
       return {
         status: 200,
