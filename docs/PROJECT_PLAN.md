@@ -184,7 +184,7 @@ The launch journey is an order request followed by staff confirmation. An order 
 6. Cancellation/rejection and release of any allocation are authorised, audited and idempotent. In-person and WhatsApp sales use the same trusted inventory path. Returned garments re-enter stock only after inspection. If a timed hold is introduced, enforce it on the server rather than relying on a browser timer or document deletion.
 7. Confirmation is visible on the website. Private order data is never accessible by predictable reference alone; any persistent customer status view requires an authorised session or secure credential. Email is not a launch prerequisite.
 
-Use separate states such as order `new / contacted / confirmed / cancelled / completed`, payment `unpaid / paid` (with manual adjustments/refunds recorded), and fulfilment `unfulfilled / ready_for_collection / dispatched / delivered / returned`. Final allowed transitions and cancellation rules are a Phase 3 task. These are planned states, not existing implementation.
+Use separate planned order states `new / contacted / confirmed / declined / cancelled / spam / completed`; `new/contacted/confirmed` count toward the three-open-order limit. Payment `unpaid / paid` (with manual adjustments/refunds recorded) stays separate from fulfilment `unfulfilled / ready_for_collection / dispatched / delivered / returned`. Final transitions/cancellation rules are a Phase 3 task, not implemented features.
 
 ### Later gateway integration requirements
 

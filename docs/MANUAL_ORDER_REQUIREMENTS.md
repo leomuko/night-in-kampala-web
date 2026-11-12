@@ -35,7 +35,7 @@ Acceptance: first request changes Available to Requested atomically; subsequent 
 
 | Control | Required behaviour |
 | --- | --- |
-| Per normalised phone | At most **3 open order requests**, and at most **one active request per piece** across those orders. Define open states with the order transition table; terminal declined/cancelled/spam/completed requests do not remain active. |
+| Per normalised phone | At most **3 open order requests** in `new`, `contacted` or `confirmed` state, and at most **one active request per piece** across those orders. Terminal `declined`, `cancelled`, `spam` and `completed` orders do not consume an open slot. A multi-item order consumes one order slot; each active item also participates in phone/piece deduplication. |
 | Per trusted connection source | At most **5 new submissions in a rolling hour**. Identify the source through the deployed platform's trusted proxy/connection information, not a client-provided field or arbitrary forwarded header. Document shared-network behaviour and limit-key retention. |
 | Phone format | Server validates recognised international phone format. Normalise valid Ugandan local forms to **+256**; retain valid foreign country codes using the selected country. Formatting does not prove the customer owns the number. |
 | Bot checks | Enforce Firebase App Check on the order function and validate a honeypot that is inaccessible to keyboard/screen-reader users and excluded from autofill. Missing/invalid proof and a filled honeypot cannot create an order. Production debug tokens are not accepted. |

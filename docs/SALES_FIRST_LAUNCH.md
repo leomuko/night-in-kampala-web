@@ -24,7 +24,7 @@ Staff can cancel/release through an audited operation. Confirm the hold/expiry a
 
 ## State and access requirements
 
-- Keep order acceptance, payment and fulfilment separate. Planned states include order `new/contacted/confirmed/cancelled/completed`, payment `unpaid/paid`, and fulfilment `unfulfilled/ready_for_collection/dispatched/delivered/returned`; validate the allowed transitions before coding them.
+- Keep acceptance, payment and fulfilment separate. Planned order states are `new/contacted/confirmed/declined/cancelled/spam/completed`; `new/contacted/confirmed` consume open-request slots. Payment is `unpaid/paid`, separate from fulfilment `unfulfilled/ready_for_collection/dispatched/delivered/returned`; validate the full transition table before coding.
 - Unread/seen and contacted are separate: opening an order does not mean staff have contacted the buyer. Define team-wide seen state for the initial owner/staff team; avoid silently losing uncontacted work when a badge clears.
 - Only authorised staff can view all customer details, confirm/release stock, record payment or fulfil an order. Server functions validate role and inputs; customers cannot change prices, paid status or staff roles.
 - Customer references are not access credentials. Display a submission result within the submitter's authorised session; any later private status view needs a secure session/credential. No public phone/reference search or order-ID-only access.
