@@ -13,6 +13,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:metadata": "node --test functions/test/shared-links.test.js",
+    "test:hosting": "node scripts/emulators.mjs metadata",
     "assets": "node scripts/prepare-assets.mjs",
     "emulators": "node scripts/emulators.mjs start",
     "emulators:seed": "node scripts/seed-emulators.mjs",

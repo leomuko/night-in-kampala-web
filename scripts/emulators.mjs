@@ -5,7 +5,7 @@ import path from 'node:path';
 const root = process.cwd();
 const projectId = 'demo-night-in-kampala';
 const mode = process.argv[2];
-if (!['start', 'test'].includes(mode)) throw new Error('Use start or test.');
+if (!['start', 'test', 'metadata'].includes(mode)) throw new Error('Use start, test or metadata.');
 const cache = path.join(root, '.cache/firebase');
 mkdirSync(cache, { recursive: true });
 const env = {
@@ -27,13 +27,16 @@ const javaMajor = Number(`${java.stdout}${java.stderr}`.match(/version "(\d+)/)?
 if (java.status !== 0 || !javaMajor || javaMajor < 21) throw new Error('Java 21 or newer is required for the pinned Firebase emulators.');
 let command = process.execPath;
 let args;
-if (mode === 'test') {
+if (mode !== 'start') {
   let running = false;
   try {
     const services = await (await fetch('http://127.0.0.1:4400/emulators', { signal: AbortSignal.timeout(1000) })).json();
-    running = Boolean(services.firestore && services.storage);
+    const required = mode === 'metadata' ? ['firestore', 'functions', 'hosting'] : ['firestore', 'storage'];
+    running = required.every(service => services[service]);
   } catch { /* Start an isolated emulator run if no hub is serving. */ }
-  args = running ? ['--test', 'test/rules.test.mjs'] : [path.join(root, 'node_modules/firebase-tools/lib/bin/firebase.js'), 'emulators:exec', '--project', projectId, '--only', 'firestore,storage', 'node --test test/rules.test.mjs'];
+  const file = mode === 'metadata' ? 'test/shared-links-http.test.mjs' : 'test/rules.test.mjs';
+  const only = mode === 'metadata' ? 'firestore,functions,hosting' : 'firestore,storage';
+  args = running ? ['--test', file] : [path.join(root, 'node_modules/firebase-tools/lib/bin/firebase.js'), 'emulators:exec', '--project', projectId, '--only', only, `node --test ${file}`];
 } else {
   args = [path.join(root, 'node_modules/firebase-tools/lib/bin/firebase.js'), 'emulators:start', '--project', projectId, '--only', 'auth,firestore,storage,functions,hosting'];
 }
