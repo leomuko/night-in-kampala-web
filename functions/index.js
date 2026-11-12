@@ -2,24 +2,25 @@ import { onRequest } from 'firebase-functions/v2/https';
 import { initializeApp } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { readFile } from 'node:fs/promises';
+import { readFileSync } from 'node:fs';
 import { createSharedLinkHandler } from './shared-links.js';
+import { resolveFunctionRuntime } from './runtime-config.js';
 
-// Emulator-only foundation. Production Functions/regions are a later decision.
-if (process.env.FUNCTIONS_EMULATOR !== 'true' || process.env.GCLOUD_PROJECT !== 'demo-night-in-kampala' || process.env.FIRESTORE_EMULATOR_HOST !== '127.0.0.1:8080') {
-  throw new Error('Local foundations only: complete the region/deployment tasks before cloud use.');
-}
-const db = getFirestore(initializeApp({ projectId: 'demo-night-in-kampala' }));
+// Cloud startup requires a prepared, approved artifact and a matching project.
+// No default cloud origin, region or project is inferred from request headers.
+const deployment = process.env.FUNCTIONS_EMULATOR === 'true' ? undefined : JSON.parse(readFileSync(new URL('./generated/deployment.json', import.meta.url), 'utf8'));
+const runtime = resolveFunctionRuntime(process.env, deployment);
+const db = getFirestore(initializeApp({ projectId: runtime.projectId }));
 let handler;
 async function loadHandler() {
   return createSharedLinkHandler({
-    origin: 'http://127.0.0.1:5500',
-    emulator: true,
+    origin: runtime.origin,
+    emulator: runtime.emulator,
     template: await readFile(new URL('./generated/index.html', import.meta.url), 'utf8'),
     readDocument: async (collection, slug) => (await db.collection(collection).doc(slug).get()).data(),
   });
 }
-// us-central1 is an explicit emulator convention, not a cloud region choice.
-export const renderSharedLink = onRequest({ region: 'us-central1', timeoutSeconds: 15 }, async (request, response) => {
+export const renderSharedLink = onRequest({ region: runtime.region, timeoutSeconds: 15, maxInstances: 3 }, async (request, response) => {
   try {
     handler ??= loadHandler().catch(error => { handler = undefined; throw error; });
     const result = await (await handler)({ method: request.method, url: request.originalUrl });
@@ -30,6 +31,6 @@ export const renderSharedLink = onRequest({ region: 'us-central1', timeoutSecond
     response.status(503).set('Cache-Control', 'no-store').type('text').send('Page temporarily unavailable.');
   }
 });
-export const localHealth = onRequest((_request, response) => {
+export const localHealth = runtime.emulator ? onRequest((_request, response) => {
   response.set('Cache-Control', 'no-store').json({ local: true, project: 'demo-night-in-kampala' });
-});
+}) : undefined;

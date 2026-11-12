@@ -1,0 +1,16 @@
+{
+  "staging": {
+    "approved": false,
+    "projectId": "replace-with-staging-project",
+    "region": "REQUIRES_REGION_DECISION",
+    "origin": "https://replace-with-staging-origin.invalid",
+    "webConfig": { "apiKey": "REPLACE", "projectId": "replace-with-staging-project", "authDomain": "replace-with-staging-project.firebaseapp.com", "storageBucket": "replace-with-staging-project.firebasestorage.app", "appId": "REPLACE", "messagingSenderId": "REPLACE" }
+  },
+  "production": {
+    "approved": false,
+    "projectId": "replace-with-production-project",
+    "region": "REQUIRES_REGION_DECISION",
+    "origin": "https://replace-with-production-origin.invalid",
+    "webConfig": { "apiKey": "REPLACE", "projectId": "replace-with-production-project", "authDomain": "replace-with-production-project.firebaseapp.com", "storageBucket": "replace-with-production-project.firebasestorage.app", "appId": "REPLACE", "messagingSenderId": "REPLACE" }
+  }
+}

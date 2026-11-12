@@ -12,3 +12,5 @@ emulator-data/
 coverage/
 artifacts/
 functions/generated/
+deployments.local.json
+firebase.*.generated.json
