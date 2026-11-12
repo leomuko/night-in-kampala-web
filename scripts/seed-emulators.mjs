@@ -26,7 +26,7 @@ for (const [collection, data] of Object.entries(fixture.content)) {
   batch.set(db.doc(`${collection}/fixture-published`), { ...data, status: 'published', illustrative: true });
   batch.set(db.doc(`${collection}/fixture-draft`), { ...data, status: 'draft', illustrative: true });
 }
-batch.set(db.doc('orders/fixture-private'), { status: 'awaiting_payment', fixture: true });
+batch.set(db.doc('orders/fixture-private'), { orderStatus: 'new', paymentStatus: 'unpaid', fulfilmentStatus: 'unfulfilled', fixture: true });
 batch.set(db.doc('inventory/fixture-private'), { quantity: 1, fixture: true });
 await batch.commit();
 const auth = getAuth(app);

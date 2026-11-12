@@ -20,7 +20,7 @@ before(async () => {
       setDoc(doc(db, 'products/published'), { status: 'published', availability: 'available', isRealCatalogueStock: false }),
       setDoc(doc(db, 'products/sold'), { status: 'published', availability: 'sold', isRealCatalogueStock: false }),
       setDoc(doc(db, 'products/draft'), { status: 'draft' }),
-      setDoc(doc(db, 'orders/private'), { status: 'awaiting_payment' }),
+      setDoc(doc(db, 'orders/private'), { orderStatus: 'new', paymentStatus: 'unpaid', fulfilmentStatus: 'unfulfilled' }),
       setDoc(doc(db, 'inventory/private'), { quantity: 1 }),
       uploadBytes(ref(context.storage(), 'private/photo.webp'), new Uint8Array([1, 2, 3])),
     ]);
@@ -43,7 +43,7 @@ test('customers cannot publish, adjust stock, mark payment or give themselves ro
   const db = environment.authenticatedContext('fixture-customer').firestore();
   await assertFails(setDoc(doc(db, 'products/published'), { status: 'published', priceUGX: 1 }));
   await assertFails(setDoc(doc(db, 'inventory/private'), { quantity: 999 }));
-  await assertFails(setDoc(doc(db, 'orders/private'), { status: 'paid' }));
+  await assertFails(setDoc(doc(db, 'orders/private'), { paymentStatus: 'paid' }));
   await assertFails(setDoc(doc(db, 'users/fixture-customer'), { owner: true }));
 });
 test('guests, customers and staff cannot access private order or inventory records', async () => {
