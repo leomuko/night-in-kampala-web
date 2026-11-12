@@ -33,6 +33,8 @@ test('cloud Functions reject missing artifact, wrong runtime project and local e
   assert.throws(() => resolveFunctionRuntime({}), /approved/);
   assert.throws(() => resolveFunctionRuntime({ GCLOUD_PROJECT: 'nik-fixture-staging' }, config), /Runtime project/);
   assert.throws(() => resolveFunctionRuntime({ GCLOUD_PROJECT: config.projectId, FIRESTORE_EMULATOR_HOST: '127.0.0.1:8080' }, config), /endpoints/);
+  assert.equal(resolveFunctionRuntime({ FIREBASE_CONFIG: JSON.stringify({ projectId: config.projectId }) }, config).projectId, config.projectId);
+  assert.throws(() => resolveFunctionRuntime({ GCLOUD_PROJECT: config.projectId, FIREBASE_CONFIG: JSON.stringify({ projectId: 'nik-fixture-staging' }) }, config), /Runtime project/);
 });
 test('local Functions keep their explicit demo-only boundary independently of cloud profiles', () => {
   const env = { FUNCTIONS_EMULATOR: 'true', GCLOUD_PROJECT: 'demo-night-in-kampala', FIRESTORE_EMULATOR_HOST: '127.0.0.1:8080' };

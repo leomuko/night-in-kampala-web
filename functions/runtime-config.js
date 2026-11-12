@@ -17,6 +17,7 @@ export function resolveFunctionRuntime(env, deployment) {
   }
   const config = validateCloudDeployment(deployment);
   if (env.FIRESTORE_EMULATOR_HOST || env.FIREBASE_AUTH_EMULATOR_HOST || env.FIREBASE_STORAGE_EMULATOR_HOST) throw new Error('Cloud deployment cannot use emulator endpoints.');
-  if (env.GCLOUD_PROJECT !== config.projectId) throw new Error('Runtime project does not match the prepared deployment.');
+  const projects = [env.GCLOUD_PROJECT, env.GOOGLE_CLOUD_PROJECT, env.FIREBASE_CONFIG ? JSON.parse(env.FIREBASE_CONFIG).projectId : undefined].filter(Boolean);
+  if (!projects.length || projects.some(project => project !== config.projectId)) throw new Error('Runtime project does not match the prepared deployment.');
   return config;
 }
