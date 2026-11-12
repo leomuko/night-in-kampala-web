@@ -1,0 +1,55 @@
+{
+  "status": "development_only",
+  "generator": "built-in image generation tool",
+  "usage": "Replace with owner-supplied photographs before real catalogue publication. Never accept payment for these fixtures.",
+  "assets": [
+    {
+      "file": "campaign-placeholder.png",
+      "role": "Homepage campaign",
+      "kind": "ai_generated_placeholder",
+      "isRealCatalogueStock": false,
+      "requiresVisibleLabel": true,
+      "displayLabel": "AI-generated placeholder",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 2526694,
+      "sha256": "ccb5b25a2170d73d847dcb3271781026ecf63620be6a0a612036fd7ced114a95"
+    },
+    {
+      "file": "graphic-tee-placeholder.png",
+      "role": "Product \u2014 illustrative UGX 85,000",
+      "kind": "ai_generated_placeholder",
+      "isRealCatalogueStock": false,
+      "requiresVisibleLabel": true,
+      "displayLabel": "AI-generated placeholder",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 1933814,
+      "sha256": "a60ec2ce984a6565161166206947f8f986ac396c696ab269fc84f97f96dc1feb"
+    },
+    {
+      "file": "painted-denim-placeholder.png",
+      "role": "Product \u2014 illustrative UGX 160,000",
+      "kind": "ai_generated_placeholder",
+      "isRealCatalogueStock": false,
+      "requiresVisibleLabel": true,
+      "displayLabel": "AI-generated placeholder",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 2725566,
+      "sha256": "7d7b2e1689a6f46f051c7a48602731b861d3ee2e73b039d87580808c9509e6f4"
+    },
+    {
+      "file": "workwear-jacket-placeholder.png",
+      "role": "Product \u2014 illustrative UGX 220,000",
+      "kind": "ai_generated_placeholder",
+      "isRealCatalogueStock": false,
+      "requiresVisibleLabel": true,
+      "displayLabel": "AI-generated placeholder",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 2083052,
+      "sha256": "0022c28774f6274fcece9a14fa8503e11b0605a6599e94b17d69441f3c5309ca"
+    }
+  ]
+}
