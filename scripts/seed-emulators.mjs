@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { initializeApp, deleteApp } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
+import { previewProducts } from '../src/data/previewProducts.js';
 
 const fixture = JSON.parse(await readFile('fixtures/emulator-data.json', 'utf8'));
 if (fixture.projectId !== 'demo-night-in-kampala') throw new Error('Refusing a non-demo project.');
@@ -12,6 +13,15 @@ const app = initializeApp({ projectId: fixture.projectId });
 const db = getFirestore(app);
 const batch = db.batch();
 for (const [slug, data] of Object.entries(fixture.products)) batch.set(db.doc(`products/${slug}`), data);
+// Match the existing homepage links; these remain synthetic and unpurchasable.
+for (const item of previewProducts) batch.set(db.doc(`products/${item.slug}`), {
+  name: item.name, priceUGX: item.price, status: 'published',
+  availability: 'illustrative', isRealCatalogueStock: false, purchasable: false,
+  share: {
+    description: 'AI-generated development placeholder. Illustrative clothing; unavailable for purchase.',
+    imageUrl: `/assets/${item.image}-960.webp`, imageAlt: item.alt,
+  },
+});
 for (const [collection, data] of Object.entries(fixture.content)) {
   batch.set(db.doc(`${collection}/fixture-published`), { ...data, status: 'published', illustrative: true });
   batch.set(db.doc(`${collection}/fixture-draft`), { ...data, status: 'draft', illustrative: true });

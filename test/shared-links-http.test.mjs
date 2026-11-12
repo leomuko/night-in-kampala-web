@@ -9,6 +9,7 @@ import { PREVIEW_CACHE_SECONDS } from '../functions/shared-links.js';
 if (process.env.GCLOUD_PROJECT !== 'demo-night-in-kampala' || process.env.FIRESTORE_EMULATOR_HOST !== '127.0.0.1:8080') throw new Error('HTTP tests require the explicit demo project and loopback Firestore.');
 const origin = 'http://127.0.0.1:5500';
 const fixture = JSON.parse(await readFile('fixtures/emulator-data.json', 'utf8'));
+assert.equal(fixture.projectId, 'demo-night-in-kampala');
 const kinds = ['products', 'collections', 'events', 'lookbooks'];
 const app = initializeApp({ projectId: fixture.projectId }, 'shared-link-http-tests');
 const db = getFirestore(app);
