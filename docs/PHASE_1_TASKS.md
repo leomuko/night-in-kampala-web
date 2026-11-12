@@ -1,10 +1,10 @@
 # Phase 1: design and foundations
 
-The owner approved the white theme, roomier homepage and boards 06–09 in this conversation. This is the task breakdown requested before building; implementation has not started. Section 9 of [PROJECT_PLAN.md](PROJECT_PLAN.md) governs scope.
+The owner approved the white theme, roomier homepage, boards 06–09 and numerical measurements. Local tasks **P1.01–P1.08 are implemented and verified**; later Phase 1 tasks remain open. Section 9 of [PROJECT_PLAN.md](PROJECT_PLAN.md) governs scope. See [LOCAL_DEVELOPMENT.md](LOCAL_DEVELOPMENT.md) for commands, evidence and limitations.
 
 ## Pre-build review gates
 
-The owner's follow-up review is incorporated below. Named fonts are **Anton / Inter / Newsreader**. Standalone generated images are available in [the placeholder asset record](implementation-assets/placeholders/README.md). The exact numeric proposal is in [DESIGN_FOUNDATIONS.md](DESIGN_FOUNDATIONS.md) and **awaits owner approval before P1.01 writes application code**. The owner requested a baseline commit of the reviewed documents and assets before coding; verify it and a clean worktree before starting.
+Pre-build gates are complete: named fonts are **Anton / Inter / Newsreader**, standalone images are in [the placeholder asset record](implementation-assets/placeholders/README.md), and the owner approved [the measurements](DESIGN_FOUNDATIONS.md). Baseline `873bc7f` was committed before tokens/scaffolding. The local foundation work is recorded in small feature/file-scoped commits.
 
 The added region task makes this a 15-task sequence: original P1.13 staging is now P1.14, and original P1.14 preview closure is now P1.15. [FIREBASE_REGION_DECISION.md](FIREBASE_REGION_DECISION.md) must be completed before any cloud database/bucket creation or staging deployment. [Pre-Phase 2/3 design checks](PRE_PHASE_2_3_DESIGN_CHECKS.md) capture the remaining shop, mobile product, size, email and checkout-screen work.
 
@@ -19,7 +19,7 @@ Use paper `#FFFFFF`, ink `#0B0B0C`, fog `#F1F1EF`, and hairline `#E2E2DF`. Keep 
 
 ## Ordered build tasks
 
-Every build task below starts as **not started**. Tasks 1–10 build locally after the spacing gate and baseline commit. Task 11 can proceed once sending requirements are known. Task 12 checks the local shell; task 13 records locations before tasks 14–15 validate staging. Owner-dependent work runs alongside the local tasks.
+**Current status:** P1.01–P1.08 complete; P1.09–P1.15 not completed. The rows below retain their deliverables and acceptance checks. Task 11 depends on sending requirements; task 12 is the full shell review, beyond the initial browser checks already performed; task 13 records regions before cloud work.
 
 | ID | Small task | Acceptance check | Depends on |
 | --- | --- | --- | --- |
@@ -39,7 +39,7 @@ Every build task below starts as **not started**. Tasks 1–10 build locally aft
 | P1.14 | Publish foundations to owner-provided staging using the explicit region decision and synthetic content. | HTTPS staging serves shell/metadata routes; locations match P1.13; assets/direct links work. No production customer data, exposed secrets or live payments. Record deployment. | P1.12, P1.13; staging access and billing setup |
 | P1.15 | Verify a real shared-product preview and close Phase 1. | Owner manually confirms the correct title/photograph in a WhatsApp preview of a staging product URL. Check other content types/404s on staging. Record email-domain/merchant status; outstanding preview verification or merchant submissions keep Phase 1 incomplete. | P1.14; owner preview check and merchant submissions |
 
-These task names describe work to do; they are not claims that any files, services or deployments already exist.
+Only the completion status above claims delivered work. No cloud deployments or per-item HTML previews exist yet.
 
 ## Route map for the shell
 
@@ -71,7 +71,7 @@ Do not request account passwords or paste private provider keys into documentati
 
 ## Review and scope boundary
 
-The list has been presented. Build starts with P1.01 after numerical-layout approval and the requested baseline commit. Each task ends with its acceptance check and progress report. Board approval is complete; implementation has not started. Phase 2/3 work still needs its additional design checks.
+The list and numerical specification were approved before building. P1.01–P1.08 are recorded in the local-development report; the remaining tasks and Phase 2/3 design checks still apply.
 
 Tooling references for P1.02: [ESLint](https://eslint.org/docs/latest/use/getting-started), [Vitest](https://vitest.dev/guide/), [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/). Check configuration and version compatibility when installing.
 

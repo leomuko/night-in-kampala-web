@@ -1,6 +1,6 @@
 # Homepage spacing revision: exact prompts
 
-Generated 12 November 2026 with the built-in image generation tool following the owner's feedback that all four initial round-2 boards felt crowded. The owner subsequently approved the roomier spacing and selected the white version; the night version is retained as exploration. Exact numeric values are proposed separately in [DESIGN_FOUNDATIONS.md](../DESIGN_FOUNDATIONS.md) for approval before code.
+Generated 12 November 2026 with the built-in image generation tool following the owner's feedback that all four initial round-2 boards felt crowded. The owner subsequently approved the roomier white version and the numeric values in [DESIGN_FOUNDATIONS.md](../DESIGN_FOUNDATIONS.md). P1.01–P1.08 now use those values in the local React shell. The night version remains exploration only.
 
 This revision replaces the full-page overview with an upper-page view at normal scale. Desktop and mobile are presented separately. The desktop product row now has three pieces; mobile retains two columns. Story, events, newsletter and footer continue below the shown viewport. These changes respond to the latest owner feedback and supersede the earlier full-page composition for these revision images only. The fixed identity, navigation and illustrative prices remain in place.
 

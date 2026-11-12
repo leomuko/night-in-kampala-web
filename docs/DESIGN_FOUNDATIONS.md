@@ -1,6 +1,6 @@
 # Design foundations before P1.01
 
-Status: named fonts adopted from the owner's review; numeric spacing/type values below are **proposed, awaiting owner approval**. Board approval remains intact. No tokens or application code have been written. This document makes the interpretation of the approved pictures explicit before implementation.
+Status: the owner approved the numeric spacing/type values below. P1.01–P1.08 are implemented; `src/styles/tokens.css` was created first. Board approval remains intact. See [LOCAL_DEVELOPMENT.md](LOCAL_DEVELOPMENT.md) for the verified build, font/asset provenance and remaining scope.
 
 ## Named fonts
 
@@ -10,9 +10,9 @@ Status: named fonts adopted from the owner's review; numeric spacing/type values
 | Interface | Inter 400, 500, 600 | Navigation, buttons, inputs, product names, prices, body and helper text. |
 | Editorial | Newsreader 400 | Short serif sublines and editorial sentences. |
 
-All three families' upstream licence files identify SIL Open Font License 1.1: [Anton](https://raw.githubusercontent.com/google/fonts/main/ofl/anton/OFL.txt), [Inter](https://raw.githubusercontent.com/google/fonts/main/ofl/inter/OFL.txt), [Newsreader](https://raw.githubusercontent.com/google/fonts/main/ofl/newsreader/OFL.txt). These sources were verified during the pre-build review. Self-host WOFF2 files in P1.03, retain each family's copyright/licence, record source/version/checksum, and load only needed styles and language coverage. Use swap behaviour and fallbacks; avoid third-party font requests. Preload only what the opening view needs rather than every style. Font binaries have not been downloaded or installed yet.
+All three families' upstream licence files identify SIL Open Font License 1.1: [Anton](https://raw.githubusercontent.com/google/fonts/main/ofl/anton/OFL.txt), [Inter](https://raw.githubusercontent.com/google/fonts/main/ofl/inter/OFL.txt), [Newsreader](https://raw.githubusercontent.com/google/fonts/main/ofl/newsreader/OFL.txt). P1.03 now self-hosts the needed Latin WOFF2 files and retains each OFL licence. Source package/version/checksum are recorded in public/asset-provenance.json. Swap behaviour and fallbacks are configured; only Anton and regular Inter are preloaded. No third-party font request is needed.
 
-## Proposed responsive measurements
+## Approved responsive measurements
 
 Values are design choices derived from the roomier boards, not measurements claimed to have been embedded in them. CSS should express typography and spacing in rem where appropriate; pixel equivalents below assume the default 16px root. Preserve browser text scaling.
 
@@ -36,7 +36,7 @@ Values are design choices derived from the roomier boards, not measurements clai
 
 At 1440px viewport width, the 1280px content cap yields 80px effective side gutters. At 390px, 20px side gutters leave 350px, with two 169px cards and a 12px gap. Below 360px, or where enlarged text needs it, allow a single product column. Use content-driven wrapping rather than clipping at a breakpoint. Product pages can stack earlier than desktop when the details no longer fit comfortably.
 
-Supporting tokens: spacing scale 4, 8, 12, 16, 24, 32, 48, 64, 72, 96, 128px; heading line-height 1.05; body/UI line-height 1.5; editorial line-height 1.35. Controls have 16px horizontal padding, 1px borders and 0px radius; icon hit areas are at least 44px. Focus uses a 2px ink outline with 3px offset. Card image fields use fog grey and contain the whole garment; product-detail photography has its own larger gallery. These proposals will be recorded as CSS variables in P1.01 only after approval.
+Supporting tokens: spacing scale 4, 8, 12, 16, 24, 32, 48, 64, 72, 96, 128px; heading line-height 1.05; body/UI line-height 1.5; editorial line-height 1.35. Controls have 16px horizontal padding, 1px borders and 0px radius; icon hit areas are at least 44px. Focus uses a 2px ink outline with 3px offset. Card image fields use fog grey and contain the whole garment. P1.01 records these values as CSS variables. Under 390px the header uses the approved compact two-line mobile wordmark to prevent a collision while keeping its 28px size and 44px icon targets.
 
 ## Fixed visual and behaviour decisions
 
@@ -53,4 +53,4 @@ Supporting tokens: spacing scale 4, 8, 12, 16, 24, 32, 48, 64, 72, 96, 128px; he
 
 ## P1.01 acceptance gate
 
-The owner approves or adjusts the measurement table before application code starts. Then P1.01 writes `src/styles/tokens.css` with these named families, approved palette and measurements as the first application file. P1.03 installs the actual font assets and validates the rendering; P1.12 checks that the realised shell still has the approved breathing room.
+The owner approved the measurement table before application code started. P1.01 created the tokens file first, P1.03 installed and verified the fonts, and the local shell has had initial responsive checks. Full P1.12 review remains a later task.

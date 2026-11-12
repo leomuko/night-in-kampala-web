@@ -33,10 +33,10 @@ Home page order: one white header → current drop/campaign → products → rew
 - Primary navigation: Shop, Drops, Our process, Lookbook, Events. "Drops" is the customer-facing name for collections and uses the `/collections/:slug` routes.
 - Illustrative prices in mockups stay between UGX 85,000 and UGX 220,000 until real prices are supplied.
 - The painted motifs in the concepts are generated placeholders. Replace them with photographs of real pieces as early as possible, before the look is finalised.
-- Fonts are now named: Anton 400 for wordmark/headings, Inter 400/500/600 for UI/body, and Newsreader 400 for serif sublines. Self-host required WOFF2 assets and retain their OFL licences. [DESIGN_FOUNDATIONS.md](DESIGN_FOUNDATIONS.md) records verified licence sources and numerical spacing/type proposals, which await owner approval before P1.01.
+- Fonts are Anton 400 for wordmark/headings, Inter 400/500/600 for UI/body, and Newsreader 400 for serif sublines. P1.03 self-hosts the needed WOFF2 files and licences. [DESIGN_FOUNDATIONS.md](DESIGN_FOUNDATIONS.md) records the approved measurements and font sources.
 - Standalone campaign and product [placeholder assets](implementation-assets/placeholders/README.md) are available for local integration, visibly marked as generated and excluded from real purchasable stock. They do not finalise brand motifs.
 
-**Design tokens before scaffolding:** board approval is complete. Obtain approval of the measured proposal in DESIGN_FOUNDATIONS.md, then record colours, named fonts, type scale, spacing, borders and buttons in `src/styles/tokens.css` as the first application file. Components read from it; no hard-coded colours or font sizes elsewhere. Commit the reviewed docs/assets as the requested baseline before code starts.
+**Design tokens before scaffolding:** the owner approved the measurements; baseline `873bc7f` precedes implementation. `src/styles/tokens.css` was created as the first application file. Component colours/font sizes use its variables. The local shell and emulator work P1.01–P1.08 are now complete; see [LOCAL_DEVELOPMENT.md](LOCAL_DEVELOPMENT.md).
 
 Use Stüssy's direct navigation, The Laughing Geisha's category clarity, and Punk and Saint's individual-piece storytelling as functional references. Create original branding and composition. Source details and limits are recorded in [RESEARCH.md](RESEARCH.md).
 
@@ -139,7 +139,7 @@ night-in-kampala-web/
   firebase.json
 ```
 
-These application files are proposed, not yet generated. No Firebase resources are provisioned in this planning stage.
+The local React scaffold, styles, Functions emulator foundation and Firebase configuration are now generated through P1.08. No cloud Firebase resources have been provisioned. The directory illustration remains an architectural guide, not a claim that later feature folders are complete.
 
 **Discovery and sharing:** include canonical product URLs, product metadata/structured data, sitemap, robots controls and Open Graph images. Do not index checkout, accounts or admin. **Shared-link previews (decided, build in Phase 1):** most customers will arrive from links shared on WhatsApp and Instagram, whose preview fetchers do not run JavaScript. Keep the Vite single-page app. Route `/products/:slug`, `/collections/:slug`, `/events/:slug` and `/lookbooks/:slug` through a Firebase Hosting rewrite to a small Cloud Function that returns the app's `index.html` with the title, description, canonical URL and Open Graph image for that item filled in from Firestore, cached at the CDN and refreshed on publish. All other routes are served as static files. Unknown or unpublished slugs return a proper not-found status. Always revalidate live availability at checkout. Revisit full prerendering only if search traffic later justifies it.
 

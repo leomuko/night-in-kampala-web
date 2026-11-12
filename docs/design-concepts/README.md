@@ -6,11 +6,11 @@ Generated 11 November 2026 using the built-in image generation tool. These are v
 2. [Editorial homepage](02-editorial-home.png): desktop and mobile, campaign photography, product discovery, reworking story and events.
 3. [Admin dashboard](03-admin-dashboard.png): catalogue table and product-upload/editing panel.
 
-Current direction: **all-white with the roomier homepage layout**, selected by the owner after the theme comparison and spacing revision. Use the heavy condensed wordmark and fixed navigation from round 2. The owner has approved boards 06–09 below. The [Phase 1 task breakdown](../PHASE_1_TASKS.md) is prepared for presentation before implementation; no application code has been written.
+Current direction: **all-white with the roomier homepage layout**. The owner approved boards 06–09 and the numerical measurements. P1.01–P1.08 are implemented and checked locally; see [LOCAL_DEVELOPMENT.md](../LOCAL_DEVELOPMENT.md). Later feature pages still follow the boards and review corrections below.
 
 ### Follow-up review corrections
 
-Fonts are now named **Anton / Inter / Newsreader**. [DESIGN_FOUNDATIONS.md](../DESIGN_FOUNDATIONS.md) lists exact proposed gutters, gaps and type sizes for approval before tokens are written. Shop layout is three desktop columns/two mobile columns; desktop wordmark is left aligned, with no announcement bar or account icon.
+Fonts are **Anton / Inter / Newsreader**. [DESIGN_FOUNDATIONS.md](../DESIGN_FOUNDATIONS.md) lists approved gutters, gaps and type sizes, now implemented in tokens. Shop layout is three desktop columns/two mobile columns; desktop wordmark is left aligned, with no announcement bar or account icon.
 
 Use the new [standalone generated placeholders](../implementation-assets/placeholders/README.md) during development, visibly labelled and excluded from real sales. Earlier sunburst/face motifs remain placeholders, not final brand designs. Missing shop/mobile product views, the read-only one-of-one size correction, required online-checkout email, and success/failure/international checkout screens are tracked in [the Phase 2/3 design checks](../PRE_PHASE_2_3_DESIGN_CHECKS.md). Approval of the old pictures does not override these follow-up corrections.
 
@@ -27,7 +27,7 @@ The owner approved the increased breathing room, then selected the white version
 
 Generated with the built-in image tool using both round-1 references plus the roomier white homepage. Exact prompts and every variation from the original round-2 brief are recorded in [PROMPTS-WHITE-PAGES.md](PROMPTS-WHITE-PAGES.md). Products, measurements, shipping rates, countdowns and event content remain illustrative. No names, actual contact details, dates or named venues were supplied or invented. Board 10 has not been requested or generated.
 
-Board approval is complete and the [Phase 1 tasks](../PHASE_1_TASKS.md) have been presented and reviewed. Before building, obtain approval of the numerical layout proposal and record the requested baseline commit. The first application file remains `src/styles/tokens.css`. No application code or Firebase resources have been created; pushing has not been requested.
+Pre-build gates are complete: numerical approval and baseline `873bc7f` preceded `src/styles/tokens.css` and the local React build. P1.01–P1.08 are verified and recorded in small feature/file-scoped commits. Cloud resources/deployment remain untouched; no push has been made.
 
 ## Round 2
 

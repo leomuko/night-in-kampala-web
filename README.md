@@ -7,20 +7,33 @@ A planned React JavaScript storefront and Firebase backend for reworked clothing
 - [Project plan](docs/PROJECT_PLAN.md): design, shopping journey, administration, architecture, delivery phases, and launch criteria.
 - [Research](docs/RESEARCH.md): brand evidence, reference-store observations, sources, and outstanding questions.
 - [Phase 1 tasks](docs/PHASE_1_TASKS.md): ordered foundations work with an acceptance check for each task.
-- [Design foundations](docs/DESIGN_FOUNDATIONS.md): Anton/Inter/Newsreader and measured layout values awaiting owner approval before code.
+- [Design foundations](docs/DESIGN_FOUNDATIONS.md): approved Anton/Inter/Newsreader and measured layout values.
+- [Local development](docs/LOCAL_DEVELOPMENT.md): commands, completed P1.01–P1.08 checks and remaining limits.
 - [Standalone placeholder images](docs/implementation-assets/placeholders/README.md): generated development assets and their provenance.
 - [Firebase location decision](docs/FIREBASE_REGION_DECISION.md): explicit gate before cloud resource creation/staging.
 - [Phase 2/3 design checks](docs/PRE_PHASE_2_3_DESIGN_CHECKS.md): missing views and checkout/product corrections.
 
 - [Visual concepts](docs/design-concepts/README.md): round-1 mockups and the [round-2 image prompts](docs/design-concepts/PROMPTS-ROUND-2.md).
 
-Status: the all-white, roomier direction and boards 06–09 are approved. The pre-build review names the fonts, supplies separate generated image assets, adds lint/test setup and an explicit region task, and records Phase 2/3 design gaps. Numerical spacing/type values await approval before P1.01. Application implementation has not started.
+Status: the white theme, boards and numerical measurements are approved. P1.01–P1.08 are implemented locally: tokens, React shell, self-hosted fonts, shared controls/routes, responsive homepage and Firebase emulators. Build, lint, 13 behaviour tests and 5 rule tests passed. Catalogue/checkout remain placeholders; later Phase 1 work and cloud provisioning are unfinished. Foundations are recorded in small feature/file-scoped commits after baseline `873bc7f`.
+
+## Run locally
+
+```sh
+npm ci
+npm run assets
+npm run dev
+```
+
+Use Node 24.x. Firebase emulators additionally need Java 21+. See the local-development guide for emulator, test and asset commands. Images are generated development placeholders, visibly labelled and unavailable for purchase.
 
 ## Repository
 
 The existing Git repository and tracked README were relocated from the parent directory into this folder. The original commit history, `main` branch, and `origin` remote were retained.
 
 The owner requested a local baseline commit of the reviewed docs and assets before application code. Keep that starting point in history; pushing has not been requested.
+
+Commit completed work promptly in small, coherent groups by feature or file. Keep dependency manifests and their lockfile together, include relevant tests with their feature where practical, avoid mixing unrelated changes, and share the resulting hashes. Push only when requested.
 
 Run future project and Git commands from this directory:
 

@@ -1,8 +1,8 @@
 # Boards 06–09: chosen white theme, exact prompts
 
-Generated 12 November 2026 using the built-in image generation tool. The owner selected the white theme after approving the roomier homepage layout and subsequently approved these four boards. Application implementation has not started. The generation prompts below are historical records, preserved verbatim.
+Generated 12 November 2026 using the built-in image generation tool. The owner selected the white theme and approved these four boards. P1.01–P1.08 have since been implemented locally; see [LOCAL_DEVELOPMENT.md](../LOCAL_DEVELOPMENT.md). The generation prompts below are historical records, preserved verbatim.
 
-Follow-up review corrections govern implementation: one-of-one size is read-only (despite the pictured dropdown); online checkout requires email; fonts are Anton/Inter/Newsreader. Missing shop/mobile-product and checkout-state views are tracked in [PRE_PHASE_2_3_DESIGN_CHECKS.md](../PRE_PHASE_2_3_DESIGN_CHECKS.md). See [DESIGN_FOUNDATIONS.md](../DESIGN_FOUNDATIONS.md) for the numerical proposal awaiting approval.
+Follow-up review corrections govern implementation: one-of-one size is read-only (despite the pictured dropdown); online checkout requires email; fonts are Anton/Inter/Newsreader. Missing shop/mobile-product and checkout-state views are tracked in [PRE_PHASE_2_3_DESIGN_CHECKS.md](../PRE_PHASE_2_3_DESIGN_CHECKS.md). [DESIGN_FOUNDATIONS.md](../DESIGN_FOUNDATIONS.md) records the approved measurements, now used by the local shell.
 
 ## Files
 
