@@ -1,0 +1,33 @@
+.hero { display: grid; gap: var(--hero-gap); margin-top: var(--space-8); }
+.hero-media { min-width: 0; }
+.hero-media img { width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: cover; }
+.hero-copy { order: 2; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: var(--space-6); }
+.hero-copy h1 { text-wrap: balance; }
+.hero-copy .button { margin-top: var(--space-2); }
+.section-heading { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-4); margin-bottom: var(--space-8); }
+.section-heading .text-link { white-space: nowrap; }
+.product-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--grid-gap); }
+.process-teaser, .event-teaser, .newsletter-teaser { display: grid; gap: var(--space-8); }
+.process-teaser .editorial { max-width: var(--prose-width); }
+.event-teaser .editorial { margin-top: var(--space-4); }
+.event-teaser > a { align-self: center; }
+.newsletter-teaser { border-top: var(--border-width) solid var(--color-hairline); padding-top: var(--section-gap); }
+.newsletter-teaser p { margin-bottom: var(--space-4); }
+.placeholder-page { padding-block: var(--section-gap); min-height: 55vh; display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-6); }
+.placeholder-page p { max-width: var(--prose-width); }
+.component-grid { width: 100%; display: grid; gap: var(--space-12); }
+.component-grid > div { min-width: 0; }
+@media (max-width: 359px) {
+  .product-grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 389px) {
+  .header-inner > .wordmark { white-space: normal; text-align: center; max-width: 100%; }
+}
+@media (min-width: 640px) { .component-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1024px) {
+  .hero { grid-template-columns: 0.9fr 1.4fr; margin-top: var(--space-12); }
+  .hero-copy { order: 0; }
+  .product-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .process-teaser { grid-template-columns: 1fr 1fr; gap: var(--hero-gap); }
+  .event-teaser, .newsletter-teaser { grid-template-columns: 1.6fr 1fr; gap: var(--hero-gap); }
+}
