@@ -8,7 +8,7 @@ A planned React JavaScript storefront and Firebase backend for reworked clothing
 - [Research](docs/RESEARCH.md): brand evidence, reference-store observations, sources, and outstanding questions.
 - [Phase 1 tasks](docs/PHASE_1_TASKS.md): ordered foundations work with an acceptance check for each task.
 - [Design foundations](docs/DESIGN_FOUNDATIONS.md): approved Anton/Inter/Newsreader and measured layout values.
-- [Local development](docs/LOCAL_DEVELOPMENT.md): commands, completed P1.01–P1.08 checks and remaining limits.
+- [Local development](docs/LOCAL_DEVELOPMENT.md): commands, completed local P1.01–P1.10 checks and remaining limits.
 - [Firebase SDK setup](docs/FIREBASE_SETUP.md): registered project configuration, emulator/cloud behaviour and optional Analytics.
 - [Shared-link previews](docs/SHARED_LINK_PREVIEWS.md): local P1.09–P1.10 implementation, public metadata schema, cache contract and staging limits.
 - [Standalone placeholder images](docs/implementation-assets/placeholders/README.md): generated development assets and their provenance.
