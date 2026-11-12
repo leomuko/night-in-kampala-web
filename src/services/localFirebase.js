@@ -1,20 +1,23 @@
+import { demoFirebaseConfig } from './firebaseConfig.js';
+import { getFirebaseApp } from './firebaseApp.js';
+
 export function localFirebaseSettings({ enabled, development, hostname }) {
   if (!enabled || !development || !['localhost', '127.0.0.1', '[::1]'].includes(hostname)) {
     throw new Error('Firebase connections are currently restricted to local development emulators.');
   }
-  return { apiKey: 'demo-key', projectId: 'demo-night-in-kampala', storageBucket: 'demo-night-in-kampala.appspot.com', authDomain: 'localhost' };
+  return demoFirebaseConfig;
 }
 
 let localServices;
 export async function connectLocalFirebase() {
-  const config = localFirebaseSettings({ enabled: import.meta.env.VITE_USE_EMULATORS === 'true', development: import.meta.env.DEV, hostname: window.location.hostname });
+  localFirebaseSettings({ enabled: import.meta.env.VITE_USE_EMULATORS !== 'false', development: import.meta.env.DEV, hostname: window.location.hostname });
   if (!localServices) {
     localServices = (async () => {
-      const [{ initializeApp }, auth, firestore, storage, functions] = await Promise.all([
-        import('firebase/app'), import('firebase/auth'), import('firebase/firestore'), import('firebase/storage'), import('firebase/functions'),
+      const [auth, firestore, storage, functions] = await Promise.all([
+        import('firebase/auth'), import('firebase/firestore'), import('firebase/storage'), import('firebase/functions'),
       ]);
-      const app = initializeApp(config, 'local-foundations');
-      const services = { auth: auth.getAuth(app), db: firestore.getFirestore(app), storage: storage.getStorage(app), functions: functions.getFunctions(app) };
+      const app = getFirebaseApp();
+      const services = { app, auth: auth.getAuth(app), db: firestore.getFirestore(app), storage: storage.getStorage(app), functions: functions.getFunctions(app) };
       auth.connectAuthEmulator(services.auth, 'http://127.0.0.1:9099', { disableWarnings: true });
       firestore.connectFirestoreEmulator(services.db, '127.0.0.1', 8080);
       storage.connectStorageEmulator(services.storage, '127.0.0.1', 9199);
