@@ -10,6 +10,8 @@ The added region task makes this a 15-task sequence: original P1.13 staging is n
 
 The owner has since created project `night-in-kampala` and its default Firestore database. CLI metadata confirms `eur3`; preserve that database/location. The web SDK is installed and configured, with development defaulting to demo emulators. P1.13 now resolves only the remaining service placement/staging topology, rather than selecting a new Firestore location. See [FIREBASE_SETUP.md](FIREBASE_SETUP.md).
 
+**Sales-first scope revision:** the owner deferred email selection and gateway integration in favour of on-site orders, dashboard alerts and staff follow-up for cash/manual payment. Dashboard-only alerts are owner-approved. P1.11 is deferred; merchant applications and sender-domain readiness are no longer Phase 1 completion gates. [SALES_FIRST_LAUNCH.md](SALES_FIRST_LAUNCH.md) and the revised section 9 of the project plan govern the subsequent build.
+
 ## Approved visual references
 
 - [Board 04: white style frame](design-concepts/04-style-frame-white.png): colour, typography, borders and controls.
@@ -21,7 +23,7 @@ Use paper `#FFFFFF`, ink `#0B0B0C`, fog `#F1F1EF`, and hairline `#E2E2DF`. Keep 
 
 ## Ordered build tasks
 
-**Current status:** P1.01–P1.10 complete locally; P1.11–P1.15 not completed. P1.09–P1.10 have raw-HTML and real-emulator HTTP evidence; they do not claim production CDN or WhatsApp verification. The rows below retain their deliverables and acceptance checks. Task 11 depends on sending requirements; task 12 is the full shell review, beyond the initial browser checks already performed; task 13 records regions before cloud work.
+**Current status:** P1.01–P1.10 complete locally; P1.11 deferred; P1.12–P1.15 not completed. Next is P1.12 shell QA. P1.09–P1.10 have raw-HTML and real-emulator HTTP evidence, not production CDN or WhatsApp verification. Task IDs remain stable; task 13 resolves remaining service placement before cloud work.
 
 | ID | Small task | Acceptance check | Depends on |
 | --- | --- | --- | --- |
@@ -35,11 +37,11 @@ Use paper `#FFFFFF`, ink `#0B0B0C`, fog `#F1F1EF`, and hairline `#E2E2DF`. Keep 
 | P1.08 | Configure local Auth, Firestore, Storage, Functions and Hosting emulators, environment boundaries, minimal fixtures and initial restrictive rules. | A documented local command starts the required services using a synthetic development project. No production access is needed. Published/draft/sold fixtures support preview testing; draft/private data and uploads are not publicly accessible, verified with focused rule checks. No catalogue editing or checkout is built here. | P1.02 |
 | P1.09 | Implement the shared-link HTML function for product, collection, event and lookbook slugs. Use the built Vite HTML and public metadata from Firestore. | Raw HTTP responses, without running JavaScript, contain the correct title, description, canonical URL and absolute Open Graph image for all four content types. Values are escaped, the canonical origin is configured, sold pieces still resolve, and unknown/unpublished slugs return 404 without private metadata. The returned app still loads its correct built assets. | P1.05, P1.08 |
 | P1.10 | Configure and verify Hosting rewrites and the metadata cache contract. | The four detail-route families reach the function; assets and ordinary SPA routes load correctly on refresh. A fixture metadata change becomes visible within the documented cache window. Define the publication/unpublication refresh behaviour for the Phase 2 publisher; do not claim that the publisher already exists. | P1.09 |
-| P1.11 | Evaluate and select the transactional email service, documenting sender-domain setup and server-secret requirements. | A short decision record names the selected service, verified current terms, required domain/DNS steps, configuration names and a local test strategy. Templates can be previewed without sending customer email. Domain verification remains an explicit dependency until completed; receipts and dispatch triggers belong to Phase 3. | Sender requirements; parallel with local work |
+| P1.11 — deferred | Select a transactional email service only when automated customer messages are scheduled after the manual-sales launch. | Not required for Phase 1 closure or initial ordering. On resumption: verify provider terms, domain/DNS, secrets and local previews before sending. Do not mark this task completed merely because it is deferred. | Later messaging requirements |
 | P1.12 | Verify responsive shell, navigation and components against the boards. | Capture 360/390px phone, tablet and desktop views; check overflow, keyboard access, focus, readable type and spacing. Build, lint and relevant behaviour/rule/metadata tests pass. Record observed gaps. | P1.07–P1.10 |
 | P1.13 | Complete FIREBASE_REGION_DECISION.md before provisioning: inspect resources; compare service compatibility, latency evidence, costs and location needs; record explicit Firestore/Functions/Storage choices and Hosting rewrite support. | Owner approves a concrete supported topology and rationale before a database/bucket is created. No implicit default or presumed proximity result. Record staging and intended production settings. | P1.08; project information; can run alongside local work |
 | P1.14 | Publish foundations to owner-provided staging using the explicit region decision and synthetic content. | HTTPS staging serves shell/metadata routes; locations match P1.13; assets/direct links work. No production customer data, exposed secrets or live payments. Record deployment. | P1.12, P1.13; staging access and billing setup |
-| P1.15 | Verify a real shared-product preview and close Phase 1. | Owner manually confirms the correct title/photograph in a WhatsApp preview of a staging product URL. Check other content types/404s on staging. Record email-domain/merchant status; outstanding preview verification or merchant submissions keep Phase 1 incomplete. | P1.14; owner preview check and merchant submissions |
+| P1.15 | Verify a real shared-product preview and close Phase 1. | Owner manually confirms the correct title/photograph in a WhatsApp preview of a staging product URL. Check other content types/404s on staging. P1.12–P1.14 must pass; email selection and merchant applications are explicitly deferred and do not keep Phase 1 open. | P1.14; owner preview check |
 
 Only the completion status above claims delivered work. Per-item HTML previews exist locally; no cloud deployment has occurred. P1.14 must test real edge-cache expiry and matching Function/Hosting assets; P1.15 still requires the owner's WhatsApp check.
 
@@ -57,16 +59,16 @@ Only the completion status above claims delivered work. Per-item HTML previews e
 | Later commerce within launch scope | `/cart`, `/checkout`, `/orders/:id` |
 | Staff | `/admin` and its later staff routes, loaded separately |
 
-Phase 1 supplies the route shell and useful placeholders. Live catalogue reads/publishing and simple editable pages are Phase 2; bag, payment, secure order access and fulfilment behaviour are Phase 3. A placeholder order route must never expose an order by ID alone.
+Phase 1 supplies the shell and placeholders. Live catalogue reads/publishing and simple editable pages are Phase 2; bag, on-site order submission, dashboard alerts, staff follow-up, manual-payment recording and fulfilment are Phase 3. Gateway payment/email automation is deferred. A placeholder order route must never expose an order by ID alone.
 
 ## Owner work in parallel
 
 | Owner input / action | Needed for | Completion evidence |
 | --- | --- | --- |
-| Submit merchant applications to the two shortlisted providers, Flutterwave and Pesapal. | Phase 1 completion gate and later gateway selection. | Owner confirms submission/status; provider test access is supplied through suitable local/server configuration when available. No application has been submitted by this agent. |
+| Merchant applications — deferred. | Later gateway integration; no initial launch gate. | Revisit eligibility/provider test access when the owner schedules automated payment. No application has been submitted by this agent. |
 | Provide staging project access, existing resource/location information, billing setup and public site origin. | P1.13 location decision and P1.14 staging. Emulators can proceed first. | Location proposal is approved before provisioning; staging project/configuration is confirmed. |
-| Provide a sender domain/address and access to the relevant DNS setup. | P1.11 service selection and eventual authenticated email delivery. | Sending requirements are agreed and verification can be completed; no email is sent as part of this planning stage. |
-| Provide approved logo if available, real product imagery/measurements, WhatsApp business number, manual-payment number and initial shipping information. | Phase 2 catalogue and Phase 3 commerce. | Inputs are recorded separately from illustrative fixtures; missing facts remain explicit placeholders. |
+| Sender domain/address and DNS — deferred. | Later transactional email, not initial orders. | Request only when email work resumes. |
+| Provide real product imagery/measurements/prices/stock, staff identities, business phone/WhatsApp contact and approved collection/delivery/cash arrangements. Confirm hold/release and follow-up policy. | Phase 2 catalogue and Phase 3 manual orders. | Inputs are separate from fixtures; no invented cash-on-delivery coverage or final shipping cost. Dashboard-only alerts are already approved. |
 | Confirm the staging product preview in WhatsApp. | P1.15 external preview gate. | Owner confirms displayed product name/image; automated HTML inspection alone does not close this check. |
 
 Do not request account passwords or paste private provider keys into documentation. Select current provider/library details when each corresponding task starts. Missing real catalogue material need not delay the local shell.

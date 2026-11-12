@@ -1,6 +1,6 @@
 # Design checks before Phases 2 and 3
 
-The approved white boards remain references. The review identified additional views and two corrections needed before the corresponding feature work. These are now explicit tasks; they have not been generated or approved by implication.
+The approved white boards remain visual references. The review identified additional views/corrections needed before feature work. The owner's sales-first revision now prioritises on-site orders, cash/manual payment and dashboard alerts, with email/gateway integration deferred. See [SALES_FIRST_LAUNCH.md](SALES_FIRST_LAUNCH.md). These entry checks have not been generated or approved by implication.
 
 ## Before Phase 2 feature implementation
 
@@ -12,13 +12,14 @@ The approved white boards remain references. The review identified additional vi
 
 ## Before Phase 3 commerce implementation
 
-**Checkout contact decision:** online guest checkout requires an email address for the receipt and secure order-status link, alongside a delivery phone number. Show its purpose next to the field and allow correction before paying. A customer account is not required. An authenticated/secure link still protects order data; an email string or predictable order ID alone does not grant access. Marketing consent is separate and optional. Automated SMS/WhatsApp delivery is not silently added. Customers using the manual Order on WhatsApp path can agree details with staff without being forced through online checkout; staff still record the sale and inventory change.
+**Revised order/contact decision:** guest ordering requires name and reachable phone/WhatsApp contact; email is optional. Collect country and relevant collection/delivery details. The submit action places an order request with an on-page reference; it does not collect or confirm payment. Explain availability and any unknown delivery/final total await staff follow-up. No account or automated receipt is required. A private order-status view still needs a secure session/credential; a reference/phone/email alone never grants access. Dashboard-only staff alerts are approved; no SMS/WhatsApp API or background push is implied. Earlier required-email and gateway success/failure behaviour is superseded for launch.
 
 | ID | Task | Acceptance check |
 | --- | --- | --- |
-| D3.01 | Revise the delivery screen to collect required email and phone. | Purpose is visible; missing/invalid email has useful validation; details survive navigation and recoverable failure; no account-signup requirement or bundled marketing consent. |
-| D3.02 | Generate and review payment-success and payment-failed states. | Success follows server verification and shows a secure next step. Failure has a useful retry/change-method route without double charging. Pending remains distinct and never asks for a website PIN. |
-| D3.03 | Generate and review international addressing and delivery. | Country-specific address, city/region/postcode requirements; exact charge currency and supported destination/rate before payment; import-charge wording. Uganda retains district/area/landmark inputs without a required postcode. Unsupported countries have an enquiry path. |
-| D3.04 | Verify contact and payment edge cases. | Email correction, notification failure/retry, stock loss, reservation expiry, failed/retried payment and reconciliation are checked without duplicate orders or leaked order information. |
+| D3.01 | Adapt the form to name, required phone/WhatsApp contact, optional email and collection/delivery preference. | Useful phone validation; relevant address only; retained form data on recoverable failure; "Place order" and manual-payment/follow-up wording; no forced email or account. |
+| D3.02 | Review order-received, submitting, failed-submit and unavailable states. | Show success only after a saved server order, with reference and "Awaiting confirmation". Safe retry does not duplicate the order. Never display "Paid" or a gateway PIN prompt. Gateway payment-success/failure screens are deferred. |
+| D3.03 | Review domestic collection/delivery and international enquiry. | Known approved charges are explicit; unknown delivery/final total is clearly awaiting staff confirmation. No required Uganda postcode, implied worldwide shipping or international cash on delivery. Additional country address details are collected only when relevant. |
+| D3.04 | Verify contact, stock and submit edge cases. | Contact correction, duplicate submissions, uncertain network result/retry, unavailable pieces, concurrent staff confirmations, cancellation/release and private order access are tested. Confirm stock hold/expiry policy before implementation. |
+| D3.05 | Review the minimal admin order queue/detail and alert states. | Persistent new/unread badge, live alert while open, seen versus contacted states, reconnect/reopen recovery, customer follow-up details, separate manual-payment/fulfilment controls and authorised access. No order is lost if the live alert fails; closed-dashboard alerts are outside launch. |
 
 These tasks belong at the design entry to their feature phases. They do not delay the local Phase 1 shell after its spacing approval and baseline commit. Board 10 remains optional and unrequested.
