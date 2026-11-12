@@ -8,7 +8,7 @@ Cloud Firestore documents that an instance's location cannot be changed after pr
 
 ## Remaining location work
 
-1. Retain the existing default Firestore database in `eur3`. Establish whether this project will serve staging, production or both; do not invent a second project or database.
+1. Retain the existing default Firestore database in `eur3` and confirm its intended role. Cloud staging and production must use distinct projects/origins; supply/select a separate staging project before synthetic cloud data is introduced. No new project/database has been created. Current code protects `night-in-kampala` from staging use while its intended production role is confirmed.
 2. Inspect any existing Storage bucket and Functions deployments before choosing their locations. The configured bucket name alone does not confirm that the bucket exists or reveal its location.
 3. Use Firebase's documented `eur3` → `europe-west1` mapping as the Functions proposal. Verify the intended Functions generation and Hosting rewrite support, and account for any existing Storage location. This is a service-proximity recommendation, not a measured Kampala latency result.
 4. Record the remaining concrete topology, costs/constraints and staging arrangement before provisioning or deployment. Obtain approval for any new resource placement; Firestore's existing owner selection needs no repeat approval.
@@ -31,3 +31,5 @@ Firebase identifies `eur3` as Europe multi-region and maps it to `europe-west1` 
 | Owner location approval | Firestore selection already confirmed by owner; remaining placements need a concrete proposal |
 
 Acceptance for the remaining P1.13 work: retain verified Firestore settings, resolve supported Functions/Storage placement and staging role, then ensure deployment configuration matches the approved remaining topology. P1.14 staging still depends on that work. Local development can continue without creating or changing cloud resources.
+
+[DEPLOYMENT_PREPARATION.md](DEPLOYMENT_PREPARATION.md) now describes explicit build targets, approved profile validation and matched region/build predeploy hooks. Their local tests do not approve a topology, create resources or complete P1.13/P1.14. Real project roles, credentials/access, regions, billing and deployed behaviour still need verification.
