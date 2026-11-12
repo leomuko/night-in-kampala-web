@@ -1,5 +1,6 @@
 // Only public, published document fields cross this boundary. Admin SDK reads
 // bypass Firestore rules, so the visibility check here is mandatory.
+import { robotsForPath } from './indexing.js';
 export const PREVIEW_CACHE_SECONDS = 60;
 export const PREVIEW_CACHE_CONTROL = `public, max-age=0, s-maxage=${PREVIEW_CACHE_SECONDS}, must-revalidate`;
 export const HEAD_START = '<!-- shared-link-head:start -->';
@@ -46,7 +47,7 @@ function publicImage(value, origin) {
   return url.href;
 }
 
-function replaceHead(template, metadata, path, status) {
+function replaceHead(template, metadata, path, status, indexPublicPages) {
   const start = template.indexOf(HEAD_START);
   const end = template.indexOf(HEAD_END);
   if (start < 0 || end < start || template.indexOf(HEAD_START, start + 1) !== -1 || template.indexOf(HEAD_END, end + 1) !== -1) throw new Error('Built HTML is missing its unique shared-link head markers.');
@@ -55,6 +56,8 @@ function replaceHead(template, metadata, path, status) {
     `<title>${escapeHtml(metadata.title)}</title>`,
     tag('description', metadata.description),
     tag('nik:route', path), tag('nik:status', String(status)),
+    tag('nik:indexing', indexPublicPages ? 'enabled' : 'disabled'),
+    tag('robots', robotsForPath(path, indexPublicPages, status)),
   ];
   if (metadata.canonical) tags.push(
     `<link rel="canonical" href="${escapeHtml(metadata.canonical)}" />`,
@@ -69,16 +72,16 @@ function replaceHead(template, metadata, path, status) {
   return `${template.slice(0, start + HEAD_START.length)}\n${tags.join('\n')}\n${template.slice(end)}`;
 }
 
-export function createSharedLinkHandler({ origin, template, readDocument, reportError = console.error, emulator = false }) {
+export function createSharedLinkHandler({ origin, template, readDocument, reportError = console.error, emulator = false, indexPublicPages = false }) {
   // Validate once, before accepting requests. The adapter supplies only trusted config.
   origin = configuredOrigin(origin, { emulator });
   const errorPage = (status, path = '') => ({
     status,
-    headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' },
+    headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', 'X-Robots-Tag': 'noindex, nofollow' },
     body: replaceHead(template, {
       title: `${status === 404 ? 'Page not found' : 'Page temporarily unavailable'} — Night in Kampala`,
       description: status === 404 ? 'This page is unavailable. Explore Night in Kampala.' : 'Please try again shortly.',
-    }, path, status),
+    }, path, status, indexPublicPages),
   });
   return async ({ method = 'GET', url }) => {
     if (!['GET', 'HEAD'].includes(method)) return { status: 405, headers: { Allow: 'GET, HEAD', 'Cache-Control': 'no-store' }, body: '' };
@@ -99,12 +102,12 @@ export function createSharedLinkHandler({ origin, template, readDocument, report
         description: optionalText(share?.description, 500, `${title}. Explore reworked clothing, stories and fashion from Night in Kampala.`),
         canonical: `${origin}${route.path}`,
         image,
-        imageAlt: optionalText(share?.imageAlt, 300, image === `${origin}${DEFAULT_SHARE_IMAGE}` ? 'Night in Kampala — AI-generated campaign placeholder' : title),
+        imageAlt: image === `${origin}${DEFAULT_SHARE_IMAGE}` ? 'Night in Kampala — AI-generated campaign placeholder' : optionalText(share?.imageAlt, 300, title),
       };
       return {
         status: 200,
         headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': PREVIEW_CACHE_CONTROL, 'X-Content-Type-Options': 'nosniff' },
-        body: replaceHead(template, metadata, route.path, 200),
+        body: replaceHead(template, metadata, route.path, 200, indexPublicPages),
       };
     } catch {
       // No document, error stack, credentials or private fields in HTML responses.

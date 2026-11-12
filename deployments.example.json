@@ -1,5 +1,6 @@
 {
   "staging": {
+    "indexPublicPages": false,
     "approved": false,
     "projectId": "replace-with-staging-project",
     "region": "REQUIRES_REGION_DECISION",
@@ -7,6 +8,7 @@
     "webConfig": { "apiKey": "REPLACE", "projectId": "replace-with-staging-project", "authDomain": "replace-with-staging-project.firebaseapp.com", "storageBucket": "replace-with-staging-project.firebasestorage.app", "appId": "REPLACE", "messagingSenderId": "REPLACE" }
   },
   "production": {
+    "indexPublicPages": false,
     "approved": false,
     "projectId": "replace-with-production-project",
     "region": "REQUIRES_REGION_DECISION",

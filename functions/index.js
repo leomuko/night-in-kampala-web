@@ -16,6 +16,7 @@ async function loadHandler() {
   return createSharedLinkHandler({
     origin: runtime.origin,
     emulator: runtime.emulator,
+    indexPublicPages: runtime.indexPublicPages === true,
     template: await readFile(new URL('./generated/index.html', import.meta.url), 'utf8'),
     readDocument: async (collection, slug) => (await db.collection(collection).doc(slug).get()).data(),
   });

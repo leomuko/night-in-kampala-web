@@ -104,3 +104,12 @@ test('GET and HEAD share metadata; writes are rejected without a read', async ()
 test('template integration fails visibly if the required head markers are absent', async () => {
   await assert.rejects(handler(document, { template: '<html></html>' })({ url: '/products/fixture' }), /markers/);
 });
+test('indexing is opt-in for published pages and always disabled on errors', async () => {
+  const normal = await handler()({ url: '/products/fixture' });
+  assert.equal(head(normal).querySelector('meta[name="robots"]').content, 'noindex, nofollow');
+  const enabled = await handler(document, { indexPublicPages: true })({ url: '/products/fixture' });
+  assert.equal(head(enabled).querySelector('meta[name="robots"]').content, 'index, follow');
+  const missing = await handler(null, { indexPublicPages: true })({ url: '/products/missing' });
+  assert.equal(head(missing).querySelector('meta[name="robots"]').content, 'noindex, nofollow');
+  assert.equal(missing.headers['X-Robots-Tag'], 'noindex, nofollow');
+});

@@ -7,6 +7,9 @@
     "public": "dist",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "headers": [
+      { "source": "**", "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }] },
+      { "source": "/@(admin|orders|cart|checkout|account|components)", "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }] },
+      { "source": "/@(admin|orders|cart|checkout|account|components)/**", "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }] },
       { "source": "/", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },
       { "source": "/@(index.html|favicon.svg|asset-provenance.json|shop|collections|archive|about|lookbooks|events|contact|cart|checkout|admin)", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },
       { "source": "/@(help|orders|admin)/**", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },

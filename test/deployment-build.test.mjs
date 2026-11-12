@@ -37,6 +37,16 @@ test('predeploy builds matching browser/Function artifacts and imports the confi
     const endpoint = JSON.parse(imported.stdout.trim());
     assert.deepEqual(endpoint.region, ['europe-west1']);
     assert.equal(endpoint.localHealth, true);
+    assert.match(await readFile(path.join(root, 'dist/robots.txt'), 'utf8'), /Disallow: \//);
+    const profiles = { staging: profile('staging'), production: { ...profile('production'), indexPublicPages: true } };
+    await writeFile(path.join(root, 'deployments.local.json'), JSON.stringify(profiles));
+    const production = spawnSync(process.execPath, ['scripts/prepare-deployment.mjs', 'production'], { cwd: root, env: { ...env, GCLOUD_PROJECT: 'nik-fixture-production' }, encoding: 'utf8' });
+    assert.equal(production.status, 0, `${production.stdout}\n${production.stderr}`);
+    assert.match(await readFile(path.join(root, 'dist/index.html'), 'utf8'), /name="robots" content="index, follow"/);
+    assert.match(await readFile(path.join(root, 'dist/robots.txt'), 'utf8'), /Allow: \//);
+    const live = JSON.parse(await readFile(path.join(root, 'firebase.production.generated.json'), 'utf8'));
+    assert.ok(!live.hosting.headers.some(item => item.source === '**'));
+    assert.ok(live.hosting.headers.some(item => item.source.includes('admin') && item.headers.some(header => header.key === 'X-Robots-Tag')));
   } finally {
     await rm(root, { recursive: true, force: true });
   }
