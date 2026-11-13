@@ -14,7 +14,7 @@ test('secret scan allows demo settings and blocks planted credentials without pr
     await writeFile(resolve(root, 'demo.json'), JSON.stringify({ apiKey: 'demo-key', projectId: 'demo-night-in-kampala' }));
     assert.equal(run().status, 0);
     const cases = [
-      ['Google API key', ['AI', 'za', 'X'.repeat(35)].join('')],
+      ['Google API key', ['AI', 'za', 'X'.repeat(34), '-'].join('')],
       ['Private key block', ['-----BEGIN', 'PRIVATE KEY-----'].join(' ')],
       ['Service-account JSON', JSON.stringify({ type: ['service', 'account'].join('_') })],
       ['GitHub token', 'ghp_' + 'x'.repeat(36)],
@@ -27,6 +27,14 @@ test('secret scan allows demo settings and blocks planted credentials without pr
       assert.ok(result.stderr.includes(kind));
       assert.ok(!result.stderr.includes(planted));
     }
+    // A removed working copy can still have a credential in the index.
+    await writeFile(resolve(root, 'planted.txt'), cases[0][1]);
+    assert.equal(spawnSync('git', ['add', 'planted.txt'], { cwd: root }).status, 0);
+    await rm(resolve(root, 'planted.txt'));
+    const staged = run();
+    assert.equal(staged.status, 1);
+    assert.ok(staged.stderr.includes('Google API key'));
+    assert.ok(!staged.stderr.includes(cases[0][1]));
   } finally {
     await rm(root, { recursive: true, force: true });
   }

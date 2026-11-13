@@ -2,15 +2,15 @@ import { execFileSync } from 'node:child_process';
 import { lstatSync, readFileSync } from 'node:fs';
 
 const signatures = [
-  ['Google API key', /\bAIza[A-Za-z0-9_-]{35}\b/],
+  ['Google API key', /(?<![A-Za-z0-9_-])AIza[A-Za-z0-9_-]{35}(?![A-Za-z0-9_-])/],
   ['Private key block', /-----BEGIN (?:[A-Z0-9]+ )*PRIVATE KEY(?: BLOCK)?-----/],
   ['Service-account JSON', /"type"\s*:\s*"service_account"/],
   ['GitHub token', /\b(?:gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{30,})\b/],
   ['Stripe secret or restricted key', /\b(?:sk|rk)_(?:live|test)_[A-Za-z0-9]{16,}\b/],
   ['Slack token', /\bxox[baprs]-[A-Za-z0-9-]{15,}\b/],
   ['AWS access key ID', /\b(?:AKIA|ASIA)[A-Z0-9]{16}\b/],
-  ['OpenAI key', /\bsk-(?:(?:proj|svcacct)-)?[A-Za-z0-9_-]{20,}\b/],
-  ['SendGrid key', /\bSG\.[A-Za-z0-9_-]{22}\.[A-Za-z0-9_-]{43}\b/],
+  ['OpenAI key', /(?<![A-Za-z0-9_-])sk-(?:(?:proj|svcacct)-)?[A-Za-z0-9_-]{20,}(?![A-Za-z0-9_-])/],
+  ['SendGrid key', /(?<![A-Za-z0-9_-])SG\.[A-Za-z0-9_-]{22}\.[A-Za-z0-9_-]{43}(?![A-Za-z0-9_-])/],
   ['Resend key', /\bre_[A-Za-z0-9]{6,}_[A-Za-z0-9]{20,}\b/],
   ['npm token', /\bnpm_[A-Za-z0-9]{36}\b/],
 ];
@@ -33,7 +33,7 @@ for (const file of paths) {
   if (info?.isFile()) scan(file, readFileSync(file, 'utf8'));
 }
 // Inspect staged blobs that differ from the working copy as well.
-const modified = git('diff', '--name-only', '--diff-filter=AM', '-z').split('\0').filter(Boolean);
+const modified = git('diff', '--name-only', '-z').split('\0').filter(Boolean);
 for (const file of modified) {
   if (tracked.has(file)) scan(file, git('show', `:${file}`));
 }
