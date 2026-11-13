@@ -251,6 +251,28 @@ Deliver in these increments rather than treating a visual prototype as a working
 
 Prioritise meaningful checkout, security-rule and inventory tests. Add focused UI/end-to-end checks around the primary journey and staff publishing workflow.
 
+## 10a. Exposed Firebase web configuration (added 13 November 2026)
+
+A history scan on 13 November 2026 found one credential-like value in the public GitHub repository: the Firebase web API key, app ID, sender ID and Analytics measurement ID for project `night-in-kampala`, committed in `src/services/firebaseConfig.js` (commit `dd76924`) and partly repeated in `docs/FIREBASE_SETUP.md` and tests. No service-account key, private key, token, password or `.env` file was found in any commit.
+
+A Firebase web API key identifies the project and is visible in any deployed site, so this is not a server credential and Firestore/Storage rules still deny all writes. An unrestricted key can still be used by anyone to call other Google APIs enabled on the project and to create Auth accounts, so it is treated as exposed.
+
+**Owner actions in the Google Cloud and Firebase consoles (cannot be done from code):**
+
+1. Create a replacement browser API key for the project, restricted to the site's HTTP referrers (production and staging domains, plus loopback for development) and to the Firebase APIs the site uses. Delete the committed key. Rotation is free now because nothing is deployed with it.
+2. Check which APIs are enabled on the project and disable any the site does not need. Confirm a budget alert exists.
+3. Check Authentication settings: sign-in providers and authorised domains. Staff access must depend on custom claims, never on merely being signed in.
+4. Enable App Check before launch, as already required for the order function.
+
+**Code actions:**
+
+1. Remove the real web configuration from tracked source, tests and docs. Keep only the protected project ID needed to refuse the production project as a staging target. Real configuration is supplied through the ignored `deployments.local.json` and environment files.
+2. Use obviously synthetic configuration in tests.
+3. Add a secret scan to `npm run check` and CI that fails on API keys, private keys and service-account JSON, with an explicit allowance for the demo values.
+4. Do not rewrite published Git history. The committed key stays in history, which is why rotation, not deletion from the current files, is the actual fix.
+
+Rule going forward: nothing that grants access goes into Git, including service-account files, Admin SDK keys, provider secrets, tokens and `.env` files. Public web configuration is supplied at build time per target.
+
 ## 11. Next implementation inputs
 
 Next local task is P1.12 shell QA; P1.11 email selection is deferred. Resolve remaining cloud placement/staging work separately, then break Phase 2 catalogue/admin publishing into small tasks with acceptance checks before implementation. The first sales milestone is the complete on-site order → dashboard queue → staff follow-up journey.
