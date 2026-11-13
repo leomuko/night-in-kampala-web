@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { firebaseConfig } from './firebaseConfig.js';
+import { fixtureFirebaseConfig } from '../test/fixtureFirebaseConfig.js';
 
 const sdk = vi.hoisted(() => ({
   getAuth: vi.fn(), getFirestore: vi.fn(), getStorage: vi.fn(), getFunctions: vi.fn(),
@@ -23,11 +23,11 @@ afterEach(() => { vi.unstubAllEnvs(); });
 test('cloud clients use the supplied app and never attach emulator endpoints', async () => {
   vi.stubEnv('VITE_USE_EMULATORS', 'false');
   vi.stubEnv('VITE_FIREBASE_TARGET', 'production');
-  vi.stubEnv('VITE_FIREBASE_CONFIG', JSON.stringify(firebaseConfig));
+  vi.stubEnv('VITE_FIREBASE_CONFIG', JSON.stringify(fixtureFirebaseConfig));
   const { getFirebaseServices } = await import('./firebase.js');
   const [first, concurrent] = await Promise.all([getFirebaseServices(), getFirebaseServices()]);
   expect(first).toBe(concurrent);
-  expect(first.app.options.projectId).toBe('night-in-kampala');
+  expect(first.app.options.projectId).toBe(fixtureFirebaseConfig.projectId);
   expect(first.auth.app).toBe(first.app);
   expect(first.db.app).toBe(first.app);
   expect(first.storage.app).toBe(first.app);
@@ -50,7 +50,7 @@ test('development clients use all local endpoints exactly once on concurrent cal
 test('cloud Functions refuses to silently choose a region', async () => {
   vi.stubEnv('VITE_USE_EMULATORS', 'false');
   vi.stubEnv('VITE_FIREBASE_TARGET', 'production');
-  vi.stubEnv('VITE_FIREBASE_CONFIG', JSON.stringify(firebaseConfig));
+  vi.stubEnv('VITE_FIREBASE_CONFIG', JSON.stringify(fixtureFirebaseConfig));
   vi.stubEnv('VITE_FIREBASE_FUNCTIONS_REGION', undefined);
   const { getFirebaseFunctions } = await import('./firebase.js');
   await expect(getFirebaseFunctions()).rejects.toThrow(/approved VITE_FIREBASE_FUNCTIONS_REGION/);
@@ -60,7 +60,7 @@ test('cloud Functions refuses to silently choose a region', async () => {
 test('cloud Functions receives only the explicitly configured region', async () => {
   vi.stubEnv('VITE_USE_EMULATORS', 'false');
   vi.stubEnv('VITE_FIREBASE_TARGET', 'production');
-  vi.stubEnv('VITE_FIREBASE_CONFIG', JSON.stringify(firebaseConfig));
+  vi.stubEnv('VITE_FIREBASE_CONFIG', JSON.stringify(fixtureFirebaseConfig));
   vi.stubEnv('VITE_FIREBASE_FUNCTIONS_REGION', 'europe-west1'); // Test input, not the deployment decision.
   const { getFirebaseFunctions } = await import('./firebase.js');
   expect((await getFirebaseFunctions()).region).toBe('europe-west1');

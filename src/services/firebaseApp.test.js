@@ -1,16 +1,16 @@
 import { afterEach, expect, test, vi } from 'vitest';
 import { deleteApp } from 'firebase/app';
-import { firebaseConfig } from './firebaseConfig.js';
+import { fixtureFirebaseConfig } from '../test/fixtureFirebaseConfig.js';
 
 afterEach(() => { vi.unstubAllEnvs(); });
 
 test('real Firebase app initialization is idempotent for the registered app', async () => {
   vi.stubEnv('VITE_USE_EMULATORS', 'false');
   vi.stubEnv('VITE_FIREBASE_TARGET', 'production');
-  vi.stubEnv('VITE_FIREBASE_CONFIG', JSON.stringify(firebaseConfig));
+  vi.stubEnv('VITE_FIREBASE_CONFIG', JSON.stringify(fixtureFirebaseConfig));
   const { getFirebaseApp } = await import('./firebaseApp.js');
   const first = getFirebaseApp();
-  expect(first.options.projectId).toBe('night-in-kampala');
+  expect(first.options.projectId).toBe(fixtureFirebaseConfig.projectId);
   expect(getFirebaseApp()).toBe(first);
   await deleteApp(first);
 });

@@ -14,3 +14,10 @@ artifacts/
 functions/generated/
 deployments.local.json
 firebase.*.generated.json
+# Local Admin SDK and Google application credentials
+service-account*.json
+serviceAccount*.json
+*service-account*.json
+*firebase-adminsdk*.json
+application_default_credentials.json
+credentials.json

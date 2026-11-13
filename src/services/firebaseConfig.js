@@ -1,13 +1,4 @@
-// Firebase web configuration is public client identification, not an Admin credential.
-export const firebaseConfig = Object.freeze({
-  apiKey: 'AIzaSyDsFCZSfWppfS3DSMYcrVh1WeTYyHw1T6M',
-  authDomain: 'night-in-kampala.firebaseapp.com',
-  projectId: 'night-in-kampala',
-  storageBucket: 'night-in-kampala.firebasestorage.app',
-  messagingSenderId: '1097680313454',
-  appId: '1:1097680313454:web:d17294460797935ec8da7f',
-  measurementId: 'G-FVHHV82J6F',
-});
+export const PROTECTED_PROJECT_ID = 'night-in-kampala';
 
 export const demoFirebaseConfig = Object.freeze({
   apiKey: 'demo-key',
@@ -32,7 +23,7 @@ export function resolveFirebaseRuntime({ development, useEmulators, hostname, ta
     throw new Error('An explicit complete VITE_FIREBASE_CONFIG is required for each cloud target.');
   }
   if (!/^[a-z][a-z0-9-]{4,28}[a-z0-9]$/.test(config.projectId) || config.projectId.startsWith('demo-')) throw new Error('Invalid cloud project ID.');
-  if (target === 'staging' && config.projectId === firebaseConfig.projectId) throw new Error('Staging cannot use the protected registered project; configure a separate staging project.');
+  if (target === 'staging' && config.projectId === PROTECTED_PROJECT_ID) throw new Error('Staging cannot use the protected registered project; configure a separate staging project.');
   if (config.authDomain !== `${config.projectId}.firebaseapp.com` || ![`${config.projectId}.appspot.com`, `${config.projectId}.firebasestorage.app`].includes(config.storageBucket)) {
     throw new Error('Auth and Storage must belong to the explicitly selected project.');
   }
