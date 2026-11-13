@@ -16,6 +16,7 @@ A planned React JavaScript storefront and Firebase backend for reworked clothing
 - [Shared-link previews](docs/SHARED_LINK_PREVIEWS.md): local P1.09–P1.10 implementation, public metadata schema, cache contract and staging limits.
 - [Standalone placeholder images](docs/implementation-assets/placeholders/README.md): generated development assets and their provenance.
 - [Firebase location decision](docs/FIREBASE_REGION_DECISION.md): explicit gate before cloud resource creation/staging.
+- [Phase 2 task list](docs/PHASE_2_TASKS.md) for owner review before implementation.
 - [Phase 2/3 design checks](docs/PRE_PHASE_2_3_DESIGN_CHECKS.md): missing views and checkout/product corrections.
 
 - [Visual concepts](docs/design-concepts/README.md): round-1 mockups and the [round-2 image prompts](docs/design-concepts/PROMPTS-ROUND-2.md).

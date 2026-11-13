@@ -2,6 +2,8 @@
 
 The approved white boards remain visual references. The review identified additional views/corrections needed before feature work. The owner's sales-first revision now prioritises on-site orders, cash/manual payment and dashboard alerts, with email/gateway integration deferred. See [SALES_FIRST_LAUNCH.md](SALES_FIRST_LAUNCH.md). These entry checks have not been generated or approved by implication.
 
+D2.01 and D2.02 are ready for owner review. See the [shop grid](design-concepts/10-shop-grid.png), [mobile product detail](design-concepts/11-product-mobile.png) and [Phase 2 tasks](PHASE_2_TASKS.md).
+
 ## Before Phase 2 feature implementation
 
 | ID | Task | Acceptance check |
