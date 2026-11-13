@@ -3,9 +3,9 @@ import { mkdirSync } from 'node:fs';
 import path from 'node:path';
 
 const root = process.cwd();
-const projectId = 'demo-night-in-kampala';
 const mode = process.argv[2];
 if (!['start', 'test', 'metadata'].includes(mode)) throw new Error('Use start, test or metadata.');
+const projectId = mode === 'test' ? 'demo-night-in-kampala-rules' : 'demo-night-in-kampala';
 const cache = path.join(root, '.cache/firebase');
 mkdirSync(cache, { recursive: true });
 const env = {
@@ -36,6 +36,9 @@ if (mode !== 'start') {
   } catch { /* Start an isolated emulator run if no hub is serving. */ }
   const file = mode === 'metadata' ? 'test/shared-links-http.test.mjs' : 'test/rules.test.mjs';
   const only = mode === 'metadata' ? 'firestore,functions,hosting' : 'firestore,storage';
+  if (running && mode === 'test') {
+    throw new Error('Stop the running emulators before rule tests. Storage cross-service rules need the isolated rules project.');
+  }
   args = running ? ['--test', file] : [path.join(root, 'node_modules/firebase-tools/lib/bin/firebase.js'), 'emulators:exec', '--project', projectId, '--only', only, `node --test ${file}`];
 } else {
   args = [path.join(root, 'node_modules/firebase-tools/lib/bin/firebase.js'), 'emulators:start', '--project', projectId, '--only', 'auth,firestore,storage,functions,hosting'];

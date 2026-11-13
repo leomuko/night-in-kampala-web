@@ -1,7 +1,39 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-    // Media publication and staff uploads are deliberately closed until Phase 2.
+    function isCatalogueStaff() {
+      return request.auth != null && (
+        request.auth.token.get('staff', false) == true ||
+        request.auth.token.get('owner', false) == true
+      );
+    }
+    function isValidDraftImage(fileName) {
+      return request.resource.size > 0 && request.resource.size <= 2 * 1024 * 1024
+        && request.resource.metadata.keys().size() == 0
+        && (
+          (fileName.matches('[A-Za-z0-9_-]{1,120}[.]jpg') && request.resource.contentType == 'image/jpeg') ||
+          (fileName.matches('[A-Za-z0-9_-]{1,120}[.]webp') && request.resource.contentType == 'image/webp')
+        );
+    }
+    function isPublishedRevision(slug, revision) {
+      let product = firestore.get(/databases/(default)/documents/products/$(slug));
+      return product != null && product.data.get('status', '') == 'published'
+        && product.data.get('mediaRevision', '') == revision;
+    }
+
+    match /product-drafts/{slug}/{uid}/{fileName} {
+      allow get: if isCatalogueStaff();
+      allow create: if isCatalogueStaff() && request.auth.uid == uid && resource == null
+        && firestore.exists(/databases/(default)/documents/productDrafts/$(slug))
+        && isValidDraftImage(fileName);
+    }
+    match /product-media/{slug}/{revision}/{fileName} {
+      allow get: if (
+        fileName == 'share.jpg' ||
+        fileName.matches('[a-z0-9-]{1,120}-(320|640|1280)[.]webp')
+      ) && isPublishedRevision(slug, revision);
+    }
+    // Listing, replacing, deleting and publishing media require the server.
     match /{allPaths=**} { allow read, write: if false; }
   }
 }

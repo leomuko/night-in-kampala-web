@@ -16,14 +16,14 @@ A planned React JavaScript storefront and Firebase backend for reworked clothing
 - [Shared-link previews](docs/SHARED_LINK_PREVIEWS.md): local P1.09–P1.10 implementation, public metadata schema, cache contract and staging limits.
 - [Standalone placeholder images](docs/implementation-assets/placeholders/README.md): generated development assets and their provenance.
 - [Firebase location decision](docs/FIREBASE_REGION_DECISION.md): explicit gate before cloud resource creation/staging.
-- [Phase 2 task list](docs/PHASE_2_TASKS.md) for owner review before implementation.
+- [Approved Phase 2 tasks](docs/PHASE_2_TASKS.md) and [catalogue data and permissions](docs/CATALOGUE_DATA.md).
 - [Phase 2/3 design checks](docs/PRE_PHASE_2_3_DESIGN_CHECKS.md): missing views and checkout/product corrections.
 
 - [Visual concepts](docs/design-concepts/README.md): round-1 mockups and the [round-2 image prompts](docs/design-concepts/PROMPTS-ROUND-2.md).
 
 Status: P1.01–P1.10 are implemented locally. Review fixes add resilient metadata/JPEG previews, media caching, offline default builds, explicit cloud/deployment configuration and production indexing controls. `npm run check` passes lint/build and 79 tests (40 app/SDK, 15 metadata, six deployment, 12 HTTP, five rules, one secret-scan test). Development defaults to demo emulators; built previews initialize no Firebase app. Analytics is off. Catalogue/orders/admin remain placeholders. P1.11 is deferred; [P1.12 shell QA](docs/qa/p1-12/README.md) passed locally. P1.13–P1.15 and real project roles/locations, staging/CDN/WhatsApp verification remain open. The repository contains the local review changes and awaits a separate staging project.
 
-Current launch priority: publish real garments, let customers place orders on the site, notify staff through the admin dashboard and let staff arrange payment/delivery manually. The owner approved dashboard-only alerts for the first release. P1.11 email selection is deferred; email delivery and merchant/gateway onboarding are not launch gates. The Phase 2 catalogue and admin publishing work follows owner review of the boards and task list. These features remain planned, not implemented by this scope revision.
+The owner approved Phase 2 with amendments. P2.01 passed locally and establishes the catalogue data model and access rules. Staff sign-in, draft editing and publishing follow in order. The sales-first launch plan uses on-site order requests, dashboard alerts and manual payment and delivery arrangements.
 
 ## Run locally
 

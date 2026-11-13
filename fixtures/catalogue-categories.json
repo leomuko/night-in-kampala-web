@@ -1,0 +1,8 @@
+{
+  "illustrative": true,
+  "items": [
+    { "id": "tees", "label": "Tees", "active": true },
+    { "id": "denim", "label": "Denim", "active": true },
+    { "id": "jackets", "label": "Jackets", "active": true }
+  ]
+}

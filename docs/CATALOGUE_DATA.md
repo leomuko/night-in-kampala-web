@@ -1,0 +1,28 @@
+# P2.01 catalogue data and permissions
+
+The catalogue uses separate documents for public reads and staff work. The public projection copies only shopper-facing fields from a validated draft. Clients cannot write Firestore documents, including when signed in as staff or owner. Later staff actions will call Functions that check claims, validate input and write through the Admin SDK.
+
+| Path | Reads | Data contract |
+| --- | --- | --- |
+| `products/{slug}` | Everyone, when `status` is `published` | Stable slug, name, item code, category ID, whole UGX price, stock type, size label and size filter keys, measurements in cm, condition, rework and care, public availability, first publication time, image revision, ordered photo renditions, share metadata and illustrative stock marker. |
+| `productDrafts/{slug}` | Staff and owner | Recoverable editor fields, proposed media references and editable details. Drafts may exist while a previously published revision is live. |
+| `inventory/{slug}` | Staff and owner by product ID | Private available quantity and stock model. Repeatable pieces retain exact quantities by variant. Trusted stock writes update the corresponding public availability and audit record atomically. |
+| `auditLogs/{entry}` | Owner | Append-only audit events written by the server, including actor UID, action, product ID, timestamp and relevant changes. |
+| `catalogueSettings/categories` | Everyone by document ID | Ordered `items` with stable `id`, editable `label` and `active` flags. Deactivated entries stay readable so existing references resolve. The editor and filters use active entries for new choices. |
+| `orders/{id}` and other private collections | Denied by default | Order access rules will be defined with the ordering workflow. |
+
+The claims are Boolean `staff: true` and `owner: true`. A user document or a string claim grants no staff permissions. The separate staff authentication work will provision demo identities. Use `functions/catalogue-projection.js` as the explicit field mapping for P2.05. It strips private fields from both the draft and nested lists, builds versioned media paths from IDs, and sets `purchasable: false` in Phase 2. The trusted publisher will also validate the category, stock state, processed media and required field lengths before writing it. Use stable public item codes that contain no supplier or customer data.
+
+The emulator seeder creates the category document from illustrative defaults only if it is missing. P2.03 will implement the validated staff edit action. Keep IDs stable across renames, use an inactive flag for retirement, and send only public category fields to this document.
+
+## Indexed reads
+
+Every public product list uses `where('status', '==', 'published')` and a limit of at most 24. The shop can combine category ID and availability equality filters with a single `array-contains` size filter. Supported sorts are newest first by `publishedAt` and price ascending or descending by `priceUGX`. Use the last document snapshot as the cursor so tied values keep Firestore's document ID ordering. The homepage uses the newest query with a smaller limit. The archive sets availability to `sold` and retains the published constraint. `firestore.indexes.json` contains the composites for these shapes. Local tests cover query permissions and cursor behavior. The Firestore emulator does not enforce composite indexes. [Firestore query rules](https://firebase.google.com/docs/firestore/security/rules-query) and [emulator differences](https://firebase.google.com/docs/emulator-suite/connect_firestore#how_the_cloud_firestore_emulator_differs_from_production).
+
+## Media
+
+- `product-drafts/{slug}/{uid}/{photoId}.jpg` or `.webp` holds the browser-compressed original. A staff member or owner can create objects under their own UID for an existing draft. Reads require a staff or owner claim. Use a fresh photo ID when replacing a photo. Clients cannot list, overwrite, change metadata or delete objects. Rules bound declared image type and bytes to JPEG/WebP, non-empty and at most 2 MiB. P2.04 will decode and validate the actual image and 2400 px dimension limit on the server.
+- `product-media/{slug}/{revision}/{photoId}-{320,640,1280}.webp` and `product-media/{slug}/{revision}/share.jpg` hold server-processed public media. Only the revision named by the published projection can be read through Storage rules. Uploads to this namespace are server-only. Publication prepares the immutable rendition files first, then switches the projection to that revision. Withdrawal removes the published projection, which closes origin access.
+- Use authenticated SDK reads for private preview blobs and avoid saving or sharing Storage download-token URLs. P2.05 will serve the projection's same-origin `/media/products/...` URLs through a trusted media handler that checks publication and the active revision. It must keep draft objects out of public output and avoid copying download-token metadata when writing renditions. Already downloaded or cached copies may persist. Cloud permissions and CDN behavior remain staging checks. [Storage rule conditions](https://firebase.google.com/docs/storage/security/rules-conditions) and [direct SDK downloads](https://firebase.google.com/docs/storage/web/download-files#download_data_directly_from_the_sdk).
+
+Run `npm run test:rules` with the main emulator suite stopped. The rule tests run Firestore and Storage in the same isolated demo project so Storage's document lookups read the seeded rule fixtures. The tests cover public and private reads, role claims, protected writes, upload scope and limits, and media visibility after a revision switch or unpublish.

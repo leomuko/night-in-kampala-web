@@ -11,6 +11,13 @@ process.env.FIREBASE_AUTH_EMULATOR_HOST = '127.0.0.1:9099';
 process.env.METADATA_SERVER_DETECTION = 'none';
 const app = initializeApp({ projectId: fixture.projectId });
 const db = getFirestore(app);
+const categoryDefaults = JSON.parse(await readFile('fixtures/catalogue-categories.json', 'utf8'));
+const categorySettings = db.doc('catalogueSettings/categories');
+await db.runTransaction(async transaction => {
+  if (!(await transaction.get(categorySettings)).exists) {
+    transaction.create(categorySettings, categoryDefaults);
+  }
+});
 const batch = db.batch();
 for (const [slug, data] of Object.entries(fixture.products)) batch.set(db.doc(`products/${slug}`), data);
 // Match the existing homepage links; these remain synthetic and unpurchasable.

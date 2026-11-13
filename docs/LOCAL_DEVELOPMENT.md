@@ -27,12 +27,11 @@ npm run emulators
 
 ```sh
 npm run emulators:seed
-npm run test:rules
 npm run test:metadata
 npm run test:hosting
 ```
 
-The runner always selects `demo-night-in-kampala`, loopback listeners and project-local caches. It disables cloud metadata-server discovery. `.firebaserc` has a `connected` alias for the owner's project but no default real project. The rules-test project is `demo-night-in-kampala-rules`. P1.13's decision still precedes cloud provisioning; the local health endpoint's `us-central1` path is only an emulator convention.
+The runner uses loopback listeners and project-local caches and disables cloud metadata-server discovery. The main suite uses `demo-night-in-kampala`. Stop it before running `npm run test:rules` or `npm run check`, which start Firestore and Storage in the isolated `demo-night-in-kampala-rules` project for the cross-service permission tests. `.firebaserc` records the owner's project under the `connected` alias. The local health endpoint uses the emulator's `us-central1` region.
 
 | Local service | Address |
 | --- | --- |
@@ -62,7 +61,7 @@ Hosting uses 5500 because another local service already occupied 5000. Do not st
 
 Twelve image renditions total 641,980 bytes across all responsive sizes, rather than shipping the archived multi-megabyte PNGs. The browser chooses the needed rendition. This is an asset-size record, not a measured Core Web Vitals claim.
 
-The homepage uses read-only fixtures. Startup initializes demo Firebase in development; the default optimised build initializes no Firebase app. Cloud targets/configs and Functions regions must be explicit. `localFirebase.js` still rejects non-development/non-loopback use; offline previews reject all service getters. Analytics is off. Rules expose only published content and deny client writes/private records, including staff claims. Storage remains closed until Phase 2 publication paths exist. Staff editing and ordering remain unimplemented.
+The homepage uses read-only fixtures. Startup initializes demo Firebase in development and leaves Firebase offline in the default optimised build. Cloud targets, configs and Functions regions must be explicit. Analytics is off. P2.01 defines public catalogue reads, restricted staff reads, scoped draft uploads and published media reads. Staff editing and publication are later tasks. [Catalogue data and permissions](CATALOGUE_DATA.md).
 
 ## Checks completed
 

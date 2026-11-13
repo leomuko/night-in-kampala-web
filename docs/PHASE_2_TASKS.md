@@ -7,6 +7,8 @@ P1.12 passed local shell QA. P1.11 is deferred and P1.13–P1.15 await owner inp
 - Use the approved white theme, fixed navigation and [design tokens](DESIGN_FOUNDATIONS.md). Every generated photograph stays labelled and every illustrative piece stays unpurchasable.
 - Keep tasks and tests in focused commits. Run `npm run check` before reporting a task complete. The separate staging project, service locations and real-phone preview remain owner gates. Ordering and the order queue belong to Phase 3.
 
+P2.01 passed locally. The full check passed with 83 tests, including nine catalogue projection and access tests. Demo reseeding also preserved an edited category label. The next task is P2.02 staff sign-in. [Catalogue data and permissions](CATALOGUE_DATA.md).
+
 ## Ordered build tasks
 
 | ID | Small task | Acceptance check | Depends on |
