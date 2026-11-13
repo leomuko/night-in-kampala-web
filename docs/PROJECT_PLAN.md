@@ -275,7 +275,7 @@ Rule going forward: nothing that grants access goes into Git, including service-
 
 ## 11. Next implementation inputs
 
-Next local task is P1.12 shell QA; P1.11 email selection is deferred. Resolve remaining cloud placement/staging work separately, then break Phase 2 catalogue/admin publishing into small tasks with acceptance checks before implementation. The first sales milestone is the complete on-site order → dashboard queue → staff follow-up journey.
+P1.11 email selection is deferred and [P1.12 shell QA](qa/p1-12/README.md) passed locally. P1.13–P1.15 await owner inputs. Review the Phase 2 boards and task list before catalogue/admin implementation. The first sales milestone is the complete on-site order → dashboard queue → staff follow-up journey.
 
 For real sales, obtain product photos/details/prices/stock; staff identities and business phone/WhatsApp contact; approved cash/collection/delivery/manual-quote terms; queue-review routine, overdue threshold and confirmed-hold/Sold transition policy; and customer-facing wording. Reserve-at-staff-confirmation is approved. Staging and production roles/origins and remaining Firebase placement must be explicit before cloud release. Sender-domain and gateway setup remain deferred.
 

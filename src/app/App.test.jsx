@@ -62,6 +62,19 @@ describe('store foundations', () => {
     expect(screen.getByRole('button', { name: 'Choose shopping region' })).toHaveTextContent('INT / UGX');
   });
 
+  test('cancelling a region change restores focus and discards the unsaved choice', async () => {
+    const user = userEvent.setup();
+    visit();
+    const trigger = screen.getByRole('button', { name: 'Choose shopping region' });
+    await user.click(trigger);
+    const dialog = screen.getByRole('dialog', { name: 'Shopping region' });
+    await user.click(within(dialog).getByRole('radio', { name: 'International' }));
+    fireEvent(dialog, new Event('cancel', { cancelable: true }));
+    expect(trigger).toHaveFocus();
+    await user.click(trigger);
+    expect(within(dialog).getByRole('radio', { name: 'Uganda' })).toBeChecked();
+  });
+
   test('order numbers alone never disclose an order', () => {
     visit('/orders/fixture-private');
     expect(screen.getByText(/An order number alone does not give access/)).toBeInTheDocument();

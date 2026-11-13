@@ -37,7 +37,7 @@ This is the revised sequence. Break each feature phase into smaller tasks before
 
 | Stage | Deliverable | Acceptance check |
 | --- | --- | --- |
-| Next: P1.12 | Full shell QA at 360/390px, tablet and desktop, plus keyboard/focus checks. | Record screenshots, observed gaps and passing relevant build/test checks. P1.11 email selection is deferred, not marked completed. |
+| P1.12 — complete locally | Full shell QA at 360/390px, tablet and desktop, plus keyboard/focus checks. | Record screenshots, observed gaps and passing relevant build/test checks. P1.11 email selection is deferred, not marked completed. |
 | P1.13–P1.15 | Remaining Firebase placement/staging decision and shared-link verification. | Retain existing Firestore `eur3`; approve remaining topology, verify HTTPS staging and have the owner confirm a real WhatsApp preview. Email/merchant onboarding does not gate closure. Local catalogue work can proceed without provisioning new cloud resources. |
 | Phase 2 entry | Review white shop grid/mobile product detail and break catalogue/admin publishing into tasks. | Approved spacing/nav; one-of-one size is read-only; clear stock/condition/measurements; generated fixtures cannot be real stock. |
 | Phase 2 | Real Firestore-backed catalogue and authenticated admin product publishing. | Authorised staff can draft/upload/publish a real piece; shoppers only see published content and current safe availability. |

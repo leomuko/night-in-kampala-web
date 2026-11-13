@@ -20,9 +20,6 @@
 @media (max-width: 359px) {
   .product-grid { grid-template-columns: minmax(0, 1fr); }
 }
-@media (max-width: 389px) {
-  .header-inner > .wordmark { white-space: normal; text-align: center; max-width: 100%; }
-}
 @media (min-width: 640px) { .component-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (min-width: 1024px) {
   .hero { grid-template-columns: 0.9fr 1.4fr; margin-top: var(--space-12); }

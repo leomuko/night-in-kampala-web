@@ -36,7 +36,7 @@ Values are design choices derived from the roomier boards, not measurements clai
 
 At 1440px viewport width, the 1280px content cap yields 80px effective side gutters. At 390px, 20px side gutters leave 350px, with two 169px cards and a 12px gap. Below 360px, or where enlarged text needs it, allow a single product column. Use content-driven wrapping rather than clipping at a breakpoint. Product pages can stack earlier than desktop when the details no longer fit comfortably.
 
-Supporting tokens: spacing scale 4, 8, 12, 16, 24, 32, 48, 64, 72, 96, 128px; heading line-height 1.05; body/UI line-height 1.5; editorial line-height 1.35. Controls have 16px horizontal padding, 1px borders and 0px radius; icon hit areas are at least 44px. Focus uses a 2px ink outline with 3px offset. Card image fields use fog grey and contain the whole garment. P1.01 records these values as CSS variables. Under 390px the header uses the approved compact two-line mobile wordmark to prevent a collision while keeping its 28px size and 44px icon targets.
+Supporting tokens: spacing scale 4, 8, 12, 16, 24, 32, 48, 64, 72, 96, 128px; heading line-height 1.05; body/UI line-height 1.5; editorial line-height 1.35. Controls have 16px horizontal padding, 1px borders and 0px radius; icon hit areas are at least 44px. Focus uses a 2px ink outline with 3px offset. Card image fields use fog grey and contain the whole garment. P1.01 records these values as CSS variables. The centered mobile wordmark wraps to two lines when space between the controls is tight. It retains its 28px size and 44px icon targets.
 
 ## Fixed visual and behaviour decisions
 
@@ -53,4 +53,4 @@ Supporting tokens: spacing scale 4, 8, 12, 16, 24, 32, 48, 64, 72, 96, 128px; he
 
 ## P1.01 acceptance gate
 
-The owner approved the measurement table before application code started. P1.01 created the tokens file first, P1.03 installed and verified the fonts, and the local shell has had initial responsive checks. Full P1.12 review remains a later task.
+The owner approved the measurement table before application code started. P1.01 created the tokens file first, P1.03 installed and verified the fonts, and the local shell has had initial responsive checks. [P1.12 shell review](qa/p1-12/README.md) records the completed local acceptance checks and screenshots.
