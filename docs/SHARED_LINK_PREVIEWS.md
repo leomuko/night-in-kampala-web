@@ -72,7 +72,7 @@ npm run test:rules
 
 For a browser preview, run `npm run emulators`, then `npm run emulators:seed`. Open `http://127.0.0.1:5500/products/preview-painted-denim` or `/products/fixture-published`. `/products/fixture-draft` must show the not-found screen. These are loopback URLs, not shareable staging links.
 
-Evidence after review: 15 metadata tests, 12 real HTTP integration tests, 40 application/SDK tests, six deployment tests and five access-rule tests. HTTP checks include JPEG byte/type/reachability, missing-share fallback and actual delivered cache headers, as well as the earlier route/asset/visibility tests. Browser checks confirmed the fallback product still works with its share fields removed, and the order placeholder no longer promises email. Full P1.12 responsive shell review and actual WhatsApp/CDN checks remain separate.
+Evidence after review: 15 metadata tests, 12 real HTTP integration tests, 40 application/SDK tests, six deployment tests and five access-rule tests. HTTP checks include JPEG byte/type/reachability, missing-share fallback and actual delivered cache headers, as well as the earlier route/asset/visibility tests. Browser checks confirmed the fallback product still works with its share fields removed, and the order placeholder no longer promises email. [P1.12 shell QA](qa/p1-12/README.md) passed locally. Real WhatsApp and CDN checks await staging.
 
 ## Primary references
 

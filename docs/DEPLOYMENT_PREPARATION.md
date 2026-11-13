@@ -34,9 +34,9 @@ The generated configuration removes only the development-wide noindex header whe
 
 ## Automatic checks and evidence
 
-`npm run check` runs ESLint, application tests, metadata tests, deployment-boundary/build tests, the offline build, security-rule tests and Hosting HTTP tests. GitHub Actions runs that command on main-branch pushes and pull requests with Node 24 and Java 21, read-only repository permissions and no Firebase credentials. The workflow is committed locally; it cannot have a remote run until pushed. No deployment is part of CI.
+`npm run check` runs the secret scan, ESLint, application tests, metadata tests, deployment-boundary/build tests, the offline build, security-rule tests and Hosting HTTP tests. GitHub Actions runs that command on main-branch pushes and pull requests with Node 24 and Java 21, read-only repository permissions and no Firebase credentials. The updated workflow is in the local review commits. No deployment is part of CI.
 
-The local pipeline passes **78 tests**: 40 app/SDK, 15 metadata, six deployment, five security-rule and 12 HTTP integration tests. The deployment integration test uses an isolated temporary checkout and synthetic profiles to build staging and production, validate region/asset matching and indexing, and load the cloud Function module without reading cloud data. It does not deploy or verify real IAM, billing, locations or a CDN. Browser checks verified missing-share fallback/default JPEG and updated manual-order wording with no console errors. Full P1.12 shell QA remains separate.
+The local pipeline passes **79 tests**, including 40 app/SDK, 15 metadata, six deployment, five security-rule, 12 HTTP integration and one secret-scan test. The deployment integration test uses an isolated temporary checkout and synthetic profiles to build staging and production, validate region/asset matching and indexing, and load the cloud Function module without reading cloud data. It does not deploy or verify real IAM, billing, locations or a CDN. Browser checks verified missing-share fallback/default JPEG and updated manual-order wording with no console errors. [P1.12 shell QA](qa/p1-12/README.md) passed locally.
 
 ## References
 
