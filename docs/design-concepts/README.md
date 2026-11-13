@@ -25,9 +25,82 @@ The owner approved the increased breathing room, then selected the white version
 | 08 / Events | [08-events.png](08-events.png) | Approved by owner |
 | 09 / Our process | [09-our-process.png](09-our-process.png) | Approved by owner |
 
-Generated with the built-in image tool using both round-1 references plus the roomier white homepage. Exact prompts and every variation from the original round-2 brief are recorded in [PROMPTS-WHITE-PAGES.md](PROMPTS-WHITE-PAGES.md). Products, measurements, shipping rates, countdowns and event content remain illustrative. No names, actual contact details, dates or named venues were supplied or invented. Board 10 has not been requested or generated.
+Generated with the built-in image tool using both round-1 references plus the roomier white homepage. Exact prompts and every variation from the original round-2 brief are recorded in [PROMPTS-WHITE-PAGES.md](PROMPTS-WHITE-PAGES.md). Products, measurements, shipping rates, countdowns and event content remain illustrative. No names, actual contact details, dates or named venues were supplied or invented. The historical admin-orders board remains optional. The new board numbered 10 is the Phase 2 shop grid.
 
 Pre-build gates are complete: numerical approval and baseline `873bc7f` preceded `src/styles/tokens.css` and the local React build. P1.01–P1.08 are verified and recorded in small feature/file-scoped commits. Cloud resources/deployment remain untouched; no push has been made.
+
+## Phase 2 design review
+
+Both 1536 × 1024 PNG boards are ready for owner review. The built-in imagegen tool used the two round-1 boards and the approved white homepage as style references. The mobile product board received a second pass to collapse navigation into its single-row header. Illustrative prices, measurements, stock states and imagery are shown for review. Use the actual type tokens at implementation. The shop mockup uses heavier product names than the approved Inter product-name token.
+
+- [D2.01 shop grid](10-shop-grid.png) shows category, size and availability filters, sort, three desktop columns, two mobile columns and Requested/Sold examples.
+- [D2.02 mobile product](11-product-mobile.png) shows two successive sections of the same page. It includes a whole garment, read-only size, measurements, availability legend, disabled order controls and detail accordions.
+
+### Exact imagegen prompts
+
+<details>
+<summary>D2.01 shop grid</summary>
+
+```text
+Use case: ui-mockup. High-fidelity website design board for NIGHT IN KAMPALA, a Ugandan fashion brand that reworks secondhand clothing with original hand-painted and screen-printed designs, sells one-of-one pieces to Uganda and international shoppers, and runs fashion events. Proposed interface, illustrative content only.
+Board: wide landscape, neutral off-white ground, flat front-facing viewports, no perspective, no device hardware, no decorative scene. All UI text large, sharp and correctly spelled.
+Identity: wordmark "NIGHT IN KAMPALA" set in a heavy condensed grotesque, all caps, tight tracking, always on one line on desktop. Headings in the same condensed face. Body and UI labels in a clean neutral grotesque. Short editorial sublines in a quiet serif.
+Palette: paper white #FFFFFF, ink near-black #0B0B0C, fog grey #F1F1EF for product image fields, hairline grey #E2E2DF for borders.
+Components: square corners, thin 1px borders, rectangular black buttons with white caps text, small rectangular labels "ONE OF ONE", "NEW", "SOLD". Thin-line icons for menu, search and bag. Market control "UG / UGX".
+Navigation, identical on every board: "Shop", "Drops", "Our process", "Lookbook", "Events".
+Garments: original photorealistic reworked pieces, washed black tees, blue denim, off-white camp shirts, olive workwear, with bold hand-painted white or black abstract brushwork (suns, wavy lines, linework faces, geometric blocks). Visible fabric texture, mended seams and patching. No recognisable brand logos.
+People: young adult Black East African models, dignified contemporary fashion photography, natural skin texture.
+Prices in Ugandan shillings between UGX 85,000 and UGX 220,000.
+Avoid: gradients, glassmorphism, rounded SaaS cards, neon, nightclub imagery, skyline clichés, stock-photo smiles, fake reviews, impact statistics, invented dates or venues.
+Tiny footer outside the UI: "DESIGN CONCEPT · ILLUSTRATIVE CONTENT".
+Use Anton 400 for wordmark and headings, Inter 400/500/600 for UI, and Newsreader 400 for editorial sublines. Keep generous approved gutters and section spacing, square controls, and no announcement bar or account icon. Use the attached round-1 boards as style references, with the approved spacious white homepage taking precedence for spacing and navigation. Label each generated garment image “AI-generated placeholder”. Every garment, code, measurement and price is illustrative, and all order controls are shown disabled.
+Board 10 / Shop grid. Single 3:2 landscape presentation with a large desktop screen at left and a phone screen at right. White throughout. On desktop use the full exact navigation line and left-aligned wordmark. On mobile center the wordmark with menu, search and bag icons. Show title “Shop”. Four labelled filter and sort controls read “Category”, “Size”, “Availability”, “Sort”; the sort value is “Newest”. On desktop show one roomy row of exactly three cards. On mobile show the same grid in exactly two columns, with the third card beginning the second row and all filters still visible in a compact two-by-two arrangement. Use clean isolated photography with whole garments inside equal fog-grey image fields. Cards in order: “Painted denim” with “Requested” and “UGX 160,000”; “Graphic tee” with “SOLD” and “UGX 85,000”; “Reworked jacket” with “UGX 220,000”. Under each card show “AI-generated placeholder”. Keep all text clear and the two required status labels distinct. Show no purchase action. Keep ample whitespace above the grid and around the presentation.
+```
+
+</details>
+
+<details>
+<summary>D2.02 mobile product, initial pass</summary>
+
+```text
+Use case: ui-mockup. High-fidelity website design board for NIGHT IN KAMPALA, a Ugandan fashion brand that reworks secondhand clothing with original hand-painted and screen-printed designs, sells one-of-one pieces to Uganda and international shoppers, and runs fashion events. Proposed interface, illustrative content only.
+Board: wide landscape, neutral off-white ground, flat front-facing viewports, no perspective, no device hardware, no decorative scene. All UI text large, sharp and correctly spelled.
+Identity: wordmark "NIGHT IN KAMPALA" set in a heavy condensed grotesque, all caps, tight tracking, always on one line on desktop. Headings in the same condensed face. Body and UI labels in a clean neutral grotesque. Short editorial sublines in a quiet serif.
+Palette: paper white #FFFFFF, ink near-black #0B0B0C, fog grey #F1F1EF for product image fields, hairline grey #E2E2DF for borders.
+Components: square corners, thin 1px borders, rectangular black buttons with white caps text, small rectangular labels "ONE OF ONE", "NEW", "SOLD". Thin-line icons for menu, search and bag. Market control "UG / UGX".
+Navigation, identical on every board: "Shop", "Drops", "Our process", "Lookbook", "Events".
+Garments: original photorealistic reworked pieces, washed black tees, blue denim, off-white camp shirts, olive workwear, with bold hand-painted white or black abstract brushwork (suns, wavy lines, linework faces, geometric blocks). Visible fabric texture, mended seams and patching. No recognisable brand logos.
+People: young adult Black East African models, dignified contemporary fashion photography, natural skin texture.
+Prices in Ugandan shillings between UGX 85,000 and UGX 220,000.
+Avoid: gradients, glassmorphism, rounded SaaS cards, neon, nightclub imagery, skyline clichés, stock-photo smiles, fake reviews, impact statistics, invented dates or venues.
+Tiny footer outside the UI: "DESIGN CONCEPT · ILLUSTRATIVE CONTENT".
+Use Anton 400 for wordmark and headings, Inter 400/500/600 for UI, and Newsreader 400 for editorial sublines. Keep generous approved gutters and section spacing, square controls, and no announcement bar or account icon. Use the attached round-1 boards as style references, with the approved spacious white homepage taking precedence for spacing and navigation. Label each generated garment image “AI-generated placeholder”. Every garment, code, measurement and price is illustrative, and all order controls are shown disabled.
+Board 11 / Mobile product detail. One 3:2 landscape presentation with two adjacent equal-width mobile viewport captures of the SAME page, left labelled “Top of page” and right labelled “Continued below”. No device hardware. Treat the two panels as consecutive sections of a tall white page so the full garment and detailed labels stay legible without cramming. The left view shows a white header with centered exact NIGHT IN KAMPALA wordmark, menu/search/bag icons, and the full isolated silhouette of hand-painted denim trousers on fog grey. Under the image: “AI-generated placeholder”, “Painted denim”, “Item NK-DEMO-01”, “UGX 160,000”, “Size: Waist 32” as plain read-only text and current state “Requested”. The right continuation starts with a clean measurement table titled “Measurements”, unit “cm”, rows “Waist 81”, “Rise 29”, “Inseam 76”, “Leg opening 20”. Add a small four-state legend labelled “Availability” reading exactly “Available”, “Requested”, “Reserved”, “Sold”, with Requested indicated as the current state in ink or fog grey. Show two large visibly disabled rectangular controls labelled exactly “Add to bag” and “Order on WhatsApp”. Under them show “Adding to bag does not reserve this piece.” and “Illustrative piece · unavailable for purchase”. End with four closed, clearly separated accordion rows reading “Condition”, “How it was reworked”, “Care”, “Delivery and returns”. No dropdown or arrow beside the size text. No duplicate header in the continuation. Use spacing and typography that let each group breathe.
+```
+
+</details>
+
+<details>
+<summary>D2.02 mobile product, final revision</summary>
+
+```text
+Use case: ui-mockup. High-fidelity website design board for NIGHT IN KAMPALA, a Ugandan fashion brand that reworks secondhand clothing with original hand-painted and screen-printed designs, sells one-of-one pieces to Uganda and international shoppers, and runs fashion events. Proposed interface, illustrative content only.
+Board: wide landscape, neutral off-white ground, flat front-facing viewports, no perspective, no device hardware, no decorative scene. All UI text large, sharp and correctly spelled.
+Identity: wordmark "NIGHT IN KAMPALA" set in a heavy condensed grotesque, all caps, tight tracking, always on one line on desktop. Headings in the same condensed face. Body and UI labels in a clean neutral grotesque. Short editorial sublines in a quiet serif.
+Palette: paper white #FFFFFF, ink near-black #0B0B0C, fog grey #F1F1EF for product image fields, hairline grey #E2E2DF for borders.
+Components: square corners, thin 1px borders, rectangular black buttons with white caps text, small rectangular labels "ONE OF ONE", "NEW", "SOLD". Thin-line icons for menu, search and bag. Market control "UG / UGX".
+Navigation, identical on every board: "Shop", "Drops", "Our process", "Lookbook", "Events".
+Garments: original photorealistic reworked pieces, washed black tees, blue denim, off-white camp shirts, olive workwear, with bold hand-painted white or black abstract brushwork (suns, wavy lines, linework faces, geometric blocks). Visible fabric texture, mended seams and patching. No recognisable brand logos.
+People: young adult Black East African models, dignified contemporary fashion photography, natural skin texture.
+Prices in Ugandan shillings between UGX 85,000 and UGX 220,000.
+Avoid: gradients, glassmorphism, rounded SaaS cards, neon, nightclub imagery, skyline clichés, stock-photo smiles, fake reviews, impact statistics, invented dates or venues.
+Tiny footer outside the UI: "DESIGN CONCEPT · ILLUSTRATIVE CONTENT".
+Use Anton 400 for wordmark and headings, Inter 400/500/600 for UI, and Newsreader 400 for editorial sublines. Keep generous approved gutters and section spacing, square controls, and no announcement bar or account icon. Use the attached round-1 boards as style references, with the approved spacious white homepage taking precedence for spacing and navigation. Label each generated garment image “AI-generated placeholder”. Every garment, code, measurement and price is illustrative, and all order controls are shown disabled.
+Board 11 / Mobile product detail. One 3:2 landscape presentation with two adjacent equal-width mobile viewport captures of the SAME page, left labelled “Top of page” and right labelled “Continued below”. No device hardware. Treat the two panels as consecutive sections of a tall white page so the full garment and detailed labels stay legible without cramming. The left view shows a white header with centered exact NIGHT IN KAMPALA wordmark, menu/search/bag icons, and the full isolated silhouette of hand-painted denim trousers on fog grey. Under the image: “AI-generated placeholder”, “Painted denim”, “Item NK-DEMO-01”, “UGX 160,000”, “Size: Waist 32” as plain read-only text and current state “Requested”. The right continuation starts with a clean measurement table titled “Measurements”, unit “cm”, rows “Waist 81”, “Rise 29”, “Inseam 76”, “Leg opening 20”. Add a small four-state legend labelled “Availability” reading exactly “Available”, “Requested”, “Reserved”, “Sold”, with Requested indicated as the current state in ink or fog grey. Show two large visibly disabled rectangular controls labelled exactly “Add to bag” and “Order on WhatsApp”. Under them show “Adding to bag does not reserve this piece.” and “Illustrative piece · unavailable for purchase”. End with four closed, clearly separated accordion rows reading “Condition”, “How it was reworked”, “Care”, “Delivery and returns”. No dropdown or arrow beside the size text. No duplicate header in the continuation. Use spacing and typography that let each group breathe.
+Revision to the supplied mobile product board: remove the visible row of text links Shop, Drops, Our process, Lookbook, Events beneath the mobile wordmark. These links are in the closed menu, so the mobile header has exactly one row, with menu, NIGHT IN KAMPALA, search and bag, immediately followed by the garment image. Keep all other layout, photography, text and details identical. The supplied image is the edit target.
+```
+
+</details>
 
 ## Round 2
 
@@ -35,7 +108,7 @@ Review on 12 November 2026 found the round-1 concepts disagree on wordmark, navi
 
 ### Theme comparison — generated 12 November 2026
 
-**Historical theme comparison.** The owner subsequently chose the white theme and approved the roomier layout; see the current selection above. These original four comparison boards are retained as exploration material. Board 10 remains optional and has not been generated.
+**Historical theme comparison.** The owner subsequently chose the white theme and approved the roomier layout; see the current selection above. These original four comparison boards are retained as exploration material. The historical admin-orders concept remains optional.
 
 | Board | Day shop, night story | All-white |
 | --- | --- | --- |
