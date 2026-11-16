@@ -94,6 +94,8 @@ test('cleanup lists test data, blocks mixed stock, deletes reviewed candidates a
     await auth.setCustomUserClaims('test-staff', { staff: true, testAccount: true });
     await auth.createUser({ uid: 'permanent-staff' });
     await auth.setCustomUserClaims('permanent-staff', { staff: true });
+    await auth.createUser({ uid: 'permanent-owner', email: 'superadmin@nightinkampala.com' });
+    await auth.setCustomUserClaims('permanent-owner', { owner: true });
     await Promise.all([...disposableMedia, ...retainedMedia].map(name => bucket.file(name).save('image', { resumable: false,
       metadata: name.includes('/marked-orphan/') ? { metadata: { nikTestData: 'true' } } : {} })));
 
@@ -133,6 +135,7 @@ test('cleanup lists test data, blocks mixed stock, deletes reviewed candidates a
     for (const name of retainedMedia) assert.equal((await bucket.file(name).exists())[0], true);
     await assert.rejects(auth.getUser('test-staff'), { code: 'auth/user-not-found' });
     assert.equal((await auth.getUser('permanent-staff')).uid, 'permanent-staff');
+    assert.deepEqual((await auth.getUserByEmail('superadmin@nightinkampala.com')).customClaims, { owner: true });
 
     const after = run(project);
     assert.equal(after.status, 0, after.stderr);
