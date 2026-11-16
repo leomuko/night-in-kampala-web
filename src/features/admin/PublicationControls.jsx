@@ -3,7 +3,7 @@ import { Button, ErrorState, LoadingState } from '../../components/UI.jsx';
 import { callStaff, staffError } from './catalogueAdmin.js';
 import { getFirebaseServices } from '../../services/firebase.js';
 
-export default function PublicationControls({ draft }) {
+export default function PublicationControls({ draft, onChange }) {
   const [state, setState] = useState({ loading: true });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -22,7 +22,11 @@ export default function PublicationControls({ draft }) {
   async function run(name, data) {
     setBusy(true);
     setError('');
-    try { setState(await callStaff(name, { slug: draft.slug, ...data })); }
+    try {
+      const updated = await callStaff(name, { slug: draft.slug, ...data });
+      setState(updated);
+      onChange(updated);
+    }
     catch (failure) { setError(staffError(failure)); }
     finally { setBusy(false); }
   }

@@ -1,15 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button, ErrorState, LoadingState } from '../../components/UI.jsx';
 import CategoryEditor from './CategoryEditor.jsx';
 import ApprovalControl from './ApprovalControl.jsx';
 import PublicationControls from './PublicationControls.jsx';
 import PhotoEditor from './PhotoEditor.jsx';
 import DraftEditor from './DraftEditor.jsx';
+import ProductTable from './ProductTable.jsx';
 import { readEditorData } from './catalogueAdmin.js';
 
 export default function StaffCatalogue({ user, role }) {
   const [state, setState] = useState({ status: 'loading' });
-  const [selection, setSelection] = useState({ key: 0, slug: '' });
+  const [selection, setSelection] = useState(null);
+  const selectionId = useRef(0);
   useEffect(() => {
     let active = true;
     readEditorData().then(data => {
@@ -20,27 +22,38 @@ export default function StaffCatalogue({ user, role }) {
   if (state.status === 'loading') return <LoadingState>Loading catalogue…</LoadingState>;
   if (state.status === 'error') return <ErrorState>Could not load the catalogue. Refresh the page to try again.</ErrorState>;
 
-  const draft = state.rows.find(row => row.slug === selection.slug) ?? {};
+  const draft = state.rows.find(row => row.slug === selection?.slug) ?? {};
   function saveDraft(next) {
-    setState(previous => ({ ...previous, rows: [next, ...previous.rows.filter(row => row.slug !== next.slug)] }));
-    setSelection(previous => ({ ...previous, slug: next.slug }));
+    setState(previous => {
+      const existing = previous.rows.find(row => row.slug === next.slug);
+      if (existing?.revision > next.revision) return previous;
+      const saved = existing ? {
+        ...next, publicationStatus: existing.publicationStatus, publishedAvailability: existing.publishedAvailability,
+        availableUnits: existing.availableUnits,
+      } : next;
+      return { ...previous, rows: [saved, ...previous.rows.filter(row => row.slug !== next.slug)] };
+    });
+    setSelection(previous => previous?.key === selection?.key ? { ...previous, slug: next.slug } : previous);
   }
+  function publicationChanged(result) {
+    setState(previous => ({ ...previous, rows: previous.rows.map(row => row.slug === draft.slug ? {
+      ...row, publicationStatus: result.status, publishedAvailability: result.availability,
+      availableUnits: result.availableUnits ?? row.availableUnits,
+    } : row) }));
+  }
+  function open(slug) { setSelection({ key: ++selectionId.current, slug }); }
 
   return <div className="staff-catalogue stack">
-    <section className="staff-panel stack">
-      <h2>Product drafts</h2>
-      <Button variant="secondary" onClick={() => setSelection(({ key }) => ({ key: key + 1, slug: '' }))}>New draft</Button>
-      {!state.rows.length && <p>No drafts yet.</p>}
-      <ul className="staff-list">
-        {state.rows.map(row => <li key={row.slug}>
-          <button className="text-button" onClick={() => setSelection(({ key }) => ({ key: key + 1, slug: row.slug }))}>{row.name || row.slug}</button>
-        </li>)}
-      </ul>
-    </section>
-    <DraftEditor key={`draft-${selection.key}`} draft={draft} categories={state.categories} onSave={saveDraft} />
-    {draft.slug && <PhotoEditor key={`photos-${selection.key}`} draft={draft} user={user} onSave={saveDraft} />}
-    {draft.slug && <PublicationControls key={draft.slug} draft={draft} />}
-    {draft.slug && role === 'owner' && <ApprovalControl key={draft.slug} collection="products" draft={draft} onSave={saveDraft} />}
+    <div className={selection ? 'staff-product-workspace staff-product-workspace--editing' : 'staff-product-workspace'}>
+      <ProductTable rows={state.rows} onEdit={open} onAdd={() => open('')} />
+      {selection && <div className="staff-product-editor stack">
+        <Button variant="secondary" onClick={() => setSelection(null)}>Close editor</Button>
+        <DraftEditor key={`draft-${selection.key}`} draft={draft} categories={state.categories} onSave={saveDraft} />
+        {draft.slug && <PhotoEditor key={`photos-${selection.key}`} draft={draft} user={user} onSave={saveDraft} />}
+        {draft.slug && <PublicationControls key={`publication-${draft.slug}`} draft={draft} onChange={publicationChanged} />}
+        {draft.slug && role === 'owner' && <ApprovalControl key={draft.slug} collection="products" draft={draft} onSave={saveDraft} />}
+      </div>}
+    </div>
     <CategoryEditor items={state.categories} onSave={categories => setState(previous => ({ ...previous, categories }))} />
   </div>;
 }

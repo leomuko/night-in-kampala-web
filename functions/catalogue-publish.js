@@ -108,13 +108,13 @@ export async function publishCatalogueProduct(db, bucket, data, actor) {
     const isRealCatalogueStock = saved.approvedRevision === data.revision && hasPhotographedStock(saved);
     const publicProduct = { ...projection, availability, draftRevision: data.revision, isRealCatalogueStock };
     tx.set(productPath, { ...publicProduct, purchasable: canRequestProduct(publicProduct) });
-    tx.update(draftPath, { publicationStatus: 'published' });
+    tx.update(draftPath, { publicationStatus: 'published', publishedAvailability: availability, availableUnits: sold ? 0 : units });
     tx.set(inventoryPath, {
       stockType: draft.stockType, availableUnits: sold ? 0 : units, relistUnits: units,
       variants: sold ? variants.map(variant => ({ ...variant, quantity: 0 })) : variants, relistVariants: variants,
     });
     tx.create(auditPath, { action: live ? 'republish' : 'publish', actorUid: actor.uid, productId: slug, at: FieldValue.serverTimestamp() });
-    return { status: 'published', availability };
+    return { status: 'published', availability, availableUnits: sold ? 0 : units };
   });
 }
 

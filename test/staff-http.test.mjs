@@ -95,6 +95,13 @@ test('staff reopen saved drafts, concurrent edits are rejected and category IDs 
     assert.equal(reloaded.name, draft.name);
     assert.deepEqual(reloaded.measurements, draft.measurements);
     assert.equal(reloaded.isRealCatalogueStock, false);
+    const generated = await call('catalogueDraftSave', { revision: 0, draft: { ...draft, name: 'Slug Test Denim' } });
+    assert.equal(generated.body.result?.slug, 'slug-test-denim');
+    const second = await call('catalogueDraftSave', { revision: 0, draft: { ...draft, name: 'Slug Test Denim' } });
+    assert.match(second.body.result?.slug, /^slug-test-denim-/);
+    const renamed = await call('catalogueDraftSave', { ...generated.body.result, draft: { ...draft, name: 'Renamed denim' } });
+    assert.equal(renamed.body.result?.slug, generated.body.result.slug);
+    await Promise.all([generated, second].map(result => db.doc(`productDrafts/${result.body.result.slug}`).delete()));
     assert.equal((await call('catalogueDraftSave', { slug, revision: 0, draft })).status, 409);
     assert.equal((await call('catalogueDraftSave', { slug, revision: 1, draft: { ...draft, priceUGX: 0.5 } })).status, 400);
     assert.equal((await call('catalogueCategorySave', { id: 'demo-test', label: 'Renamed category', active: false })).status, 200);

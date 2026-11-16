@@ -24,6 +24,29 @@ export default function AdminShell() {
     void run(() => signInWithEmailAndPassword(auth, fields.get('email').trim(), fields.get('password')), 'Sign-in failed. Check your email and password and try again.');
   }
 
+  const actions = <div className="staff-actions">
+    <Button variant="secondary" disabled={busy} onClick={() => run(() => user.getIdToken(true), 'Could not refresh access.')}>Refresh access</Button>
+    <Button variant="secondary" disabled={busy} onClick={() => run(() => signOut(auth), 'Could not sign out.')}>Sign out</Button>
+  </div>;
+
+  if (status === 'ready' && role) return <section className="admin-dashboard">
+    <aside className="admin-sidebar">
+      <Link to="/" className="wordmark">NIGHT IN KAMPALA</Link>
+      <nav aria-label="Staff sections">
+        {Object.entries(staffSections).map(([id, label]) => <Button key={id} variant="secondary" aria-pressed={section === id} onClick={() => setSection(id)}>{label}</Button>)}
+      </nav>
+    </aside>
+    <div className="admin-dashboard-main">
+      <div className="admin-dashboard-heading">
+        <div><h1>Store administration</h1><p className="helper">Signed in as {role}.</p></div>
+        <div className="staff-actions"><Link className="button button--secondary" to="/">View store</Link>{actions}</div>
+      </div>
+      {error && <ErrorState>{error}</ErrorState>}
+      {section === 'products' ? <StaffCatalogue key={user.uid} user={user} role={role} />
+        : <ContentEditor key={`${user.uid}-${section}`} collection={section} role={role} heading={`${staffSections[section]} drafts`} />}
+    </div>
+  </section>;
+
   return <section className="container placeholder-page">
     <h1>Staff access</h1>
     {status === 'loading' && <LoadingState />}
@@ -34,20 +57,7 @@ export default function AdminShell() {
       <Field label="Password" name="password" type="password" autoComplete="current-password" required />
       <Button type="submit" disabled={busy}>Sign in</Button>
     </form>}
-    {status === 'ready' && user && <>
-      {role ? <p>Signed in as {role}.</p> : <p>This account does not have staff access.</p>}
-      <div className="staff-actions">
-        <Button variant="secondary" disabled={busy} onClick={() => run(() => user.getIdToken(true), 'Could not refresh access.')}>Refresh access</Button>
-        <Button variant="secondary" disabled={busy} onClick={() => run(() => signOut(auth), 'Could not sign out.')}>Sign out</Button>
-      </div>
-      {role && <>
-        <div className="staff-actions" role="group" aria-label="Staff sections">
-          {Object.entries(staffSections).map(([id, label]) => <Button key={id} variant="secondary" aria-pressed={section === id} onClick={() => setSection(id)}>{label}</Button>)}
-        </div>
-        {section === 'products' ? <StaffCatalogue key={user.uid} user={user} role={role} />
-          : <ContentEditor key={`${user.uid}-${section}`} collection={section} role={role} heading={`${staffSections[section]} drafts`} />}
-      </>}
-    </>}
+    {status === 'ready' && user && <><p>This account does not have staff access.</p>{actions}</>}
     <Link className="text-link" to="/">Return to store</Link>
   </section>;
 }

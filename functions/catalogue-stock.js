@@ -12,6 +12,9 @@ export function assertStockCanChange(inventory, availability) {
 // Use one transaction for the private count, storefront state and audit trail.
 export function writeStock(tx, { inventoryPath, productPath, auditPath, inventory, product, from, to, actor, action }) {
   tx.set(inventoryPath, inventory);
+  tx.set(productPath.firestore.doc(`productDrafts/${productPath.id}`), {
+    publishedAvailability: to, availableUnits: inventory.availableUnits,
+  }, { merge: true });
   tx.update(productPath, { availability: to, purchasable: canRequestProduct({ ...product, availability: to }) });
   tx.create(auditPath, { action, actorUid: actor.uid, productId: productPath.id, from, to, at: FieldValue.serverTimestamp() });
 }
@@ -31,7 +34,7 @@ export async function changeCatalogueAvailability(db, data, actor) {
       throw new HttpsError('failed-precondition', 'Publish the product before changing availability.');
     }
     assertStockCanChange(inventory, from);
-    if (from === target) return { availability: target, status: 'published' };
+    if (from === target) return { availability: target, status: 'published', availableUnits: inventory.availableUnits };
     const availableUnits = target === 'sold' ? 0 : inventory.relistUnits;
     if (target === 'available' && (!Number.isInteger(availableUnits) || availableUnits < 1)) {
       throw new HttpsError('failed-precondition', 'Set a positive quantity in the draft and publish again.');
@@ -43,6 +46,6 @@ export async function changeCatalogueAvailability(db, data, actor) {
       inventoryPath, productPath, auditPath, product: product.data(), from, to: target, actor, action: 'change-availability',
       inventory: { ...inventory, availableUnits, relistUnits, variants, relistVariants },
     });
-    return { availability: target, status: 'published' };
+    return { availability: target, status: 'published', availableUnits };
   });
 }

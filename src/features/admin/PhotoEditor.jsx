@@ -1,25 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Button, ErrorState, Field, Select } from '../../components/UI.jsx';
 import { getFirebaseServices } from '../../services/firebase.js';
 import { callStaff, staffError } from './catalogueAdmin.js';
 import { preparePhoto } from './preparePhoto.js';
 
-function PhotoPreview({ photo }) {
-  const [preview, setPreview] = useState(null);
-  useEffect(() => {
-    let active = true;
-    let url;
-    Promise.all([import('firebase/storage'), getFirebaseServices()]).then(async ([sdk, { storage }]) => {
-      const blob = await sdk.getBlob(sdk.ref(storage, photo.sourcePath), 2 * 1024 * 1024);
-      if (!active) return;
-      url = URL.createObjectURL(blob);
-      setPreview(url);
-    }).catch(() => { if (active) setPreview(false); });
-    return () => { active = false; if (url) URL.revokeObjectURL(url); };
-  }, [photo.sourcePath]);
-  if (preview === false) return <p className="helper">Preview unavailable.</p>;
-  return preview ? <img className="staff-photo" src={preview} alt={photo.alt} /> : <span className="helper">Loading photo…</span>;
-}
+import PhotoPreview from './PhotoPreview.jsx';
 
 export default function PhotoEditor({ draft, user, onSave }) {
   const [photos, setPhotos] = useState(draft.photos ?? []);

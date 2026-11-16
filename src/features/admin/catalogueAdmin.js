@@ -6,14 +6,26 @@ export async function callStaff(name, data) {
 }
 
 export async function readEditorData() {
-  const [{ collection, doc, getDoc, getDocs, query, limit, orderBy }, { db }] = await Promise.all([
+  const [{ collection, doc, getDoc, getDocs, query, orderBy }, { db }] = await Promise.all([
     import('firebase/firestore'), getFirebaseServices(),
   ]);
   const [drafts, categories] = await Promise.all([
-    getDocs(query(collection(db, 'productDrafts'), orderBy('updatedAt', 'desc'), limit(30))),
+    getDocs(query(collection(db, 'productDrafts'), orderBy('updatedAt', 'desc'))),
     getDoc(doc(db, 'catalogueSettings/categories')),
   ]);
-  return { rows: drafts.docs.map(row => ({ slug: row.id, ...row.data() })), categories: categories.data()?.items ?? [] };
+  const rows = await Promise.all(drafts.docs.map(async row => {
+    const draft = { ...row.data(), slug: row.id };
+    if (draft.publicationStatus !== 'published' || Number.isInteger(draft.availableUnits)) return draft;
+    const [stock, product] = await Promise.all([
+      getDoc(doc(db, 'inventory', row.id)),
+      getDoc(doc(db, 'products', row.id)).catch(error => {
+        if (error.code === 'permission-denied') return null;
+        throw error;
+      }),
+    ]);
+    return { ...draft, availableUnits: stock.data()?.availableUnits, publishedAvailability: product?.data()?.availability };
+  }));
+  return { rows, categories: categories.data()?.items ?? [] };
 }
 
 export function staffError(error) {

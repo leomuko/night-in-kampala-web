@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { FieldValue } from 'firebase-admin/firestore';
 import { HttpsError } from 'firebase-functions/v2/https';
 
@@ -63,11 +64,28 @@ export function assertDraftRevision(snapshot, revision) {
 }
 
 export async function saveProductDraft(db, data, actor) {
-  const slug = catalogueId(data?.slug);
   const fields = draftFields(data?.draft);
-  const path = db.doc(`productDrafts/${slug}`);
+  const supplied = data.slug === undefined ? '' : catalogueId(data.slug);
+  if (!supplied && (!fields.name || data.revision !== 0)) {
+    throw new HttpsError('invalid-argument', 'Enter a name for the new piece.');
+  }
+  const base = fields.name.toLowerCase().normalize('NFKD').replace(/\p{Mark}/gu, '')
+    .replace(/[^a-z0-9]+/g, '-').slice(0, 100).replace(/^-|-$/g, '') || 'piece';
+  const alternate = `${base}-${randomUUID().slice(0, 12)}`;
   return db.runTransaction(async tx => {
-    const previous = await tx.get(path);
+    let slug = supplied || base;
+    let path = db.doc(`productDrafts/${slug}`);
+    let previous = await tx.get(path);
+    if (!supplied) {
+      const live = await tx.get(db.doc(`products/${slug}`));
+      if (previous.exists || live.exists) {
+        slug = alternate;
+        path = db.doc(`productDrafts/${slug}`);
+        const candidates = await tx.getAll(path, db.doc(`products/${slug}`));
+        [previous] = candidates;
+        if (candidates.some(candidate => candidate.exists)) throw new HttpsError('aborted', 'Could not assign a URL. Try saving again.');
+      }
+    }
     assertDraftRevision(previous, data.revision);
     const revision = data.revision + 1;
     tx.set(path, { ...fields, revision, updatedAt: FieldValue.serverTimestamp(), updatedBy: actor.uid }, { merge: true });
