@@ -47,7 +47,20 @@ function EventFields({ draft }) {
   </>;
 }
 
+function PageFields({ collection, draft }) {
+  return <div className="stack content-fields">
+    {collection === 'pages' && <p className="helper">Use the slug our-process for Our process, contact for Contact, or the slug from a footer help link.</p>}
+    <Field name="coverProductId" label="Cover product slug (optional)" defaultValue={draft.coverProductId ?? ''} maxLength={120} />
+    <label className="field content-fields">Related links (one per line, label | /site-path)
+      <textarea name="links" rows={4} defaultValue={draft.links?.map(link => `${link.label} | ${link.href}`).join('\n') ?? ''} />
+    </label>
+  </div>;
+}
+
+const editorFields = { collections: DropFields, events: EventFields, lookbooks: PageFields, pages: PageFields };
+
 function DraftForm({ collection, draft, save }) {
+  const Fields = editorFields[collection];
   const [status, setStatus] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -57,13 +70,17 @@ function DraftForm({ collection, draft, save }) {
     const fields = new FormData(event.currentTarget);
     const publish = event.nativeEvent.submitter?.value === 'publish';
     const slug = fields.get('slug').trim();
+    const links = (fields.get('links') ?? '').split('\n').filter(line => line.trim()).map(line => {
+      const [label, href] = line.split('|');
+      return { label: label.trim(), href: href?.trim() ?? '' };
+    });
     setBusy(true);
     setError('');
     setStatus('');
     try {
       const saved = await callStaff('editorialDraftSave', {
         collection, slug, revision: draft.revision ?? 0,
-        draft: { ...Object.fromEntries(fields), productIds: fields.getAll('productId') },
+        draft: { ...Object.fromEntries(fields), productIds: fields.getAll('productId'), links },
       });
       save({ ...draft, ...saved });
       setStatus('Draft saved.');
@@ -83,7 +100,7 @@ function DraftForm({ collection, draft, save }) {
     <Field name="slug" label="Page slug" defaultValue={draft.slug ?? ''} readOnly={Boolean(draft.slug)} maxLength={120} required pattern="[a-z0-9]+(?:-[a-z0-9]+)*" />
     <Field name="title" label="Title" defaultValue={draft.title ?? ''} maxLength={160} />
     <label className="field content-fields">Description<textarea name="body" rows={5} maxLength={5000} defaultValue={draft.body ?? ''} /></label>
-    {collection === 'collections' ? <DropFields draft={draft} /> : <EventFields draft={draft} />}
+    <Fields collection={collection} draft={draft} />
     {draft.publishedRevision && <p className="helper">Published revision {draft.publishedRevision}</p>}
     <div className="staff-actions">
       <Button type="submit" disabled={busy} value="save">Save draft</Button>

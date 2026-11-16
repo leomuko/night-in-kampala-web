@@ -3,6 +3,7 @@ import { Routes, Route, Outlet, useLocation } from 'react-router-dom';
 import Header from '../components/Header.jsx';
 import Footer from '../components/Footer.jsx';
 import { LoadingState, ErrorState } from '../components/UI.jsx';
+import { HelpPage, LookbookPage, LookbooksPage, SitePage } from '../features/editorial/SitePages.jsx';
 import { EventPage, EventsPage } from '../features/editorial/EventPages.jsx';
 import { DropPage, DropsPage } from '../features/editorial/DropPages.jsx';
 import ArchivePage from '../features/catalogue/ArchivePage.jsx';
@@ -22,7 +23,7 @@ function Layout() {
     window.scrollTo({ top: 0, behavior: 'instant' });
     if (location.pathname !== '/') document.getElementById('main-content')?.focus({ preventScroll: true });
     const section = location.pathname.split('/')[1];
-    const names = { shop: 'Shop', archive: 'Sold archive', collections: 'Drops', about: 'Our process', lookbooks: 'Lookbook', events: 'Events', cart: 'Your bag', admin: 'Staff access' };
+    const names = { shop: 'Shop', archive: 'Sold archive', collections: 'Drops', about: 'Our process', contact: 'Contact', help: 'Help', lookbooks: 'Lookbook', events: 'Events', cart: 'Your bag', admin: 'Staff access' };
     routeHead.apply(location.pathname, `${names[section] || 'Reworked in Kampala'} — Night in Kampala`);
   }, [location.pathname, routeHead]);
   const serverStatus = routeHead.statusFor(location.pathname);
@@ -39,9 +40,13 @@ export default function App() {
     <Route path="archive" element={<ArchivePage />} />
     <Route path="events" element={<EventsPage />} />
     <Route path="events/:slug" element={<EventPage />} />
-    {['about', 'lookbooks', 'contact', 'cart', 'checkout'].map(page => <Route key={page} path={page} element={<PlaceholderPage page={page} />} />)}
+    <Route path="about" element={<SitePage slug="our-process" heading="Our process" />} />
+    <Route path="contact" element={<SitePage slug="contact" heading="Contact" />} />
+    <Route path="help/:slug" element={<HelpPage />} />
+    <Route path="lookbooks" element={<LookbooksPage />} />
+    <Route path="lookbooks/:slug" element={<LookbookPage />} />
+    {['cart', 'checkout'].map(page => <Route key={page} path={page} element={<PlaceholderPage page={page} />} />)}
     <Route path="products/:slug" element={<ProductPage />} />
-    {['lookbooks', 'help'].map(page => <Route key={page} path={`${page}/:slug`} element={<PlaceholderPage page={page} />} />)}
     <Route path="orders/:id" element={<PlaceholderPage page="orders" />} />
     <Route path="admin/*" element={<AdminShell />} />
     {ComponentPage && <Route path="components" element={<ComponentPage />} />}

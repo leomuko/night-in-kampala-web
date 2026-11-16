@@ -6,7 +6,7 @@ import ContentEditor from './ContentEditor.jsx';
 import StaffCatalogue from './StaffCatalogue.jsx';
 import { useStaffSession } from './useStaffSession.js';
 
-const staffSections = { products: 'Products', collections: 'Drops', events: 'Events' };
+const staffSections = { products: 'Products', collections: 'Drops', events: 'Events', lookbooks: 'Lookbooks', pages: 'Site pages' };
 
 export default function AdminShell() {
   const { status, auth, user, role } = useStaffSession();

@@ -239,6 +239,25 @@ test('photo processing and catalogue publication work through staff, Storage and
     const past = query(collection(guest, 'events'), where('status', '==', 'published'), where('season', '==', 'past'), limit(13));
     assert.equal((await getDocs(past)).docs.find(doc => doc.id === eventSlug)?.data().date, '2030-02-03');
 
+    for (const collection of ['lookbooks', 'pages']) {
+      const editorialSlug = `editorial-test-${collection}`;
+      const draft = { title: 'Illustrative editorial', body: 'Example copy', links: [{ label: 'Shop', href: '/shop' }], coverProductId: slug, privateNote: 'hidden' };
+      const data = { collection, slug: editorialSlug, revision: 0, draft };
+      const reference = webDoc(guest, collection, editorialSlug);
+      assert.equal((await call('editorialDraftSave', { ...data, draft: { ...draft, links: [{ label: 'Invalid', href: '//example.test' }] } })).status, 400);
+      assert.equal((await call('editorialDraftSave', data)).status, 200);
+      await assert.rejects(getDoc(reference), { code: 'permission-denied' });
+      assert.equal((await call('editorialPublish', { collection, slug: editorialSlug, revision: 1 })).status, 200);
+      const editorial = (await getDoc(reference)).data();
+      assert.deepEqual(editorial.links, draft.links);
+      assert.equal(editorial.privateNote, undefined);
+      if (collection === 'lookbooks') {
+        const html = await (await fetch(`${home}/lookbooks/${editorialSlug}`)).text();
+        assert.match(html, /Illustrative editorial/);
+        assert.ok(html.includes(current.share.imageUrl));
+      }
+    }
+
     const inventory = db.doc(`inventory/${slug}`);
     await inventory.update({ reservedUnits: 1 });
     assert.equal((await call('catalogueAvailability', { slug, availability: 'available' })).body.error?.status, 'FAILED_PRECONDITION');
@@ -261,7 +280,11 @@ test('photo processing and catalogue publication work through staff, Storage and
     await db.doc('collections/photo-test-drop').delete();
     await db.doc('contentDrafts/events--catalogue-event-test').delete();
     await db.doc('events/catalogue-event-test').delete();
-    const contentAudit = await db.collection('auditLogs').where('slug', 'in', ['photo-test-drop', 'catalogue-event-test']).get();
+    for (const kind of ['lookbooks', 'pages']) {
+      await db.doc(`contentDrafts/${kind}--editorial-test-${kind}`).delete();
+      await db.doc(`${kind}/editorial-test-${kind}`).delete();
+    }
+    const contentAudit = await db.collection('auditLogs').where('slug', 'in', ['photo-test-drop', 'catalogue-event-test', 'editorial-test-lookbooks', 'editorial-test-pages']).get();
     await Promise.all(contentAudit.docs.map(doc => doc.ref.delete()));
     await db.doc(`products/${slug}`).delete();
     await db.doc(`inventory/${slug}`).delete();

@@ -24,9 +24,26 @@ function eventFields(input) {
   };
 }
 
+function pageFields(input) {
+  if (!Array.isArray(input.links) || input.links.length > 6) {
+    throw new HttpsError('invalid-argument', 'Use up to six related links.');
+  }
+  const links = input.links.map(link => {
+    const label = boundedText(link?.label, 80, 'Link label');
+    const href = boundedText(link?.href, 240, 'Link path');
+    if (!label || !/^\/(?:[a-z0-9]+(?:-[a-z0-9]+)*(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)*)?$/.test(href)) {
+      throw new HttpsError('invalid-argument', 'Give each link a label and a site path, such as /shop.');
+    }
+    return { label, href };
+  });
+  return { links, coverProductId: input.coverProductId ? catalogueId(input.coverProductId) : '' };
+}
+
+const contentFields = { collections: dropFields, events: eventFields, lookbooks: pageFields, pages: pageFields };
+
 function editorialIdentity(data) {
   const collection = data?.collection;
-  if (!['collections', 'events'].includes(collection)) throw new HttpsError('invalid-argument', 'Choose a supported content type.');
+  if (!Object.hasOwn(contentFields, collection)) throw new HttpsError('invalid-argument', 'Choose a supported content type.');
   return { collection, slug: catalogueId(data?.slug) };
 }
 
@@ -36,7 +53,7 @@ export async function saveEditorialDraft(db, data, actor) {
   const fields = {
     title: boundedText(input.title, 160, 'Title'),
     body: boundedText(input.body, 5000, 'Description'),
-    ...(collection === 'collections' ? dropFields(input) : eventFields(input)),
+    ...contentFields[collection](input),
   };
   const path = db.doc(`contentDrafts/${collection}--${slug}`);
   return db.runTransaction(async tx => {
@@ -76,7 +93,13 @@ export async function publishEditorial(db, data, actor) {
       throw new HttpsError('already-exists', 'This slug belongs to existing content.');
     }
     if (current.data()?.draftRevision === draft.revision && current.data()?.status === 'published') return { status: 'published' };
-    const fields = collection === 'collections' ? await validateDrop(tx, db, draft) : eventFields(draft);
+    const fields = collection === 'collections' ? await validateDrop(tx, db, draft) : contentFields[collection](draft);
+    if (collection !== 'collections' && fields.coverProductId) {
+      const cover = (await tx.get(db.doc(`products/${fields.coverProductId}`))).data();
+      if (cover?.status !== 'published' || !cover.photos?.length) {
+        throw new HttpsError('failed-precondition', 'Choose a published piece with photos, or leave the cover blank.');
+      }
+    }
     if (collection === 'events' && !fields.city) throw new HttpsError('failed-precondition', 'Enter a city before publishing the event.');
     const description = draft.body.slice(0, 500);
     tx.set(publicPath, {
