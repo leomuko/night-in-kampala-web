@@ -1,25 +1,32 @@
 import { FieldValue } from 'firebase-admin/firestore';
 import { HttpsError } from 'firebase-functions/v2/https';
-import { updateSizeFacets } from './catalogue-sizes.js';
+import { updateSizeFacetBatch } from './catalogue-sizes.js';
 import { canRequestProduct } from './catalogue-eligibility.js';
 import { catalogueId } from './catalogue-drafts.js';
 
 export function assertStockCanChange(inventory, availability) {
-  if (inventory.allocationId || inventory.reservedUnits > 0 || availability === 'reserved' || availability === 'requested') {
+  if (inventory.allocationId || inventory.reservedUnits > 0 || inventory.activeRequests > 0 || availability === 'reserved' || availability === 'requested') {
     throw new HttpsError('failed-precondition', 'Resolve existing stock commitments before changing this piece.');
   }
 }
 
-// Use one transaction for the private count, storefront state and audit trail.
-export async function writeStock(tx, { inventoryPath, productPath, auditPath, inventory, product, from, to, actor, action }) {
-  const next = { ...product, availability: to };
-  const requestableSizes = await updateSizeFacets(tx, productPath.firestore, product, next, inventory);
-  tx.set(inventoryPath, inventory);
-  tx.set(productPath.firestore.doc(`productDrafts/${productPath.id}`), {
-    publishedAvailability: to, availableUnits: inventory.availableUnits,
-  }, { merge: true });
-  tx.update(productPath, { availability: to, requestableSizes, purchasable: canRequestProduct(next) });
-  tx.create(auditPath, { action, actorUid: actor.uid, productId: productPath.id, from, to, at: FieldValue.serverTimestamp() });
+export function writeStock(tx, record) {
+  return writeStockBatch(tx, record.productPath.firestore, [record]);
+}
+
+export async function writeStockBatch(tx, db, records) {
+  const effects = records.map(({ product, to, inventory }) => ({ previous: product, product: { ...product, availability: to }, stock: inventory }));
+  const sizes = await updateSizeFacetBatch(tx, db, effects);
+  for (const [index, record] of records.entries()) {
+    const { inventoryPath, productPath, auditPath, inventory, from, to, actor, action, orderId } = record;
+    tx.set(inventoryPath, inventory);
+    tx.set(db.doc(`productDrafts/${productPath.id}`), {
+      publishedAvailability: to, availableUnits: inventory.availableUnits,
+    }, { merge: true });
+    tx.update(productPath, { availability: to, requestableSizes: sizes[index], purchasable: canRequestProduct(effects[index].product) });
+    tx.create(auditPath, { action, actorUid: actor.uid, productId: productPath.id, from, to,
+      ...(orderId ? { orderId } : {}), at: FieldValue.serverTimestamp() });
+  }
 }
 
 export async function changeCatalogueAvailability(db, data, actor) {

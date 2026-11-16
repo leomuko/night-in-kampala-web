@@ -17,17 +17,26 @@ export function requestableSizes(product, inventory) {
   return [...sizes.values()];
 }
 
-// Call before any other writes in the transaction. The public facet contains
-// labels only, while its private counter keeps a size visible across products.
 export async function updateSizeFacets(tx, db, previous, product, stock) {
-  const before = new Map((previous?.requestableSizes ?? []).map(size => [size.id, size]));
-  const after = requestableSizes(product, stock);
-  const idsAfter = new Set(after.map(size => size.id));
-  const changes = [
-    ...after.filter(size => !before.has(size.id)).map(size => ({ ...size, delta: 1 })),
-    ...[...before.values()].filter(size => !idsAfter.has(size.id)).map(size => ({ ...size, delta: -1 })),
-  ];
-  if (!changes.length) return after;
+  return (await updateSizeFacetBatch(tx, db, [{ previous, product, stock }]))[0];
+}
+
+// Sum deltas before reading facet counters so multi-item operations share the same transaction.
+export async function updateSizeFacetBatch(tx, db, records) {
+  const deltas = new Map();
+  function change({ id, label }, amount) {
+    deltas.set(id, { id, label, delta: (deltas.get(id)?.delta ?? 0) + amount });
+  }
+  const allSizes = records.map(({ previous, product, stock }) => {
+    const before = new Map((previous?.requestableSizes ?? []).map(size => [size.id, size]));
+    const after = requestableSizes(product, stock);
+    const idsAfter = new Set(after.map(size => size.id));
+    for (const size of after) if (!before.has(size.id)) change(size, 1);
+    for (const size of before.values()) if (!idsAfter.has(size.id)) change(size, -1);
+    return after;
+  });
+  const changes = [...deltas.values()].filter(change => change.delta !== 0);
+  if (!changes.length) return allSizes;
   const counts = await tx.getAll(...changes.map(({ id }) => db.doc(`catalogueSizeCounts/${id}`)));
   for (const [index, { id, label, delta }] of changes.entries()) {
     const snapshot = counts[index];
@@ -42,5 +51,5 @@ export async function updateSizeFacets(tx, db, previous, product, stock) {
       if (current === 0) tx.set(publicRef, { label });
     }
   }
-  return after;
+  return allSizes;
 }

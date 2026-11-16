@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Button, ErrorState, LoadingState } from '../../components/UI.jsx';
+import { Button, ErrorState, Field, LoadingState } from '../../components/UI.jsx';
 import { formatPrice } from '../../data/previewProducts.js';
 import { callStaff, staffError } from './catalogueAdmin.js';
 import { groupOrders, isOverdue, readOrder } from './orderAdmin.js';
@@ -13,6 +13,8 @@ function OrderDetails({ id }) {
   const [retry, setRetry] = useState(0);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [notice, setNotice] = useState('');
+  const [reason, setReason] = useState('');
   useEffect(() => {
     let active = true;
     readOrder(id).then(order => {
@@ -29,7 +31,8 @@ function OrderDetails({ id }) {
     setBusy(true);
     setError('');
     try {
-      await callStaff('orderDesk', { id, action: name, ...fields });
+      const result = await callStaff('orderDesk', { id, action: name, ...fields });
+      setNotice(result.competing ? 'Review and follow up on competing requests for this piece.' : 'Order updated.');
       setRetry(value => value + 1);
     } catch (failure) { setError(staffError(failure)); }
     finally { setBusy(false); }
@@ -40,6 +43,7 @@ function OrderDetails({ id }) {
   const order = state.order;
   if (!order) return <p>Order unavailable.</p>;
   const { contact } = order;
+  const canAllocate = ['new', 'contacted', 'confirmed'].includes(order.state) && ['unfulfilled', 'ready_for_collection'].includes(order.fulfilment);
   return <section className="staff-order-detail stack">
     <h2>{order.reference}</h2>
     <p className="helper">{label(order.state)} · {order.paymentState} · {label(order.fulfilment)}</p>
@@ -54,10 +58,20 @@ function OrderDetails({ id }) {
     <ul className="order-items">{order.items.map(item => <li key={item.slug}>
       {item.photo && <img src={item.photo} alt="" />}
       <div><strong>{item.name}</strong><p>{item.sizeLabel} · Quantity {item.quantity}</p>
-        <p>{formatPrice(item.priceUGX)} · {label(item.state)}</p></div>
+        <p>{formatPrice(item.priceUGX)} · {label(item.state)}</p>
+        {canAllocate && item.state === 'requested' && <div className="staff-actions">
+          <Button disabled={busy} onClick={() => action('confirm', { slug: item.slug, reason })}>Confirm</Button>
+          <Button variant="secondary" disabled={busy} onClick={() => action('decline', { slug: item.slug })}>Decline</Button>
+        </div>}
+        {canAllocate && item.state === 'reserved' && <Button variant="secondary" disabled={busy} onClick={() => action('release', { slug: item.slug })}>Release reservation</Button>}
+      </div>
     </li>)}</ul>
     <p><strong>Item subtotal</strong> {formatPrice(order.subtotalUGX)}</p>
     {order.state === 'new' && <Button disabled={busy} onClick={() => action('contact')}>Mark contacted</Button>}
+    {canAllocate && order.items.some(item => item.state === 'requested') && <Field label="Reason if confirming ahead of an older request" maxLength={300} value={reason}
+      onChange={event => setReason(event.target.value)} />}
+    {canAllocate && !order.items.some(item => item.state === 'sold') && <Button variant="secondary" disabled={busy} onClick={() => action('cancel')}>Cancel order</Button>}
+    {notice && <p role="status">{notice}</p>}
     {error && <ErrorState>{error}</ErrorState>}
   </section>;
 }

@@ -74,6 +74,10 @@ export function publicOrderSummary(order, whatsappNumber) {
   };
 }
 
+export function requestCollection(db, slug) {
+  return db.collection(`orderRequests/${slug}/requests`);
+}
+
 export function queueFields(order) {
   return {
     reference: order.reference, createdAt: order.createdAt, state: order.state, unread: order.unread,
@@ -142,6 +146,7 @@ export async function submitOrder(db, data, source, secret, now = Date.now()) {
       unread: true, contact, phoneKey, payloadHash, items, subtotalUGX };
     for (const { entry, stock, inventoryRef, productRef } of writes) {
       counts.set(entry.slug, (counts.get(entry.slug) ?? 0) + 1);
+      tx.create(requestCollection(db, entry.slug).doc(identity), { createdAt });
       tx.update(inventoryRef, { activeRequests: (stock.activeRequests ?? 0) + 1 });
       tx.update(productRef, { availability: 'requested' });
       tx.set(db.doc(`productDrafts/${entry.slug}`), { publishedAvailability: 'requested' }, { merge: true });

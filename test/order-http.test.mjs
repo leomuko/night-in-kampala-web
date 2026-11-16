@@ -3,7 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { getAuth } from 'firebase-admin/auth';
 import { test } from 'node:test';
 import { initializeApp, deleteApp } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
+import { FieldValue, getFirestore } from 'firebase-admin/firestore';
 import { defaultOrderSettings, emulatorOrderCheck } from '../functions/order-model.js';
 import { privateOrderKey } from '../functions/order-submit.js';
 
@@ -27,6 +27,10 @@ async function orderFixture(run) {
   const app = initializeApp({ projectId: project }, `orders-${randomUUID()}`);
   const db = getFirestore(app);
   const fixtures = [];
+  const pieceSlugs = [];
+  const sizeRef = db.doc('catalogueSizes/waist-33');
+  const sizeCount = db.doc('catalogueSizeCounts/waist-33');
+  const savedFacets = await db.getAll(sizeRef, sizeCount);
   const staffUsers = [];
   const identifiers = new Set();
   const phoneKeys = new Set();
@@ -41,15 +45,18 @@ async function orderFixture(run) {
     const inventory = db.doc(`inventory/${slug}`);
     const draft = db.doc(`productDrafts/${slug}`);
     fixtures.push(product, inventory, draft);
+    pieceSlugs.push(slug);
     await Promise.all([
       product.set({
         status: 'published', isRealCatalogueStock: true, availability: 'available',
-        stockType: 'one-of-one', sizeLabel: 'Waist 32', name: 'Illustrative test denim', priceUGX: 85000,
-        requestableSizes: [{ id: 'waist-32', label: 'Waist 32' }],
+        stockType: 'one-of-one', sizeLabel: 'Waist 33', name: 'Illustrative test denim', priceUGX: 85000,
+        requestableSizes: [{ id: 'waist-33', label: 'Waist 33' }],
       }),
+      sizeRef.set({ label: 'Waist 33' }),
+      sizeCount.set({ count: FieldValue.increment(1) }, { merge: true }),
       inventory.set({ availableUnits: 1, relistUnits: 1, stockType: 'one-of-one', variants: [] }),
     ]);
-    return { slug, size: 'waist-32', priceUGX: 85000, quantity: 1 };
+    return { slug, size: 'waist-33', priceUGX: 85000, quantity: 1 };
   }
   function identity(data) { return privateOrderKey(project, 'submission', data.submissionId); }
   function payload(items, phone = phones[0]) {
@@ -79,6 +86,8 @@ async function orderFixture(run) {
   } finally {
     await Promise.all([
       ...fixtures.map(doc => doc.delete()),
+      ...savedFacets.map(doc => doc.exists ? doc.ref.set(doc.data()) : doc.ref.delete()),
+      ...pieceSlugs.flatMap(slug => [...identifiers].map(id => db.doc(`orderRequests/${slug}/requests/${id}`).delete())),
       ...[...identifiers].flatMap(id => [db.doc(`orders/${id}`).delete(), db.doc(`orderQueue/${id}`).delete()]),
       ...[...phoneKeys].flatMap(id => [db.doc(`orderPhones/${id}`).delete(), db.doc(`orderPhoneBlocks/${id}`).delete()]),
       previousSource.exists ? sourceRef.set(previousSource.data()) : sourceRef.delete(),
@@ -150,5 +159,34 @@ test('staff can mark orders seen and contacted independently, only once per acti
     assert.equal((await queue.get()).data().state, 'contacted');
     assert.equal((await db.doc(`orders/${id}`).get()).data().unread, false);
     assert.equal((await db.collection('auditLogs').where('orderId', '==', id).get()).size, 1);
+  });
+});
+
+test('competing confirmation allocates once and multi-item cancellation releases only owned stock', async () => {
+  await orderFixture(async ({ db, piece, payload, identity, staff }) => {
+    const products = await Promise.all([piece(0), piece(1)]);
+    const older = payload(products);
+    const newer = payload([products[0]], phones[1]);
+    assert.equal((await callable('orderCreate', older)).status, 200);
+    assert.equal((await callable('orderCreate', newer)).status, 200);
+    const worker = await staff();
+    const desk = (data, action, slug) => callable('orderDesk', { id: identity(data), action, slug }, worker);
+    const [success, blocked] = await Promise.all([desk(older, 'confirm', products[0].slug), desk(newer, 'confirm', products[0].slug)]);
+    assert.equal(success.status, 200, JSON.stringify(success.body.error));
+    assert.equal(success.body.result.competing, true);
+    assert.equal(blocked.body.error.status, 'FAILED_PRECONDITION');
+    const order = db.doc(`orders/${identity(older)}`);
+    assert.deepEqual((await order.get()).data().items.map(line => line.state), ['reserved', 'requested']);
+    assert.equal((await order.get()).data().subtotalUGX, 170000);
+    const stock = db.doc(`inventory/${products[0].slug}`);
+    assert.equal((await stock.get()).data().reservedUnits, 1);
+    assert.equal((await desk(older, 'cancel')).status, 200);
+    assert.equal((await desk(older, 'cancel')).status, 200);
+    assert.equal((await stock.get()).data().availableUnits, 1);
+    assert.equal((await db.doc(`products/${products[0].slug}`).get()).data().availability, 'requested');
+    assert.equal((await db.doc(`products/${products[1].slug}`).get()).data().availability, 'available');
+    assert.equal((await desk(newer, 'decline', products[0].slug)).status, 200);
+    assert.equal((await db.doc(`products/${products[0].slug}`).get()).data().availability, 'available');
+    assert.equal((await db.doc('catalogueSizeCounts/waist-33').get()).data().count, 2);
   });
 });
