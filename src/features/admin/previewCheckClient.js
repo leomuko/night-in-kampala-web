@@ -5,6 +5,8 @@ import { getFirebaseServices } from '../../services/firebase.js';
 import { FUNCTIONS_REGION } from '../../../functions/firebase-project.js';
 import { readPublicDocument } from '../catalogue/catalogueData.js';
 
+export const previewTestPhone = '+256772900100';
+
 export async function runPreviewCheck({ slug, phone, spoof }) {
   const runtime = getFirebaseRuntime();
   if (runtime.mode !== 'cloud' || runtime.target !== 'preview') throw new Error('Preview checks require the Hosting preview.');

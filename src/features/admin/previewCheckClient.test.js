@@ -3,7 +3,8 @@ import { getToken } from 'firebase/app-check';
 import { getFirebaseRuntime } from '../../services/firebaseApp.js';
 import { getFirebaseServices } from '../../services/firebase.js';
 import { readPublicDocument } from '../catalogue/catalogueData.js';
-import { runPreviewCheck } from './previewCheckClient.js';
+import { previewTestPhone, runPreviewCheck } from './previewCheckClient.js';
+import { normalizePhone } from '../../../functions/order-contact.js';
 
 vi.mock('firebase/app-check', () => ({ getToken: vi.fn(async () => ({ token: 'synthetic-attestation' })) }));
 vi.mock('../../services/firebaseAppCheck.js', () => ({ initializeFirebaseAppCheck: async () => ({ fixture: true }) }));
@@ -11,6 +12,10 @@ vi.mock('../../services/firebaseApp.js', () => ({ getFirebaseRuntime: vi.fn() })
 vi.mock('../../services/firebase.js', () => ({ getFirebaseServices: vi.fn() }));
 vi.mock('../catalogue/catalogueData.js', () => ({ readPublicDocument: vi.fn() }));
 afterEach(() => vi.unstubAllGlobals());
+
+test('the preview form default passes the server phone validator', () => {
+  expect(normalizePhone(previewTestPhone, 'UG')).toBe(previewTestPhone);
+});
 
 test('preview checks refuse production and non-owner identities before transmitting', async () => {
   const fetch = vi.fn(); vi.stubGlobal('fetch', fetch);

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { getFirebaseRuntime } from '../../services/firebaseApp.js';
 import { Button, Field } from '../../components/UI.jsx';
-import { runPreviewCheck } from './previewCheckClient.js';
+import { previewTestPhone, runPreviewCheck } from './previewCheckClient.js';
 
 export default function PreviewChecks() {
   const [result, setResult] = useState(null);
@@ -22,7 +22,7 @@ export default function PreviewChecks() {
     <p>Owner verification on test stock. Leave the piece ID blank to check attestation while ordering is paused.</p>
     <form className="stack staff-form" onSubmit={submit}>
       <Field label="Test piece ID" name="slug" />
-      <Field label="Test phone" name="phone" defaultValue="+447700900100" />
+      <Field label="Test phone" name="phone" defaultValue={previewTestPhone} />
       <label className="radio-row"><input type="checkbox" name="spoof" />Add spoofed forwarding prefix</label>
       <Button disabled={busy} type="submit">{busy ? 'Checking…' : 'Run preview check'}</Button>
     </form>
