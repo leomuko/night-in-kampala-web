@@ -83,7 +83,8 @@ async function plan(db, auth, bucket) {
   const testSlugs = new Set(testProducts.map(row => row.id));
   const retainedProducts = data.products.filter(row => !testSlugs.has(row.id));
   const retainedSlugs = new Set(retainedProducts.map(row => row.id));
-  const drafts = data.productDrafts.filter(row => marked(row) || !retainedSlugs.has(row.id));
+  const drafts = data.productDrafts.filter(row => marked(row) || testSlugs.has(row.id));
+  const keptUnpublished = { firestore: [], storage: [] };
   for (const row of drafts) {
     if (retainedSlugs.has(row.id)) blockers.add(`Retained product has a marked draft: ${row.id}`);
     testSlugs.add(row.id);
@@ -94,7 +95,12 @@ async function plan(db, auth, bucket) {
   const testContentPaths = new Set(testContent.map(row => row.ref.path));
   const retainedContent = content.filter(row => !testContentPaths.has(row.ref.path));
   const retainedContentPaths = new Set(retainedContent.map(row => row.ref.path));
-  const editorialDrafts = data.contentDrafts.filter(row => marked(row) || !retainedContentPaths.has(editorialKey(row)));
+  const editorialDrafts = data.contentDrafts.filter(row => marked(row) || testContentPaths.has(editorialKey(row)));
+  const publicContentPaths = new Set(content.map(row => row.ref.path));
+  keptUnpublished.firestore.push(...data.contentDrafts.filter(row => !editorialDrafts.includes(row)
+    && !publicContentPaths.has(editorialKey(row))).map(row => row.ref.path));
+  keptUnpublished.firestore.push(...data.productDrafts.filter(row => !drafts.includes(row)
+    && !retainedSlugs.has(row.id)).map(row => row.ref.path));
   for (const row of editorialDrafts) {
     if (retainedContentPaths.has(editorialKey(row))) blockers.add(`Retained content has a marked draft: ${row.id}`);
   }
@@ -144,7 +150,9 @@ async function plan(db, auth, bucket) {
   };
   const isTestPhoto = row => {
     const [parent, slug, group, , ...extra] = row.ref.path.split('/');
-    return parent === 'productPhotoSources' && group === 'photos' && !extra.length && !retainedSlugs.has(slug);
+    const eligible = parent === 'productPhotoSources' && group === 'photos' && !extra.length;
+    if (eligible && !marked(row) && !testSlugs.has(slug) && !retainedSlugs.has(slug)) keptUnpublished.firestore.push(row.ref.path);
+    return eligible && (marked(row) || testSlugs.has(slug));
   };
   const orderPhones = data.orderPhones.filter(row => !retainedOrders.length || (testPhones.has(row.id) && !retainedPhones.has(row.id)));
   const phoneBlocks = data.orderPhoneBlocks.filter(row => !retainedOrders.length
@@ -169,10 +177,14 @@ async function plan(db, auth, bucket) {
       if (isMarked) blockers.add(`Retained product has marked media: ${file.name}`);
       continue;
     }
+    if (!isMarked && !testSlugs.has(slug)) {
+      keptUnpublished.storage.push(file.name);
+      continue;
+    }
     if (!file.metadata.generation) blockers.add(`Object generation unavailable: ${file.name}`);
     objects.push(file);
   }
-  return { docs, accounts, objects, blockers: [...blockers].sort() };
+  return { docs, accounts, objects, keptUnpublished, blockers: [...blockers].sort() };
 }
 
 async function remove(db, auth, { docs, accounts, objects }) {
@@ -207,6 +219,10 @@ async function main() {
       project, bucket: bucketName, mode: args.execute ? 'execute' : 'dry-run', generatedAt: new Date().toISOString(),
       firestore: candidates.docs.map(row => row.ref.path).sort(), auth: candidates.accounts,
       storage: candidates.objects.map(file => file.name).sort(), blockers: candidates.blockers,
+      keptUnpublished: {
+        firestore: candidates.keptUnpublished.firestore.sort(),
+        storage: candidates.keptUnpublished.storage.sort(),
+      },
     };
     const directory = new URL('../.cache/', import.meta.url);
     const file = new URL(`launch-cleanup-${project}.json`, directory);

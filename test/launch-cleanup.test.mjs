@@ -44,7 +44,9 @@ test('cleanup lists test data, blocks mixed stock, deletes reviewed candidates a
   const disposable = {
     'products/test-denim': { isTestData: true, isRealCatalogueStock: true, requestableSizes: [{ id: 'l' }] },
     'productDrafts/test-denim': { isTestData: true },
-    'productDrafts/unpublished': { revision: 1 },
+    'productDrafts/unpublished': { revision: 1, isTestData: true },
+    'productPhotoSources/unpublished/photos/source': {},
+    'contentDrafts/events--unpublished-test': { isTestData: true, collection: 'events', slug: 'unpublished-test' },
     'products/old-placeholder': { isRealCatalogueStock: false },
     'inventory/test-denim': { availableUnits: 1 },
     'orders/test-order': { isTestData: true, phoneKey: 'test-phone', items: [{ slug: 'test-denim', isRealCatalogueStock: true }] },
@@ -65,6 +67,9 @@ test('cleanup lists test data, blocks mixed stock, deletes reviewed candidates a
   const retained = {
     'products/real-piece': { isRealCatalogueStock: true, requestableSizes: [{ id: 'm' }] },
     'productDrafts/real-piece': { isRealCatalogueStock: false },
+    'productDrafts/unpublished-real': { revision: 1, isRealCatalogueStock: false },
+    'productPhotoSources/unpublished-real/photos/source': {},
+    'contentDrafts/events--unpublished-real': { collection: 'events', slug: 'unpublished-real', revision: 1 },
     'inventory/real-piece': { availableUnits: 1 },
     'orders/real-order': { phoneKey: 'real-phone', items: [{ slug: 'real-piece', isRealCatalogueStock: true }] },
     'orderPhones/real-phone': { open: 1 },
@@ -76,9 +81,10 @@ test('cleanup lists test data, blocks mixed stock, deletes reviewed candidates a
   const disposableMedia = [
     'product-drafts/test-denim/staff/image.jpg', 'product-processed/test-denim/staff/image/share.jpg',
     'product-media/test-denim/revision/share.jpg', 'product-drafts/unpublished/staff/image.jpg',
-    'product-processed/orphan/staff/image/share.jpg',
+    'product-processed/marked-orphan/staff/image/share.jpg',
   ];
-  const retainedMedia = ['product-drafts/real-piece/staff/image.jpg', 'brand/logo.jpg'];
+  const retainedMedia = ['product-drafts/real-piece/staff/image.jpg', 'brand/logo.jpg',
+    'product-drafts/unpublished-real/staff/image.jpg', 'product-processed/orphan/staff/image/share.jpg'];
 
   try {
     const batch = db.batch();
@@ -88,7 +94,8 @@ test('cleanup lists test data, blocks mixed stock, deletes reviewed candidates a
     await auth.setCustomUserClaims('test-staff', { staff: true, testAccount: true });
     await auth.createUser({ uid: 'permanent-staff' });
     await auth.setCustomUserClaims('permanent-staff', { staff: true });
-    await Promise.all([...disposableMedia, ...retainedMedia].map(name => bucket.file(name).save('image', { resumable: false })));
+    await Promise.all([...disposableMedia, ...retainedMedia].map(name => bucket.file(name).save('image', { resumable: false,
+      metadata: name.includes('/marked-orphan/') ? { metadata: { nikTestData: 'true' } } : {} })));
 
     const dry = run(project);
     assert.equal(dry.status, 0, dry.stderr);
@@ -98,6 +105,10 @@ test('cleanup lists test data, blocks mixed stock, deletes reviewed candidates a
     assert.deepEqual(listed.auth, ['test-staff']);
     assert.deepEqual(listed.storage, [...disposableMedia].sort());
     assert.deepEqual(listed.blockers, []);
+    assert.deepEqual(listed.keptUnpublished.firestore, ['contentDrafts/events--unpublished-real',
+      'productDrafts/unpublished-real', 'productPhotoSources/unpublished-real/photos/source']);
+    assert.deepEqual(listed.keptUnpublished.storage, ['product-drafts/unpublished-real/staff/image.jpg',
+      'product-processed/orphan/staff/image/share.jpg']);
     assert.equal((await db.doc('orders/test-order').get()).exists, true);
     assert.equal((await bucket.file(disposableMedia[0]).exists())[0], true);
     assert.equal((await auth.getUser('test-staff')).uid, 'test-staff');
@@ -125,6 +136,7 @@ test('cleanup lists test data, blocks mixed stock, deletes reviewed candidates a
 
     const after = run(project);
     assert.equal(after.status, 0, after.stderr);
+    assert.deepEqual((await report()).keptUnpublished, listed.keptUnpublished);
     for (const key of ['firestore', 'auth', 'storage', 'blockers']) assert.deepEqual((await report())[key], []);
   } finally {
     await deleteApp(app);

@@ -65,7 +65,9 @@ After reviewing that inventory, execute cleanup with the typed phrase. Execution
 node scripts/launch-cleanup.mjs --project night-in-kampala --execute --confirm "DELETE TEST DATA FOR night-in-kampala"
 ```
 
-Run the dry run again to verify that the report is empty. Review categories and order settings, then rotate `ORDER_IDENTITY_KEY` before the production release. If genuine orders still exist, review the old key dependencies before rotating it.
+Unmarked unpublished drafts, photo-source records and media are retained. The report lists them under `keptUnpublished` for owner review. Only explicitly marked test records or assets belonging to test stock or test content are eligible for deletion.
+
+Run the dry run again to verify that the deletion lists are empty. Review categories and order settings, then rotate `ORDER_IDENTITY_KEY` before the production release. If genuine orders still exist, review the old key dependencies before rotating it.
 
 ## Automatic checks and evidence
 
