@@ -45,6 +45,8 @@ The existing Git repository and tracked README were relocated from the parent di
 
 The owner requested a local baseline commit of the reviewed docs and assets before application code. Keep that starting point in history; pushing has not been requested.
 
+All development happens on the `dev` branch. `main` only receives `dev` by merge, after the work has been deployed to Firebase Hosting and tested there, and only when the owner approves. Never commit directly to `main`.
+
 Commit completed work promptly in small, coherent groups by feature or file. Keep dependency manifests and their lockfile together, include relevant tests with their feature where practical, avoid mixing unrelated changes, and share the resulting hashes. Push only when requested.
 
 Run future project and Git commands from this directory:
