@@ -29,3 +29,7 @@ export const defaultOrderSettings = {
     payment: 'Staff will contact you to confirm the order and arrange payment.',
   },
 };
+
+export const maxOrderLines = 12;
+export const maxLineQuantity = 20;
+export const emulatorOrderCheck = 'demo-order-form';

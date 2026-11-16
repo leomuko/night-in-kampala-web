@@ -34,7 +34,7 @@ if (mode !== 'start') {
     const required = mode === 'metadata' ? ['auth', 'firestore', 'storage', 'functions', 'hosting'] : ['firestore', 'storage'];
     running = required.every(service => services[service]);
   } catch { /* Start an isolated emulator run if no hub is serving. */ }
-  const files = mode === 'metadata' ? ['test/shared-links-http.test.mjs', 'test/staff-http.test.mjs'] : ['test/rules.test.mjs'];
+  const files = mode === 'metadata' ? ['test/shared-links-http.test.mjs', 'test/staff-http.test.mjs', 'test/order-http.test.mjs'] : ['test/rules.test.mjs'];
   const only = mode === 'metadata' ? 'auth,firestore,storage,functions,hosting' : 'firestore,storage';
   if (running && mode === 'test') {
     throw new Error('Stop the running emulators before rule tests. Storage cross-service rules need the isolated rules project.');

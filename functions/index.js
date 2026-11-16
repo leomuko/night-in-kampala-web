@@ -1,4 +1,5 @@
-import { onRequest } from 'firebase-functions/v2/https';
+import { onRequest, onCall } from 'firebase-functions/v2/https';
+import { defineSecret } from 'firebase-functions/params';
 import { initializeApp } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { readFile } from 'node:fs/promises';
@@ -12,6 +13,7 @@ import { changeCatalogueAvailability } from './catalogue-stock.js';
 import { catalogueMediaHandler } from './serve-catalogue-media.js';
 import { saveEditorialDraft, publishEditorial } from './editorial.js';
 import { approvePublication } from './publication-approval.js';
+import { orderSource, submitOrder } from './order-submit.js';
 import { saveOrderSettings } from './order-settings.js';
 import { staffCallable } from './staff-access.js';
 import { resolveFunctionRuntime } from './runtime-config.js';
@@ -66,3 +68,13 @@ export const editorialDraftSave = staffCallable(runtime, (data, actor) => saveEd
 export const editorialPublish = staffCallable(runtime, (data, actor) => publishEditorial(db, data, actor));
 export const publicationApproval = staffCallable(runtime, (data, actor) => approvePublication(db, data, actor));
 export const orderSettingsSave = staffCallable(runtime, (data, actor) => saveOrderSettings(db, data, actor));
+
+const orderIdentityKey = defineSecret('ORDER_IDENTITY_KEY');
+export const orderCreate = onCall({
+  region: runtime.region, maxInstances: 3, enforceAppCheck: !runtime.emulator,
+  ...(runtime.emulator ? {} : { secrets: [orderIdentityKey] }),
+}, request => {
+  const source = orderSource(request, runtime, process.env.ORDER_TRUSTED_PROXY_HOPS);
+  const key = runtime.emulator ? runtime.projectId : orderIdentityKey.value();
+  return submitOrder(db, request.data, source, key);
+});

@@ -1,8 +1,9 @@
+import { maxOrderLines, maxLineQuantity } from '../../../functions/order-model.js';
 import { readPublicDocument } from '../catalogue/catalogueData.js';
 
 export const bagStorageKey = 'nk-bag-v1';
-export const maxBagItems = 12;
-export const maxItemQuantity = 20;
+export const maxBagItems = maxOrderLines;
+export const maxItemQuantity = maxLineQuantity;
 
 export function readStoredBag(storage) {
   try {

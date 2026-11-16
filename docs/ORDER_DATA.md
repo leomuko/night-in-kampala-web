@@ -19,3 +19,9 @@ Guest uses the same browser's random submission identity to retry a saved order.
 | Line / stock | A requested line can be reserved, declined, cancelled or cleared as spam. A reserved line can be released before dispatch or explicitly marked Sold. Preserve unrelated items and original snapshots. Recompute safe availability and size labels atomically. |
 
 New, contacted and confirmed orders consume open slots. Requested and reserved lines consume the applicable phone/piece slot. Sold lines remain in the audit record. Releasing a confirmed allocation is an audited decision. Overdue flags use the approved editable default of 24 hours. Payment never changes stock automatically.
+
+## Submission verification
+
+Cloud order creation enforces callable App Check. The browser integration uses a configured reCAPTCHA Enterprise site key. Staging must confirm the trusted proxy position and ingress before setting `ORDER_TRUSTED_PROXY_HOPS` and supply a per-project `ORDER_IDENTITY_KEY` through Secret Manager. The secret protects phone/source digests and submission document IDs. Keep it stable while outstanding orders or blocks exist. [Firebase callable App Check](https://firebase.google.com/docs/app-check/cloud-functions) and [Cloud Run function headers](https://docs.cloud.google.com/functions/docs/reference/headers).
+
+The demo callable uses an explicit form marker plus the demo project and configured loopback emulator listener. The CLI can forward requests to the worker over local IPC. It ignores forwarded addresses in the emulator, so local requests share the same source allowance. The marker grants access only to the isolated emulator form. The cloud function requires verified App Check and never accepts the demo marker as proof. The rolling source document keeps a bounded list of accepted times and records `expiresAt` for TTL setup at staging. Shared networks share a limit.

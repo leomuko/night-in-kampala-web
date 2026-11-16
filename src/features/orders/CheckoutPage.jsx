@@ -1,16 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { defaultOrderSettings } from '../../../functions/order-model.js';
 import { Button, ErrorState, Field, LoadingState, Select } from '../../components/UI.jsx';
 import { formatPrice } from '../../data/previewProducts.js';
 import { readOrderPolicy } from '../catalogue/catalogueData.js';
+import { createOrder } from './orderClient.js';
 import { countries } from './countries.js';
 import { canContinue, subtotal } from './bagData.js';
 import { useBag } from './bagContext.js';
 import OrderItems from './OrderItems.jsx';
 import useBagReview from './useBagReview.js';
 
-export default function CheckoutPage({ onOrder }) {
+export default function CheckoutPage({ onOrder = createOrder }) {
   const { items } = useBag();
   const { rows, failed, loading, retry } = useBagReview(items);
   const [country, setCountry] = useState('UG');
@@ -18,6 +19,8 @@ export default function CheckoutPage({ onOrder }) {
   const [policy, setPolicy] = useState(defaultOrderSettings.copy);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [receipt, setReceipt] = useState(null);
+  const submission = useRef(null);
   useEffect(() => {
     let current = true;
     readOrderPolicy().then(result => { if (current && result?.copy) setPolicy(result.copy); }).catch(() => {});
@@ -30,10 +33,17 @@ export default function CheckoutPage({ onOrder }) {
     const details = Object.fromEntries(new FormData(event.currentTarget));
     setBusy(true);
     setError('');
-    try { await onOrder({ details, items }); }
+    try {
+      submission.current ??= crypto.randomUUID();
+      setReceipt(await onOrder({ details, items, submissionId: submission.current }));
+    }
     catch (failure) { setError(failure.message || 'We couldn’t confirm your submission. Try again.'); }
     finally { setBusy(false); }
   }
+
+  if (receipt) return <section className="container page-section order-page stack">
+    <h1>Order request saved</h1><p>Order reference {receipt.reference}</p>
+  </section>;
 
   return <section className="container page-section order-page stack">
     <h1>Place an order</h1>
