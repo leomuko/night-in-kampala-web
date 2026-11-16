@@ -73,3 +73,7 @@
 .staff-list { margin: 0; padding-inline-start: var(--space-6); }
 .field textarea { width: 100%; min-height: var(--control-height); padding: var(--space-3) var(--space-4); border: var(--border-width) solid var(--color-muted); background: var(--color-paper); color: var(--color-ink); font: inherit; resize: vertical; }
 .staff-photo { width: var(--space-32); height: var(--space-32); object-fit: contain; background: var(--color-fog); }
+
+.garment-card h3 { font-family: var(--font-ui); }
+.badge--requested { background: var(--color-paper); color: var(--color-ink); border: var(--border-width) solid var(--color-ink); }
+.garment-image--sold img { opacity: var(--opacity-sold-image); }

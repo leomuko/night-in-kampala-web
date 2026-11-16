@@ -4,6 +4,7 @@
   --color-ink: #0b0b0c;
   --color-fog: #f1f1ef;
   --color-hairline: #e2e2df;
+  --opacity-sold-image: 0.55;
   --color-muted: color-mix(in srgb, var(--color-ink) 65%, var(--color-paper));
   --font-display: 'Anton', Impact, sans-serif;
   --font-ui: 'Inter', system-ui, sans-serif;
