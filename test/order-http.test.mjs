@@ -83,7 +83,7 @@ async function orderFixture(run) {
   }
   try {
     await sourceRef.delete();
-    await run({ db, piece, payload, identity, settingsRef, staff, cleanup });
+    await run({ db, piece, payload, identity, settingsRef, staff, cleanup, sourceRef });
   } finally {
     await Promise.all([
       ...fixtures.map(doc => doc.delete()),
@@ -103,10 +103,12 @@ async function orderFixture(run) {
 }
 
 test('order creation validates form proof, stock, trusted prices and concurrent retry, then applies both limits', async () => {
-  await orderFixture(async ({ db, piece, payload, identity, settingsRef }) => {
+  await orderFixture(async ({ db, piece, payload, identity, settingsRef, sourceRef }) => {
     const settings = (await settingsRef.get()).data() ?? defaultOrderSettings;
     assert.equal(settings.openPerPhone, 3);
-    assert.equal(settings.submissionsPerHour, 5);
+    assert.equal(settings.submissionsPerHour, 50);
+    const now = Date.now();
+    await sourceRef.set({ timestamps: Array.from({ length: 45 }, (_, index) => now - 1000 - index) });
     const items = await Promise.all(Array.from({ length: 5 }, (_, index) => piece(index)));
     const first = payload([items[0]]);
     const submit = data => callable('orderCreate', data);

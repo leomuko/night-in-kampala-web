@@ -42,6 +42,9 @@ test('the preview plan deploys shared services and a named channel, and guarded 
   invalid.preview.channel = 'review'; invalid.preview.origin = invalid.production.origin;
   assert.throws(() => selectDeployment(invalid, 'preview'), /channel origin/);
   assert.throws(() => selectDeployment({ ...profiles(), preview: { ...profile('preview'), indexPublicPages: true } }, 'preview'), /indexing/);
+  const order = { identitySecret: 'ORDER_IDENTITY_KEY', trustedProxyHops: null, appCheckSiteKey: 'fixture-site-key' };
+  assert.deepEqual(selectDeployment({ preview: { ...profile('preview'), order } }, 'preview').order, order);
+  assert.throws(() => selectDeployment({ preview: { ...profile('preview'), order: { ...order, trustedProxyHops: 0 } } }, 'preview'), /order release settings/);
 });
 test('cloud Functions reject missing artifact, wrong runtime project and local endpoints', () => {
   const config = selectDeployment(profiles(), 'production', projectId, liveConfirmation);

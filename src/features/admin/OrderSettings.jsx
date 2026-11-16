@@ -53,7 +53,7 @@ export default function OrderSettings() {
         maxLength={16} hint="Use international format. Leave blank to hide WhatsApp order buttons." />
       {limits.map(([key, label, max]) => <Field key={key} label={label} name={key} type="number" min="1" max={max}
         step="1" defaultValue={settings[key]} required />)}
-      <p className="helper">Overdue flags pending work for staff.</p>
+      <p className="helper">Overdue flags pending work for staff. People on the same mobile network or Wi-Fi can share a connection address and its hourly allowance.</p>
       <h3>Customer-facing wording</h3>
       <p>{settings.copyReviewed ? 'Owner reviewed' : 'Provisional · owner review needed'}</p>
       {Object.entries(settings.copy).map(([key, value]) => <label key={key} className="field content-fields">

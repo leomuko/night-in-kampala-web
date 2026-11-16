@@ -7,6 +7,12 @@ export function validateCloudDeployment(config) {
   if (config.indexPublicPages !== undefined && typeof config.indexPublicPages !== 'boolean') throw new Error('indexPublicPages must be an explicit boolean.');
   if (config.indexPublicPages && config.target !== 'production') throw new Error('Preview cannot enable public indexing.');
   if (config.region !== FUNCTIONS_REGION) throw new Error('The approved Functions region is europe-west1.');
+  if (config.order !== undefined) {
+    const order = config.order;
+    if (!order || order.identitySecret !== 'ORDER_IDENTITY_KEY'
+      || (order.trustedProxyHops !== null && (!Number.isInteger(order.trustedProxyHops) || order.trustedProxyHops < 1 || order.trustedProxyHops > 5))
+      || typeof order.appCheckSiteKey !== 'string') throw new Error('Invalid order release settings.');
+  }
   return { ...config, origin: configuredOrigin(config.origin), emulator: false };
 }
 

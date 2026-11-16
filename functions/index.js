@@ -78,7 +78,7 @@ export const orderCreate = onCall({
   region: runtime.region, maxInstances: 3, enforceAppCheck: !runtime.emulator,
   ...(runtime.emulator ? {} : { secrets: [orderIdentityKey] }),
 }, request => {
-  const source = orderSource(request, runtime, process.env.ORDER_TRUSTED_PROXY_HOPS);
+  const source = orderSource(request, runtime, runtime.order?.trustedProxyHops);
   const key = runtime.emulator ? runtime.projectId : orderIdentityKey.value();
   return submitOrder(db, request.data, source, key);
 });

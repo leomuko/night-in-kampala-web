@@ -15,7 +15,9 @@ test('predeploy builds matching browser/Function artifacts and imports the confi
     const profile = target => {
       const projectId = 'night-in-kampala';
       const preview = target === 'preview';
-      return { approved: true, projectId, region: 'europe-west1', origin: preview ? 'https://night-in-kampala--review-fixture.web.app' : 'https://production.example.test', ...(preview ? { channel: 'review' } : {}), webConfig: { projectId, apiKey: 'fixture-key', appId: 'fixture-app-id', messagingSenderId: 'fixture-sender', authDomain: `${projectId}.firebaseapp.com`, storageBucket: `${projectId}.firebasestorage.app` } };
+      return { approved: true, projectId,
+        order: { identitySecret: 'ORDER_IDENTITY_KEY', trustedProxyHops: 2, appCheckSiteKey: 'fixture-site-key' },
+        region: 'europe-west1', origin: preview ? 'https://night-in-kampala--review-fixture.web.app' : 'https://production.example.test', ...(preview ? { channel: 'review' } : {}), webConfig: { projectId, apiKey: 'fixture-key', appId: 'fixture-app-id', messagingSenderId: 'fixture-sender', authDomain: `${projectId}.firebaseapp.com`, storageBucket: `${projectId}.firebasestorage.app` } };
     };
     await writeFile(path.join(root, 'deployments.local.json'), JSON.stringify({ preview: profile('preview'), production: profile('production') }));
     const env = { ...process.env, GCLOUD_PROJECT: 'night-in-kampala', METADATA_SERVER_DETECTION: 'none' };
@@ -35,6 +37,8 @@ test('predeploy builds matching browser/Function artifacts and imports the confi
     const runtime = JSON.parse(await readFile(path.join(root, 'functions/generated/deployment.json'), 'utf8'));
     assert.equal(runtime.projectId, 'night-in-kampala');
     assert.equal(runtime.origin, 'https://night-in-kampala--review-fixture.web.app');
+    assert.equal(runtime.order.trustedProxyHops, 2);
+    assert.equal(runtime.order.identitySecret, 'ORDER_IDENTITY_KEY');
     const regionProbe = 'const m = await import("./functions/index.js"); console.log(JSON.stringify(Object.fromEntries(Object.entries(m).filter(([, value]) => value?.__endpoint).map(([name, value]) => [name, value.__endpoint.region]))));';
     const endpoints = childEnv => {
       const imported = spawnSync(process.execPath, ['--input-type=module', '-e', regionProbe], { cwd: root, env: childEnv, encoding: 'utf8' });

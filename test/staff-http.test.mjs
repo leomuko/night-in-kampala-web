@@ -408,7 +408,7 @@ test('order settings accept only validated owner changes and audit the safe proj
     }
     const revision = prior[0].data()?.revision ?? 0;
     const copy = { collection: 'Arrange collection', delivery: 'Delivery to be confirmed', payment: 'Arrange payment' };
-    const data = { revision, whatsappNumber: '', overdueHours: 24, openPerPhone: 3, activePerPiece: 1, submissionsPerHour: 5, copy, copyReviewed: false };
+    const data = { revision, whatsappNumber: '', overdueHours: 24, openPerPhone: 3, activePerPiece: 1, submissionsPerHour: 50, copy, copyReviewed: false };
     const save = (role, values) => post(endpoint.replace(/staffAccess$/, 'orderSettingsSave'), { data: values }, claims[role]);
     assert.equal((await save('staff', data)).status, 403);
     assert.equal((await save('owner', { ...data, activePerPiece: 4 })).status, 400);

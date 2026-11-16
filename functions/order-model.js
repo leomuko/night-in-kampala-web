@@ -21,7 +21,7 @@ export const defaultOrderSettings = {
   overdueHours: 24,
   openPerPhone: 3,
   activePerPiece: 1,
-  submissionsPerHour: 5,
+  submissionsPerHour: 50,
   copyReviewed: false,
   copy: {
     collection: 'Staff will contact you to arrange collection.',
