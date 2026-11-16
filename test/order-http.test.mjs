@@ -246,3 +246,31 @@ test('manual sales preserve reservations and retry without selling stock twice',
     assert.equal((await db.collection('auditLogs').where('saleId', '==', saleId).get()).size, 1);
   });
 });
+
+test('spam clears only affected requests and an audited unblock permits a fresh submission', async () => {
+  await orderFixture(async ({ db, piece, payload, identity, staff }) => {
+    const [shared, solo] = await Promise.all([piece(0), piece(1)]);
+    const legit = payload([shared], phones[1]);
+    const spam = payload([shared, solo]);
+    assert.equal((await callable('orderCreate', legit)).status, 200);
+    assert.equal((await callable('orderCreate', spam)).status, 200);
+    const worker = await staff();
+    const id = identity(spam);
+    const desk = action => callable('orderDesk', { id, action }, worker);
+    assert.equal((await desk('spam')).status, 200);
+    assert.equal((await desk('spam')).status, 200);
+    assert.equal((await desk('phone-status')).body.result.blocked, true);
+    assert.equal((await db.doc(`products/${shared.slug}`).get()).data().availability, 'requested');
+    assert.equal((await db.doc(`products/${solo.slug}`).get()).data().availability, 'available');
+    const fresh = payload([solo]);
+    assert.equal((await callable('orderCreate', fresh)).body.error.status, 'FAILED_PRECONDITION');
+    assert.equal((await desk('unblock')).status, 200);
+    assert.equal((await desk('unblock')).status, 200);
+    assert.equal((await desk('phone-status')).body.result.blocked, false);
+    assert.equal((await callable('orderCreate', fresh)).status, 200);
+    assert.equal((await db.doc(`orders/${id}`).get()).data().state, 'spam');
+    const audit = await db.collection('auditLogs').where('orderId', '==', id).get();
+    assert.equal(audit.docs.filter(row => row.data().action === 'order-spam').length, 1);
+    assert.equal(audit.docs.filter(row => row.data().action === 'order-phone-unblocked').length, 1);
+  });
+});

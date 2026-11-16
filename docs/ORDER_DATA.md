@@ -18,7 +18,7 @@ Guest uses the same browser's random submission identity to retry a saved order.
 | Fulfilment | Unfulfilled moves to Ready for collection or Dispatched. Collection can move to Delivered. Dispatched can move to Delivered or Returned. Delivered can move to Returned. Returned stock needs inspection before relisting. |
 | Line / stock | A requested line can be reserved, declined, cancelled or cleared as spam. A reserved line can be released before dispatch or explicitly marked Sold. Preserve unrelated items and original snapshots. Recompute safe availability and size labels atomically. |
 
-New, contacted and confirmed orders consume open slots. Requested and reserved lines consume the applicable phone/piece slot. Sold lines remain in the audit record. Releasing a confirmed allocation is an audited decision. Overdue flags use the approved editable default of 24 hours. Payment never changes stock automatically.
+New, contacted and confirmed orders consume open slots. Requested and reserved lines consume the applicable phone/piece slot. Sold lines remain in the audit record. Releasing a confirmed allocation is an audited decision. Overdue flags use the approved editable default of 24 hours. Payment never changes stock automatically. Marking an unconfirmed order as spam blocks its normalized phone and clears that order’s lines in one transaction. Other requests and reservations keep their own state. Unblocking permits new requests and preserves the old spam record.
 
 ## Submission verification
 

@@ -15,12 +15,18 @@ function OrderDetails({ id }) {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState('');
+  const [blocked, setBlocked] = useState(false);
   const [reason, setReason] = useState('');
   useEffect(() => {
     let active = true;
     readOrder(id).then(order => {
       if (!active) return;
       setState({ order });
+      if (order?.state === 'spam') {
+        callStaff('orderDesk', { id, action: 'phone-status' }).then(value => {
+          if (active) setBlocked(value.blocked);
+        }).catch(() => { if (active) setError('Could not check the phone block.'); });
+      }
       if (order?.unread) {
         callStaff('orderDesk', { id, action: 'seen' }).catch(() => { if (active) setError('Could not mark this order as read.'); });
       }
@@ -33,6 +39,7 @@ function OrderDetails({ id }) {
     setError('');
     try {
       const result = await callStaff('orderDesk', { id, action: name, ...fields });
+      if (name === 'unblock') setBlocked(false);
       setNotice(result.competing ? 'Review and follow up on competing requests for this piece.' : 'Order updated.');
       setRetry(value => value + 1);
     } catch (failure) { setError(staffError(failure)); }
@@ -76,6 +83,8 @@ function OrderDetails({ id }) {
     {canAllocate && order.items.some(item => item.state === 'requested') && <Field label="Reason if confirming ahead of an older request" maxLength={300} value={reason}
       onChange={event => setReason(event.target.value)} />}
     {canAllocate && !order.items.some(item => item.state === 'sold') && <Button variant="secondary" disabled={busy} onClick={() => action('cancel')}>Cancel order</Button>}
+    {['new', 'contacted'].includes(order.state) && <Button variant="secondary" disabled={busy} onClick={() => action('spam')}>Mark as spam</Button>}
+    {order.state === 'spam' && blocked && <Button variant="secondary" disabled={busy} onClick={() => action('unblock')}>Unblock phone</Button>}
     {order.payment && <p>Payment recorded · {formatPrice(order.payment.amountUGX)} · {order.payment.method}</p>}
     {canPay && <form className="staff-form stack" onSubmit={event => {
       event.preventDefault();

@@ -9,11 +9,22 @@ export function orderDocument(db, id) {
 export async function updateOrderDesk(db, data, actor) {
   const orderRef = orderDocument(db, data?.id);
   const action = data?.action;
-  if (!['seen', 'contact'].includes(action)) throw new HttpsError('invalid-argument', 'Choose a supported order action.');
+  if (!['seen', 'contact', 'phone-status', 'unblock'].includes(action)) throw new HttpsError('invalid-argument', 'Choose a supported order action.');
   const queueRef = db.doc(`orderQueue/${orderRef.id}`);
   return db.runTransaction(async tx => {
     const order = (await tx.get(orderRef)).data();
     if (!order) throw new HttpsError('not-found', 'This order could not be found.');
+    if (action === 'phone-status' || action === 'unblock') {
+      if (order.state !== 'spam') throw new HttpsError('failed-precondition', 'Choose an order already marked as spam.');
+      const block = await tx.get(db.doc(`orderPhoneBlocks/${order.phoneKey}`));
+      if (action === 'phone-status') return { blocked: block.exists };
+      if (block.exists) {
+        tx.delete(block.ref);
+        tx.create(db.collection('auditLogs').doc(), { action: 'order-phone-unblocked', orderId: orderRef.id,
+          actorUid: actor.uid, at: FieldValue.serverTimestamp() });
+      }
+      return { blocked: false };
+    }
     if (action === 'seen') {
       if (order.unread) {
         tx.update(orderRef, { unread: false, seenAt: FieldValue.serverTimestamp(), seenBy: actor.uid });

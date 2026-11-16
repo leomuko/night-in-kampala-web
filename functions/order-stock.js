@@ -80,7 +80,7 @@ export function writeOrderUpdate(tx, db, reference, order) {
 function nextOrderState(order, items, action) {
   if (items.some(item => ['reserved', 'sold'].includes(item.state))) return 'confirmed';
   if (items.some(item => item.state === 'requested')) return order.state === 'new' ? 'new' : 'contacted';
-  return action === 'decline' ? 'declined' : 'cancelled';
+  return action === 'spam' ? 'spam' : action === 'decline' ? 'declined' : 'cancelled';
 }
 
 const operations = {
@@ -93,15 +93,19 @@ const operations = {
 export async function changeOrderStock(db, data, actor) {
   const reference = orderDocument(db, data?.id);
   const action = data?.action;
-  if (action !== 'cancel' && !Object.hasOwn(operations, action)) throw new HttpsError('invalid-argument', 'Choose a stock action.');
-  const slug = action === 'cancel' ? '' : catalogueId(data.slug);
+  const entireOrder = action === 'cancel' || action === 'spam';
+  if (!entireOrder && !Object.hasOwn(operations, action)) throw new HttpsError('invalid-argument', 'Choose a stock action.');
+  const slug = entireOrder ? '' : catalogueId(data.slug);
   const exception = boundedText(data?.reason ?? '', 300, 'Reason');
   return db.runTransaction(async tx => {
     const order = (await tx.get(reference)).data();
     if (!order) throw new HttpsError('not-found', 'This order could not be found.');
     const operation = operations[action];
     const selected = order.items.find(item => item.slug === slug);
-    if (action === 'cancel' && order.state === 'cancelled') return { state: order.state };
+    if ((action === 'cancel' && order.state === 'cancelled') || (action === 'spam' && order.state === 'spam')) return { state: order.state };
+    if (action === 'spam' && !['new', 'contacted'].includes(order.state)) {
+      throw new HttpsError('failed-precondition', 'Only an unconfirmed order can be marked as spam.');
+    }
     if (selected && selected.state === operation?.to) return { state: order.state };
     if (!openOrderStates.includes(order.state) || (action === 'sell' ? order.state !== 'confirmed' : !releasableOrder(order))) {
       throw new HttpsError('failed-precondition', 'This order can no longer change its allocation.');
@@ -109,9 +113,9 @@ export async function changeOrderStock(db, data, actor) {
     if (action === 'cancel' && order.items.some(item => item.state === 'sold')) {
       throw new HttpsError('failed-precondition', 'This order contains Sold stock. Release any remaining reservations individually.');
     }
-    const lines = action === 'cancel' ? order.items.filter(activeLine) : selected?.state === operation.from ? [selected] : [];
+    const lines = entireOrder ? order.items.filter(activeLine) : selected?.state === operation.from ? [selected] : [];
     if (!lines.length) throw new HttpsError('failed-precondition', 'Choose a line eligible for this action.');
-    const target = operation?.to ?? 'cancelled';
+    const target = operation?.to ?? (action === 'spam' ? 'spam' : 'cancelled');
     const phone = await tx.get(db.doc(`orderPhones/${order.phoneKey}`));
     const snapshots = await tx.getAll(...lines.flatMap(line => [db.doc(`products/${line.slug}`), db.doc(`inventory/${line.slug}`)]));
     let competing = false;
@@ -139,6 +143,9 @@ export async function changeOrderStock(db, data, actor) {
     await writeStockBatch(tx, db, records);
     for (const line of lines) if (line.state === 'requested') tx.delete(requestCollection(db, line.slug).doc(reference.id));
     updatePhoneAccounting(tx, phone, order, next);
+    if (action === 'spam') tx.set(db.doc(`orderPhoneBlocks/${order.phoneKey}`), {
+      orderId: reference.id, actorUid: actor.uid, at: FieldValue.serverTimestamp(),
+    });
     writeOrderUpdate(tx, db, reference, next);
     tx.create(db.collection('auditLogs').doc(), { action: `order-${action}`, orderId: reference.id, actorUid: actor.uid,
       pieces: [...changed], ...(exception ? { reason: exception } : {}), at: FieldValue.serverTimestamp() });

@@ -83,7 +83,7 @@ export const orderCreate = onCall({
   return submitOrder(db, request.data, source, key);
 });
 export const orderDesk = staffCallable(runtime, (data, actor) => {
-  if (['confirm', 'decline', 'release', 'cancel', 'sell'].includes(data?.action)) return changeOrderStock(db, data, actor);
+  if (['confirm', 'decline', 'release', 'cancel', 'sell', 'spam'].includes(data?.action)) return changeOrderStock(db, data, actor);
   if (['payment', 'fulfil', 'complete'].includes(data?.action)) return settleOrder(db, data, actor);
   return updateOrderDesk(db, data, actor);
 });
