@@ -190,3 +190,36 @@ test('competing confirmation allocates once and multi-item cancellation releases
     assert.equal((await db.doc('catalogueSizeCounts/waist-33').get()).data().count, 2);
   });
 });
+
+test('payment stays separate from stock and the product action can mark a reservation Sold', async () => {
+  await orderFixture(async ({ db, piece, payload, identity, staff }) => {
+    const product = await piece(0);
+    const draft = payload([product]);
+    const worker = await staff();
+    assert.equal((await callable('orderCreate', draft)).status, 200);
+    const id = identity(draft);
+    const desk = (action, fields) => callable('orderDesk', { id, action, ...fields }, worker);
+    assert.equal((await desk('payment', { method: 'Cash', amountUGX: 90000 })).body.error.status, 'FAILED_PRECONDITION');
+    assert.equal((await desk('confirm', { slug: product.slug })).status, 200);
+    assert.equal((await desk('fulfil', { fulfilment: 'dispatched' })).body.error.status, 'FAILED_PRECONDITION');
+    for (let attempt = 0; attempt < 2; attempt++) {
+      assert.equal((await desk('payment', { method: 'Cash', amountUGX: 90000 })).status, 200);
+    }
+    const projection = db.doc(`products/${product.slug}`);
+    const queue = db.doc(`orderQueue/${id}`);
+    assert.equal((await projection.get()).data().availability, 'reserved');
+    assert.equal((await queue.get()).data().paidReserved, true);
+    assert.equal((await desk('fulfil', { fulfilment: 'ready_for_collection' })).status, 200);
+    assert.equal((await desk('fulfil', { fulfilment: 'delivered' })).status, 200);
+    assert.equal((await desk('cancel')).body.error.status, 'FAILED_PRECONDITION');
+    assert.equal((await callable('catalogueMarkSold', { slug: product.slug }, worker)).status, 200);
+    assert.equal((await projection.get()).data().availability, 'sold');
+    assert.equal((await queue.get()).data().paidReserved, false);
+    assert.equal((await desk('complete')).status, 200);
+    const order = (await db.doc(`orders/${id}`).get()).data();
+    assert.deepEqual([order.state, order.payment.amountUGX, order.items[0].state], ['completed', 90000, 'sold']);
+    const audit = await db.collection('auditLogs').where('orderId', '==', id).get();
+    assert.equal(audit.docs.filter(row => row.data().action === 'order-payment').length, 1);
+    assert.equal(audit.docs.filter(row => row.data().action === 'order-stock-sell').length, 1);
+  });
+});

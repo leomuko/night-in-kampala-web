@@ -21,7 +21,7 @@ export async function writeStockBatch(tx, db, records) {
     const { inventoryPath, productPath, auditPath, inventory, from, to, actor, action, orderId } = record;
     tx.set(inventoryPath, inventory);
     tx.set(db.doc(`productDrafts/${productPath.id}`), {
-      publishedAvailability: to, availableUnits: inventory.availableUnits,
+      publishedAvailability: to, availableUnits: inventory.availableUnits, reservationCount: Object.keys(inventory.allocations ?? {}).length,
     }, { merge: true });
     tx.update(productPath, { availability: to, requestableSizes: sizes[index], purchasable: canRequestProduct(effects[index].product) });
     tx.create(auditPath, { action, actorUid: actor.uid, productId: productPath.id, from, to,

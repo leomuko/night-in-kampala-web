@@ -87,6 +87,7 @@ const operations = {
   confirm: { from: 'requested', to: 'reserved' },
   decline: { from: 'requested', to: 'declined' },
   release: { from: 'reserved', to: 'cancelled' },
+  sell: { from: 'reserved', to: 'sold' },
 };
 
 export async function changeOrderStock(db, data, actor) {
@@ -102,7 +103,7 @@ export async function changeOrderStock(db, data, actor) {
     const selected = order.items.find(item => item.slug === slug);
     if (action === 'cancel' && order.state === 'cancelled') return { state: order.state };
     if (selected && selected.state === operation?.to) return { state: order.state };
-    if (!openOrderStates.includes(order.state) || !releasableOrder(order)) {
+    if (!openOrderStates.includes(order.state) || (action === 'sell' ? order.state !== 'confirmed' : !releasableOrder(order))) {
       throw new HttpsError('failed-precondition', 'This order can no longer change its allocation.');
     }
     if (action === 'cancel' && order.items.some(item => item.state === 'sold')) {

@@ -16,7 +16,7 @@ function quantity(product) {
   return product.variants?.reduce((total, variant) => total + variant.quantity, 0);
 }
 
-export default function ProductTable({ rows, onEdit, onAdd }) {
+export default function ProductTable({ rows, onEdit, onAdd, onSell, selling }) {
   const [tab, setTab] = useState('all');
   const [search, setSearch] = useState('');
   const match = search.trim().toLowerCase();
@@ -43,7 +43,11 @@ export default function ProductTable({ rows, onEdit, onAdd }) {
             </div>
           </div></th>
           <td>{product.sizeLabel || '—'}</td><td>{product.priceUGX ? formatPrice(product.priceUGX) : '—'}</td>
-          <td>{quantity(product) ?? '—'}</td><td>{status(product)}</td>
+          <td>{quantity(product) ?? '—'}</td><td>
+            {status(product)}
+            {onSell && product.publicationStatus === 'published' && (product.publishedAvailability === 'available' || product.reservationCount === 1)
+              && <Button className="staff-sell" variant="secondary" disabled={selling === product.slug} onClick={() => onSell(product.slug)}>Mark as sold</Button>}
+          </td>
         </tr>)}</tbody>
       </table>
     </div> : <p role="status">{rows.length ? 'No products match.' : 'No product drafts yet.'}</p>}

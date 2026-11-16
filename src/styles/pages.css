@@ -159,3 +159,4 @@
 @media (min-width: 1024px) {
   .order-queue-workspace { grid-template-columns: minmax(0, 5fr) minmax(0, 4fr); }
 }
+.staff-sell { display: flex; margin-top: var(--space-2); }

@@ -1,5 +1,6 @@
+import { allowedFulfilment, canCompleteOrder } from '../../../functions/order-model.js';
 import { useEffect, useState } from 'react';
-import { Button, ErrorState, Field, LoadingState } from '../../components/UI.jsx';
+import { Button, ErrorState, Field, LoadingState, Select } from '../../components/UI.jsx';
 import { formatPrice } from '../../data/previewProducts.js';
 import { callStaff, staffError } from './catalogueAdmin.js';
 import { groupOrders, isOverdue, readOrder } from './orderAdmin.js';
@@ -43,6 +44,9 @@ function OrderDetails({ id }) {
   const order = state.order;
   if (!order) return <p>Order unavailable.</p>;
   const { contact } = order;
+  const fulfilment = allowedFulfilment(order);
+  const canPay = order.state === 'confirmed' && order.paymentState === 'unpaid'
+    && order.items.some(item => ['reserved', 'sold'].includes(item.state));
   const canAllocate = ['new', 'contacted', 'confirmed'].includes(order.state) && ['unfulfilled', 'ready_for_collection'].includes(order.fulfilment);
   return <section className="staff-order-detail stack">
     <h2>{order.reference}</h2>
@@ -63,6 +67,7 @@ function OrderDetails({ id }) {
           <Button disabled={busy} onClick={() => action('confirm', { slug: item.slug, reason })}>Confirm</Button>
           <Button variant="secondary" disabled={busy} onClick={() => action('decline', { slug: item.slug })}>Decline</Button>
         </div>}
+        {order.state === 'confirmed' && item.state === 'reserved' && <Button disabled={busy} onClick={() => action('sell', { slug: item.slug })}>Mark as sold</Button>}
         {canAllocate && item.state === 'reserved' && <Button variant="secondary" disabled={busy} onClick={() => action('release', { slug: item.slug })}>Release reservation</Button>}
       </div>
     </li>)}</ul>
@@ -71,6 +76,22 @@ function OrderDetails({ id }) {
     {canAllocate && order.items.some(item => item.state === 'requested') && <Field label="Reason if confirming ahead of an older request" maxLength={300} value={reason}
       onChange={event => setReason(event.target.value)} />}
     {canAllocate && !order.items.some(item => item.state === 'sold') && <Button variant="secondary" disabled={busy} onClick={() => action('cancel')}>Cancel order</Button>}
+    {order.payment && <p>Payment recorded · {formatPrice(order.payment.amountUGX)} · {order.payment.method}</p>}
+    {canPay && <form className="staff-form stack" onSubmit={event => {
+      event.preventDefault();
+      const fields = new FormData(event.currentTarget);
+      void action('payment', { method: fields.get('method'), amountUGX: Number(fields.get('amount')) });
+    }}>
+      <Field label="Payment method used" name="method" required maxLength={80} />
+      <Field label="Amount received (UGX)" name="amount" type="number" step="1" required min="1" />
+      <Button type="submit" disabled={busy}>Record payment</Button>
+    </form>}
+    {!!fulfilment.length && <Select label="Fulfilment status" value={order.fulfilment} disabled={busy}
+      onChange={event => action('fulfil', { fulfilment: event.target.value })}>
+      <option value={order.fulfilment}>{label(order.fulfilment)}</option>
+      {fulfilment.map(status => <option value={status} key={status}>{label(status)}</option>)}
+    </Select>}
+    {canCompleteOrder(order) && <Button disabled={busy} onClick={() => action('complete')}>Complete order</Button>}
     {notice && <p role="status">{notice}</p>}
     {error && <ErrorState>{error}</ErrorState>}
   </section>;
