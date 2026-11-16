@@ -21,21 +21,21 @@ await db.runTransaction(async transaction => {
 const batch = db.batch();
 const fixtureEpoch = Timestamp.fromMillis(0);
 for (const [slug, data] of Object.entries(fixture.products)) batch.set(db.doc(`products/${slug}`), {
-  ...data, publishedAt: fixtureEpoch,
+  ...data, isTestData: true, publishedAt: fixtureEpoch,
 });
 // Match the existing homepage links; these remain synthetic and unpurchasable.
 for (const item of previewProducts) batch.set(db.doc(`products/${item.slug}`), {
   name: item.name, priceUGX: item.price, status: 'published', publishedAt: fixtureEpoch,
   photos: [{ id: item.image, alt: item.alt, smallUrl: `/assets/${item.image}-320.webp`, mediumUrl: `/assets/${item.image}-640.webp`, largeUrl: `/assets/${item.image}-960.webp` }],
-  availability: 'illustrative', isRealCatalogueStock: false, purchasable: false,
+  availability: 'illustrative', isTestData: true, isRealCatalogueStock: false, purchasable: false,
   share: {
     description: 'AI-generated development placeholder. Illustrative clothing; unavailable for purchase.',
     imageUrl: `/share/${item.image}.jpg`, imageAlt: item.alt,
   },
 });
 for (const [collection, data] of Object.entries(fixture.content)) {
-  batch.set(db.doc(`${collection}/fixture-published`), { ...data, status: 'published', illustrative: true });
-  batch.set(db.doc(`${collection}/fixture-draft`), { ...data, status: 'draft', illustrative: true });
+  batch.set(db.doc(`${collection}/fixture-published`), { ...data, status: 'published', illustrative: true, isTestData: true });
+  batch.set(db.doc(`${collection}/fixture-draft`), { ...data, status: 'draft', illustrative: true, isTestData: true });
 }
 batch.set(db.doc('orders/fixture-private'), { orderStatus: 'new', paymentStatus: 'unpaid', fulfilmentStatus: 'unfulfilled', fixture: true });
 batch.set(db.doc('inventory/fixture-private'), { quantity: 1, fixture: true });
@@ -44,7 +44,7 @@ const auth = getAuth(app);
 for (const uid of ['fixture-customer', 'fixture-staff']) {
   try { await auth.createUser({ uid }); }
   catch (error) { if (error.code !== 'auth/uid-already-exists') throw error; }
+  await auth.setCustomUserClaims(uid, { testAccount: true, ...(uid === 'fixture-staff' ? { staff: true } : {}) });
 }
-await auth.setCustomUserClaims('fixture-staff', { staff: true });
 console.log('Seeded local published/draft/sold content and synthetic identities. No real inventory or cloud data touched.');
 await deleteApp(app);

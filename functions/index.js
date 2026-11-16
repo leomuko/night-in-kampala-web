@@ -26,6 +26,7 @@ import { resolveFunctionRuntime } from './runtime-config.js';
 // No default cloud origin, region or project is inferred from request headers.
 const deployment = process.env.FUNCTIONS_EMULATOR === 'true' ? undefined : JSON.parse(readFileSync(new URL('./generated/deployment.json', import.meta.url), 'utf8'));
 const runtime = resolveFunctionRuntime(process.env, deployment);
+const previewData = runtime.emulator || runtime.target === 'preview';
 const app = initializeApp({ projectId: runtime.projectId });
 const db = getFirestore(app);
 let handler;
@@ -60,16 +61,16 @@ export const localHealth = runtime.emulator ? onRequest({ region: runtime.region
 }) : undefined;
 
 export const staffAccess = staffCallable(runtime, (_data, actor) => ({ role: actor.role }));
-export const catalogueDraftSave = staffCallable(runtime, (data, actor) => saveProductDraft(db, data, actor));
+export const catalogueDraftSave = staffCallable(runtime, (data, actor) => saveProductDraft(db, data, actor, previewData));
 export const catalogueCategorySave = staffCallable(runtime, data => saveCategory(db, data));
 export const cataloguePhotoAdd = staffCallable(runtime, (data, actor) => addDraftPhoto(db, catalogueBucket(app, runtime), data, actor));
 export const cataloguePhotosSave = staffCallable(runtime, (data, actor) => updateDraftPhotos(db, data, actor));
-export const cataloguePublish = staffCallable(runtime, (data, actor) => publishCatalogueProduct(db, catalogueBucket(app, runtime), data, actor));
+export const cataloguePublish = staffCallable(runtime, (data, actor) => publishCatalogueProduct(db, catalogueBucket(app, runtime), data, actor, previewData));
 export const catalogueWithdraw = staffCallable(runtime, (data, actor) => withdrawCatalogueProduct(db, data, actor));
 export const catalogueAvailability = staffCallable(runtime, (data, actor) => changeCatalogueAvailability(db, data, actor));
 export const catalogueMedia = onRequest({ region: runtime.region, maxInstances: 3 }, catalogueMediaHandler(db, () => catalogueBucket(app, runtime)));
-export const editorialDraftSave = staffCallable(runtime, (data, actor) => saveEditorialDraft(db, data, actor));
-export const editorialPublish = staffCallable(runtime, (data, actor) => publishEditorial(db, data, actor));
+export const editorialDraftSave = staffCallable(runtime, (data, actor) => saveEditorialDraft(db, data, actor, previewData));
+export const editorialPublish = staffCallable(runtime, (data, actor) => publishEditorial(db, data, actor, previewData));
 export const publicationApproval = staffCallable(runtime, (data, actor) => approvePublication(db, data, actor));
 export const orderSettingsSave = staffCallable(runtime, (data, actor) => saveOrderSettings(db, data, actor));
 
@@ -80,7 +81,7 @@ export const orderCreate = onCall({
 }, request => {
   const source = orderSource(request, runtime, runtime.order?.trustedProxyHops);
   const key = runtime.emulator ? runtime.projectId : orderIdentityKey.value();
-  return submitOrder(db, request.data, source, key);
+  return submitOrder(db, request.data, source, key, { previewData });
 });
 export const orderDesk = staffCallable(runtime, (data, actor) => {
   if (['confirm', 'decline', 'release', 'cancel', 'sell', 'spam'].includes(data?.action)) return changeOrderStock(db, data, actor);

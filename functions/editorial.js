@@ -47,7 +47,7 @@ function editorialIdentity(data) {
   return { collection, slug: catalogueId(data?.slug) };
 }
 
-export async function saveEditorialDraft(db, data, actor) {
+export async function saveEditorialDraft(db, data, actor, previewData = false) {
   const { collection, slug } = editorialIdentity(data);
   const input = data?.draft ?? {};
   const fields = {
@@ -60,7 +60,8 @@ export async function saveEditorialDraft(db, data, actor) {
     const previous = await tx.get(path);
     assertDraftRevision(previous, data.revision);
     const revision = data.revision + 1;
-    tx.set(path, { ...fields, collection, slug, revision, updatedAt: FieldValue.serverTimestamp(), updatedBy: actor.uid }, { merge: true });
+    const marker = previewData && !previous.exists ? { isTestData: true } : {};
+    tx.set(path, { ...fields, ...marker, collection, slug, revision, updatedAt: FieldValue.serverTimestamp(), updatedBy: actor.uid }, { merge: true });
     return { ...fields, collection, slug, revision };
   });
 }
@@ -79,7 +80,7 @@ async function validateDrop(tx, db, draft) {
   return { productIds, coverProductId };
 }
 
-export async function publishEditorial(db, data, actor) {
+export async function publishEditorial(db, data, actor, previewData = false) {
   const { collection, slug } = editorialIdentity(data);
   const path = db.doc(`contentDrafts/${collection}--${slug}`);
   const publicPath = db.doc(`${collection}/${slug}`);
@@ -102,12 +103,14 @@ export async function publishEditorial(db, data, actor) {
     }
     if (collection === 'events' && !fields.city) throw new HttpsError('failed-precondition', 'Enter a city before publishing the event.');
     const description = draft.body.slice(0, 500);
+    const isTestData = draft.isTestData === true || current.data()?.isTestData === true || (previewData && !current.exists);
+    const marker = isTestData ? { isTestData: true } : {};
     tx.set(publicPath, {
-      title: draft.title, body: draft.body, ...fields,
+      title: draft.title, body: draft.body, ...fields, ...marker,
       status: 'published', illustrative: draft.approvedRevision !== draft.revision, draftRevision: draft.revision,
       share: { description },
     });
-    tx.update(path, { publishedRevision: draft.revision });
+    tx.update(path, { publishedRevision: draft.revision, ...marker });
     tx.create(db.collection('auditLogs').doc(), { action: 'publish-content', collection, slug, actorUid: actor.uid, at: FieldValue.serverTimestamp() });
     return { status: 'published' };
   });

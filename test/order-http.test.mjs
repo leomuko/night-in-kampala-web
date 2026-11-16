@@ -124,6 +124,10 @@ test('order creation validates form proof, stock, trusted prices and concurrent 
     const id = identity(first);
     assert.equal((await db.doc(`orders/${id}`).get()).data().contact.phone, '+256772123456');
     assert.equal((await db.doc(`orderQueue/${id}`).get()).data().unread, true);
+    const markedOrder = (await db.doc(`orders/${id}`).get()).data();
+    assert.equal(markedOrder.isTestData, true);
+    assert.equal(markedOrder.items[0].isRealCatalogueStock, true);
+    assert.equal((await db.doc(`orderQueue/${id}`).get()).data().isTestData, true);
     assert.equal((await db.doc(`products/${items[0].slug}`).get()).data().availability, 'requested');
     assert.equal((await db.doc(`inventory/${items[0].slug}`).get()).data().availableUnits, 1);
     assert.equal((await submit({ ...first, details: { ...first.details, name: 'Different demo shopper' } })).status, 409);

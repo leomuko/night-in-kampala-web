@@ -17,7 +17,7 @@ try {
   const password = randomBytes(18).toString('base64url');
   const auth = getAuth(app);
   const { uid } = await auth.createUser({ email, password });
-  if (role !== 'customer') await auth.setCustomUserClaims(uid, { [role]: true });
+  await auth.setCustomUserClaims(uid, { testAccount: true, ...(role === 'customer' ? {} : { [role]: true }) });
   console.log(JSON.stringify({ email, password, uid }));
 } finally {
   await deleteApp(app);

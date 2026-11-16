@@ -63,7 +63,7 @@ export function assertDraftRevision(snapshot, revision) {
   }
 }
 
-export async function saveProductDraft(db, data, actor) {
+export async function saveProductDraft(db, data, actor, previewData = false) {
   const fields = draftFields(data?.draft);
   const supplied = data.slug == null ? '' : catalogueId(data.slug);
   if (!supplied && (!fields.name || data.revision !== 0)) {
@@ -88,7 +88,8 @@ export async function saveProductDraft(db, data, actor) {
     }
     assertDraftRevision(previous, data.revision);
     const revision = data.revision + 1;
-    tx.set(path, { ...fields, revision, updatedAt: FieldValue.serverTimestamp(), updatedBy: actor.uid }, { merge: true });
+    const marker = previewData && !previous.exists ? { isTestData: true } : {};
+    tx.set(path, { ...fields, ...marker, revision, updatedAt: FieldValue.serverTimestamp(), updatedBy: actor.uid }, { merge: true });
     return { slug, revision };
   });
 }

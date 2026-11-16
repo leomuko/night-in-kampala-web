@@ -57,10 +57,11 @@ export async function addDraftPhoto(db, bucket, data, actor) {
       throw new HttpsError('failed-precondition', 'This upload already has a saved image source.');
     }
   });
+  const marker = initial.data().isTestData === true ? { metadata: { nikTestData: 'true' } } : {};
   const processedPath = `product-processed/${slug}/${actor.uid}/${id}`;
   await Promise.all(entries.map(([name, buffer]) =>
     bucket.file(`${processedPath}/${name}`).save(buffer, {
-      resumable: false, metadata: { contentType: name.endsWith('.jpg') ? 'image/jpeg' : 'image/webp' },
+      resumable: false, metadata: { contentType: name.endsWith('.jpg') ? 'image/jpeg' : 'image/webp', ...marker },
     }),
   ));
 

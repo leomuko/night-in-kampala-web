@@ -31,9 +31,10 @@ function sameMedia(draft, live) {
 
 async function copyRenditions(bucket, draft, slug, revision) {
   const base = `product-media/${slug}/${revision}`;
+  const marker = draft.isTestData === true ? { metadata: { nikTestData: 'true' } } : {};
   async function copy(source, destination, contentType) {
     const [buffer] = await bucket.file(source).download();
-    await bucket.file(`${base}/${destination}`).save(buffer, { resumable: false, metadata: { contentType } });
+    await bucket.file(`${base}/${destination}`).save(buffer, { resumable: false, metadata: { contentType, ...marker } });
   }
   try {
     for (const photo of draft.photos) {
@@ -49,7 +50,7 @@ async function copyRenditions(bucket, draft, slug, revision) {
   }
 }
 
-export async function publishCatalogueProduct(db, bucket, data, actor) {
+export async function publishCatalogueProduct(db, bucket, data, actor, previewData = false) {
   const slug = catalogueId(data?.slug);
   const draftPath = db.doc(`productDrafts/${slug}`);
   const productPath = db.doc(`products/${slug}`);
@@ -66,6 +67,8 @@ export async function publishCatalogueProduct(db, bucket, data, actor) {
     return { status: live.status, availability: live.availability, publishedRealStock: live.isRealCatalogueStock === true };
   }
   const draft = validateDraft(draftSnapshot.data(), categoriesSnapshot.data()?.items ?? [], live);
+  const isTestData = draft.isTestData === true || live?.isTestData === true || (previewData && !live);
+  if (isTestData) draft.isTestData = true;
   const existingMedia = sameMedia(draft, live);
   const mediaRevision = existingMedia || randomUUID();
   const publishedAt = live?.publishedAt ?? Timestamp.now();
@@ -103,14 +106,14 @@ export async function publishCatalogueProduct(db, bucket, data, actor) {
     const availability = sold ? 'sold' : 'available';
     const saved = currentDraft.data();
     const isRealCatalogueStock = saved.approvedRevision === data.revision && hasPhotographedStock(saved);
-    const publicProduct = { ...projection, availability, draftRevision: data.revision, isRealCatalogueStock };
+    const publicProduct = { ...projection, ...(isTestData ? { isTestData: true } : {}), availability, draftRevision: data.revision, isRealCatalogueStock };
     const nextInventory = {
       stockType: draft.stockType, availableUnits: sold ? 0 : units, relistUnits: units,
       variants: sold ? variants.map(variant => ({ ...variant, quantity: 0 })) : variants, relistVariants: variants,
     };
     const requestableSizes = await updateSizeFacets(tx, db, previous, publicProduct, nextInventory);
     tx.set(productPath, { ...publicProduct, requestableSizes, purchasable: canRequestProduct(publicProduct) });
-    tx.update(draftPath, { publicationStatus: 'published', publishedAvailability: availability, publishedRealStock: isRealCatalogueStock, availableUnits: nextInventory.availableUnits });
+    tx.update(draftPath, { ...(isTestData ? { isTestData: true } : {}), publicationStatus: 'published', publishedAvailability: availability, publishedRealStock: isRealCatalogueStock, availableUnits: nextInventory.availableUnits });
     tx.set(inventoryPath, nextInventory);
     tx.create(auditPath, { action: live ? 'republish' : 'publish', actorUid: actor.uid, productId: slug, at: FieldValue.serverTimestamp() });
     return { status: 'published', availability, publishedRealStock: isRealCatalogueStock, availableUnits: nextInventory.availableUnits };

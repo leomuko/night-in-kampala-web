@@ -80,13 +80,14 @@ export function requestCollection(db, slug) {
 
 export function queueFields(order) {
   return {
+    ...(order.isTestData === true ? { isTestData: true } : {}),
     reference: order.reference, createdAt: order.createdAt, state: order.state, unread: order.unread,
     items: order.items.map(({ slug, name, state }) => ({ slug, name, state })),
     paidReserved: order.paymentState === 'paid' && order.items.some(item => item.state === 'reserved'),
   };
 }
 
-export async function submitOrder(db, data, source, secret, now = Date.now()) {
+export async function submitOrder(db, data, source, secret, { previewData = false, now = Date.now() } = {}) {
   if (typeof secret !== 'string' || secret.length < 20) throw new HttpsError('failed-precondition', 'Order submission is being configured.');
   if (typeof data?.submissionId !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(data.submissionId)) {
     throw new HttpsError('invalid-argument', 'Refresh the order form and try again.');
@@ -109,6 +110,7 @@ export async function submitOrder(db, data, source, secret, now = Date.now()) {
     const settings = settingsDoc.data() ?? defaultOrderSettings;
     if (saved.exists) {
       const order = saved.data();
+      if (!previewData && order.isTestData === true) throw new HttpsError('failed-precondition', 'Start a new order for the live shop.');
       if (order.payloadHash !== payloadHash) throw new HttpsError('already-exists', 'Retry with the original details for this submission.');
       return publicOrderSummary(order, settings.whatsappNumber);
     }
@@ -127,13 +129,13 @@ export async function submitOrder(db, data, source, secret, now = Date.now()) {
       const product = snapshots[index * 2].data();
       const stock = snapshots[index * 2 + 1].data();
       const size = product?.requestableSizes?.find(option => option.id === entry.size);
-      if (!canRequestProduct(product) || !stock || !size || stock.availableUnits < entry.quantity
+      if (!canRequestProduct(product) || (!previewData && product.isTestData === true) || !stock || !size || stock.availableUnits < entry.quantity
         || sizeUnits(product, stock, entry.size) < entry.quantity) {
         throw new HttpsError('failed-precondition', 'A piece or size is no longer available. Review your bag.');
       }
       if (product.priceUGX !== entry.priceUGX) throw new HttpsError('failed-precondition', 'A price changed. Review your bag before trying again.');
       return {
-        entry: { ...entry, name: product.name, sizeLabel: size.label, state: 'requested',
+        entry: { ...entry, name: product.name, sizeLabel: size.label, state: 'requested', isRealCatalogueStock: true,
           photo: product.photos?.[0]?.smallUrl ?? '' },
         stock,
         productRef: snapshots[index * 2].ref, inventoryRef: snapshots[index * 2 + 1].ref,
@@ -144,6 +146,7 @@ export async function submitOrder(db, data, source, secret, now = Date.now()) {
     if (!Number.isSafeInteger(subtotalUGX)) throw new HttpsError('failed-precondition', 'Could not calculate the item subtotal. Contact the store.');
     const order = { reference, createdAt, state: 'new', paymentState: 'unpaid', fulfilment: 'unfulfilled',
       unread: true, contact, phoneKey, payloadHash, items, subtotalUGX };
+    if (previewData) order.isTestData = true;
     for (const { entry, stock, inventoryRef, productRef } of writes) {
       counts.set(entry.slug, (counts.get(entry.slug) ?? 0) + 1);
       tx.create(requestCollection(db, entry.slug).doc(identity), { createdAt });

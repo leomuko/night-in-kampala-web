@@ -84,7 +84,7 @@ test('staff reopen saved drafts, concurrent edits are rejected and category IDs 
   const draft = {
     name: 'Illustrative test piece', itemCode: 'NK-DEMO', categoryId: 'demo-test', priceUGX: 85000,
     stockType: 'one-of-one', sizeLabel: 'Waist 32', measurements: [{ label: 'Waist', cm: 81 }],
-    condition: '', reworkNotes: '', care: '', shareDescription: '', isRealCatalogueStock: true,
+    condition: '', reworkNotes: '', care: '', shareDescription: '', isRealCatalogueStock: true, isTestData: false,
   };
   try {
     assert.equal((await call('catalogueCategorySave', { id: 'demo-test', label: 'Illustrative category', active: true, create: true })).status, 200);
@@ -95,6 +95,8 @@ test('staff reopen saved drafts, concurrent edits are rejected and category IDs 
     assert.equal(reloaded.name, draft.name);
     assert.deepEqual(reloaded.measurements, draft.measurements);
     assert.equal(reloaded.isRealCatalogueStock, false);
+    assert.equal(reloaded.isTestData, true);
+    assert.equal((await auth.getUser(uid)).customClaims.testAccount, true);
     const generated = await call('catalogueDraftSave', { revision: 0, draft: { ...draft, name: 'Slug Test Denim' } });
     assert.equal(generated.body.result?.slug, 'slug-test-denim');
     const second = await call('catalogueDraftSave', { slug: null, revision: 0, draft: { ...draft, name: 'Slug Test Denim' } });
@@ -152,11 +154,12 @@ test('owner approval is revision-bound, audited and cannot promote illustrative 
     assert.equal((await live.get()).data().purchasable, false);
     // Seed separately classified inputs to exercise the trusted stock decision.
     await draft.set({ revision: 2, photos: [{ id: 'replacement', kind: 'photograph' }] });
-    await live.update({ draftRevision: 2, stockType: 'one-of-one', sizeLabel: 'Waist 32' });
+    await live.update({ draftRevision: 2, stockType: 'one-of-one', sizeLabel: 'Waist 32', isTestData: true });
     await inventory.set({ stockType: 'one-of-one', availableUnits: 1, relistUnits: 1, variants: [] });
     assert.equal((await approve(owner, 'products', slug, 1)).body.error?.status, 'ABORTED');
     assert.equal((await approve(owner, 'products', slug, 2)).status, 200);
     assert.equal((await live.get()).data().purchasable, true);
+    assert.equal((await live.get()).data().isTestData, true);
     assert.equal((await live.get()).data().approvedRevision, undefined);
     assert.deepEqual((await sizeFacet.get()).data(), { label: 'Waist 32' });
 
@@ -178,6 +181,7 @@ test('owner approval is revision-bound, audited and cannot promote illustrative 
     }, auth);
     assert.equal((await publish(staff, 1)).status, 200);
     assert.equal((await event.get()).data().illustrative, false);
+    assert.equal((await event.get()).data().isTestData, true);
     await eventDraft.update({ revision: 2 });
     assert.equal((await publish(staff, 2)).status, 200);
     assert.equal((await event.get()).data().illustrative, true);
@@ -222,8 +226,13 @@ test('photo processing and catalogue publication work through staff, Storage and
   async function upload(id, bytes) {
     await uploadBytes(ref(storage, `product-drafts/${slug}/${uid}/${id}.jpg`), bytes, { contentType: 'image/jpeg' });
   }
+  const item = {
+    name: 'Illustrative measured piece', itemCode: 'NK-DEMO-PHOTO', categoryId: 'photo-test', stockType: 'one-of-one',
+    sizeLabel: 'Waist 32', priceUGX: 85000, measurements: [{ label: 'Waist', cm: 81 }],
+    condition: 'Illustrative condition', reworkNotes: 'Illustrative rework', care: 'Illustrative care', shareDescription: 'Illustrative piece',
+  };
   try {
-    await path.set({ revision: 1 });
+    assert.equal((await call('catalogueDraftSave', { slug, revision: 0, draft: { ...item, measurements: [] } })).status, 200);
     await db.doc('catalogueSettings/categories').set({
       items: [{ id: 'photo-test', label: 'Illustrative photo test', active: true }],
     }, { merge: true });
@@ -243,17 +252,17 @@ test('photo processing and catalogue publication work through staff, Storage and
     const photos = [{ id: 'back', alt: 'Back view' }, { id: 'front', alt: 'Front view' }];
     assert.equal((await call('cataloguePhotosSave', { slug, revision: 3, photos })).status, 200);
     assert.deepEqual((await path.get()).data().photos.map(({ id, alt }) => ({ id, alt })), photos);
-    const item = {
-      name: 'Illustrative measured piece', itemCode: 'NK-DEMO-PHOTO', categoryId: 'photo-test', stockType: 'one-of-one',
-      sizeLabel: 'Waist 32', priceUGX: 85000, measurements: [{ label: 'Waist', cm: 81 }],
-      condition: 'Illustrative condition', reworkNotes: 'Illustrative rework', care: 'Illustrative care', shareDescription: 'Illustrative piece',
-    };
     assert.equal((await call('cataloguePublish', { slug, revision: 4 })).body.error?.status, 'FAILED_PRECONDITION');
     assert.equal((await call('catalogueDraftSave', { slug, revision: 4, draft: item })).status, 200);
     const publish = await call('cataloguePublish', { slug, revision: 5 });
     assert.equal(publish.status, 200, JSON.stringify(publish.body.error));
     const publicRef = db.doc(`products/${slug}`);
     const firstPublic = (await publicRef.get()).data();
+    assert.equal(firstPublic.isTestData, true);
+    const [publishedMedia] = await bucket.file(`product-media/${slug}/${firstPublic.mediaRevision}/share.jpg`).getMetadata();
+    assert.equal(publishedMedia.metadata.nikTestData, 'true');
+    const [processedMedia] = await bucket.file(`product-processed/${slug}/${uid}/front/share.jpg`).getMetadata();
+    assert.equal(processedMedia.metadata.nikTestData, 'true');
     const newest = query(collection(guest, 'products'), where('status', '==', 'published'), orderBy('publishedAt', 'desc'), limit(4));
     assert.equal((await getDocs(newest)).docs[0].id, slug);
     const home = 'http://127.0.0.1:5500';
