@@ -1,0 +1,681 @@
+{
+  "origin": "https://night-in-kampala--review-jrrv7tp2.web.app",
+  "checks": [
+    {
+      "name": "HTML /",
+      "status": "pass",
+      "evidence": {
+        "status": 200,
+        "title": "Night in Kampala — Reworked in Kampala",
+        "headers": {
+          "cache-control": "no-cache",
+          "content-type": "text/html; charset=utf-8",
+          "x-cache": "MISS",
+          "x-cache-hits": "0",
+          "x-robots-tag": "noindex",
+          "x-served-by": "cache-cpt13820-CPT"
+        }
+      }
+    },
+    {
+      "name": "HTML /shop",
+      "status": "pass",
+      "evidence": {
+        "status": 200,
+        "title": "Night in Kampala — Reworked in Kampala",
+        "headers": {
+          "cache-control": "no-cache",
+          "content-type": "text/html; charset=utf-8",
+          "x-cache": "MISS",
+          "x-cache-hits": "0",
+          "x-robots-tag": "noindex",
+          "x-served-by": "cache-cpt13820-CPT"
+        }
+      }
+    },
+    {
+      "name": "HTML /products/preview-painted-denim",
+      "status": "pass",
+      "evidence": {
+        "status": 200,
+        "title": "Painted denim — Night in Kampala",
+        "headers": {
+          "cache-control": "public, max-age=0, s-maxage=60, must-revalidate",
+          "content-type": "text/html; charset=utf-8",
+          "x-cache": "MISS",
+          "x-cache-hits": "0",
+          "x-robots-tag": "noindex",
+          "x-served-by": "cache-cpt13820-CPT"
+        }
+      }
+    },
+    {
+      "name": "HTML /collections",
+      "status": "pass",
+      "evidence": {
+        "status": 200,
+        "title": "Night in Kampala — Reworked in Kampala",
+        "headers": {
+          "cache-control": "no-cache",
+          "content-type": "text/html; charset=utf-8",
+          "x-cache": "MISS",
+          "x-cache-hits": "0",
+          "x-robots-tag": "noindex",
+          "x-served-by": "cache-cpt13826-CPT"
+        }
+      }
+    },
+    {
+      "name": "HTML /collections/preview-test-drop",
+      "status": "pass",
+      "evidence": {
+        "status": 200,
+        "title": "Illustrative drop — Night in Kampala",
+        "headers": {
+          "cache-control": "public, max-age=0, s-maxage=60, must-revalidate",
+          "content-type": "text/html; charset=utf-8",
+          "x-cache": "MISS",
+          "x-cache-hits": "0",
+          "x-robots-tag": "noindex",
+          "x-served-by": "cache-cpt13820-CPT"
+        }
+      }
+    },
+    {
+      "name": "HTML /events",
+      "status": "pass",
+      "evidence": {
+        "status": 200,
+        "title": "Night in Kampala — Reworked in Kampala",
+        "headers": {
+          "cache-control": "no-cache",
+          "content-type": "text/html; charset=utf-8",
+          "x-cache": "MISS",
+          "x-cache-hits": "0",
+          "x-robots-tag": "noindex",
+          "x-served-by": "cache-cpt13826-CPT"
+        }
+      }
+    },
+    {
+      "name": "HTML /events/preview-test-event",
+      "status": "pass",
+      "evidence": {
+        "status": 200,
+        "title": "Event title to be supplied — Night in Kampala",
+        "headers": {
+          "cache-control": "public, max-age=0, s-maxage=60, must-revalidate",
+          "content-type": "text/html; charset=utf-8",
+          "x-cache": "MISS",
+          "x-cache-hits": "0",
+          "x-robots-tag": "noindex",
+          "x-served-by": "cache-cpt13820-CPT"
+        }
+      }
+    },
+    {
+      "name": "HTML /checkout",
+      "status": "pass",
+      "evidence": {
+        "status": 200,
+        "title": "Night in Kampala — Reworked in Kampala",
+        "headers": {
+          "cache-control": "no-cache",
+          "content-type": "text/html; charset=utf-8",
+          "x-cache": "MISS",
+          "x-cache-hits": "0",
+          "x-robots-tag": "noindex",
+          "x-served-by": "cache-cpt13826-CPT"
+        }
+      }
+    },
+    {
+      "name": "HTML /admin",
+      "status": "pass",
+      "evidence": {
+        "status": 200,
+        "title": "Night in Kampala — Reworked in Kampala",
+        "headers": {
+          "cache-control": "no-cache",
+          "content-type": "text/html; charset=utf-8",
+          "x-cache": "MISS",
+          "x-cache-hits": "0",
+          "x-robots-tag": "noindex",
+          "x-served-by": "cache-cpt13820-CPT"
+        }
+      }
+    },
+    {
+      "name": "robots.txt",
+      "status": "pass",
+      "evidence": "User-agent: *\nDisallow: /\n"
+    },
+    {
+      "name": "browser JS, CSS and fonts",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "/assets/index-CTJL3u1e.js",
+          "status": 200
+        },
+        {
+          "path": "/assets/index-Cqrr7sX1.css",
+          "status": 200
+        },
+        {
+          "path": "/fonts/anton-latin-400-normal.woff2",
+          "status": 200
+        },
+        {
+          "path": "/fonts/inter-latin-400-normal.woff2",
+          "status": 200
+        },
+        {
+          "path": "/fonts/inter-latin-500-normal.woff2",
+          "status": 200
+        },
+        {
+          "path": "/fonts/inter-latin-600-normal.woff2",
+          "status": 200
+        },
+        {
+          "path": "/fonts/newsreader-latin-400-normal.woff2",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "name": "WhatsApp-like HTML /products/preview-painted-denim",
+      "status": "pass",
+      "evidence": {
+        "title": "Painted denim — Night in Kampala",
+        "description": "AI-generated development placeholder. Illustrative clothing; unavailable for purchase.",
+        "image": "https://night-in-kampala--review-jrrv7tp2.web.app/media/products/preview-painted-denim/preview-test-v1/share.jpg",
+        "dimensions": [
+          1200,
+          630
+        ],
+        "headers": {
+          "cache-control": "public, max-age=0, s-maxage=60, must-revalidate",
+          "content-type": "text/html; charset=utf-8",
+          "x-cache": "HIT",
+          "x-cache-hits": "1",
+          "x-robots-tag": "noindex",
+          "x-served-by": "cache-cpt13826-CPT"
+        }
+      }
+    },
+    {
+      "name": "WhatsApp-like HTML /events/preview-test-event",
+      "status": "pass",
+      "evidence": {
+        "title": "Event title to be supplied — Night in Kampala",
+        "description": "Fashion-event page fixture. Date, venue and photography await owner approval.",
+        "image": "https://night-in-kampala--review-jrrv7tp2.web.app/share/campaign.jpg",
+        "dimensions": [
+          1200,
+          630
+        ],
+        "headers": {
+          "cache-control": "public, max-age=0, s-maxage=60, must-revalidate",
+          "content-type": "text/html; charset=utf-8",
+          "x-cache": "HIT",
+          "x-cache-hits": "1",
+          "x-robots-tag": "noindex",
+          "x-served-by": "cache-cpt13820-CPT"
+        }
+      }
+    },
+    {
+      "name": "Anonymous Firestore products/preview-painted-denim",
+      "status": "pass",
+      "evidence": {
+        "status": 200
+      }
+    },
+    {
+      "name": "Anonymous Firestore events/preview-test-event",
+      "status": "pass",
+      "evidence": {
+        "status": 200
+      }
+    },
+    {
+      "name": "Anonymous Firestore productDrafts/preview-test-private",
+      "status": "pass",
+      "evidence": {
+        "status": 403
+      }
+    },
+    {
+      "name": "Anonymous Firestore orders/preview-private-check",
+      "status": "pass",
+      "evidence": {
+        "status": 403
+      }
+    },
+    {
+      "name": "Anonymous Firestore orderSettings/config",
+      "status": "pass",
+      "evidence": {
+        "status": 403
+      }
+    },
+    {
+      "name": "Anonymous Firestore products/preview-test-private",
+      "status": "pass",
+      "evidence": {
+        "status": 403
+      }
+    },
+    {
+      "name": "Anonymous product query without publication constraint is denied",
+      "status": "pass",
+      "evidence": {
+        "status": 403
+      }
+    },
+    {
+      "name": "Unauthenticated staff callable is denied",
+      "status": "pass",
+      "evidence": {
+        "status": 401
+      }
+    },
+    {
+      "name": "Firestore indexes and every committed composite query",
+      "status": "pass",
+      "evidence": {
+        "indexes": [
+          {
+            "name": "CICAgNiav4AJ",
+            "state": "READY"
+          },
+          {
+            "name": "CICAgNiroIEJ",
+            "state": "READY"
+          },
+          {
+            "name": "CICAgNjpgYIJ",
+            "state": "READY"
+          },
+          {
+            "name": "CICAgJiUpoMJ",
+            "state": "READY"
+          },
+          {
+            "name": "CICAgNi47oMJ",
+            "state": "READY"
+          },
+          {
+            "name": "CICAgOi3kJAJ",
+            "state": "READY"
+          },
+          {
+            "name": "CICAgNiav4AK",
+            "state": "READY"
+          },
+          {
+            "name": "CICAgJim14AK",
+            "state": "READY"
+          },
+          {
+            "name": "CICAgLjy8IAK",
+            "state": "READY"
+          },
+          {
+            "name": "CICAgOjXh4EK",
+            "state": "READY"
+          },
+          {
+            "name": "CICAgNiroIEK",
+            "state": "READY"
+          },
+          {
+            "name": "CICAgJj7z4EK",
+            "state": "READY"
+          },
+          {
+            "name": "CICAgNjpgYIK",
+            "state": "READY"
+          },
+          {
+            "name": "CICAgLjRyYIK",
+            "state": "READY"
+          },
+          {
+            "name": "CICAgJjF9oIK",
+            "state": "READY"
+          },
+          {
+            "name": "CICAgLiIkYMK",
+            "state": "READY"
+          },
+          {
+            "name": "CICAgJiUpoMK",
+            "state": "READY"
+          },
+          {
+            "name": "CICAgNi47oMK",
+            "state": "READY"
+          },
+          {
+            "name": "CICAgOi3kJAK",
+            "state": "READY"
+          },
+          {
+            "name": "CICAgNirtJAK",
+            "state": "READY"
+          },
+          {
+            "name": "CICAgNjaxJEK",
+            "state": "READY"
+          },
+          {
+            "name": "CICAgLjRnZMK",
+            "state": "READY"
+          },
+          {
+            "name": "CICAgJjFqZMK",
+            "state": "READY"
+          },
+          {
+            "name": "CICAgNi47oML",
+            "state": "READY"
+          }
+        ],
+        "queries": [
+          {
+            "collection": "products",
+            "fields": [
+              "status",
+              "publishedAt"
+            ],
+            "status": 200
+          },
+          {
+            "collection": "products",
+            "fields": [
+              "status",
+              "categoryId",
+              "publishedAt"
+            ],
+            "status": 200
+          },
+          {
+            "collection": "products",
+            "fields": [
+              "status",
+              "availability",
+              "publishedAt"
+            ],
+            "status": 200
+          },
+          {
+            "collection": "products",
+            "fields": [
+              "status",
+              "sizeKeys",
+              "publishedAt"
+            ],
+            "status": 200
+          },
+          {
+            "collection": "products",
+            "fields": [
+              "status",
+              "categoryId",
+              "availability",
+              "publishedAt"
+            ],
+            "status": 200
+          },
+          {
+            "collection": "products",
+            "fields": [
+              "status",
+              "categoryId",
+              "sizeKeys",
+              "publishedAt"
+            ],
+            "status": 200
+          },
+          {
+            "collection": "products",
+            "fields": [
+              "status",
+              "availability",
+              "sizeKeys",
+              "publishedAt"
+            ],
+            "status": 200
+          },
+          {
+            "collection": "products",
+            "fields": [
+              "status",
+              "categoryId",
+              "availability",
+              "sizeKeys",
+              "publishedAt"
+            ],
+            "status": 200
+          },
+          {
+            "collection": "products",
+            "fields": [
+              "status",
+              "priceUGX"
+            ],
+            "status": 200
+          },
+          {
+            "collection": "products",
+            "fields": [
+              "status",
+              "categoryId",
+              "priceUGX"
+            ],
+            "status": 200
+          },
+          {
+            "collection": "products",
+            "fields": [
+              "status",
+              "availability",
+              "priceUGX"
+            ],
+            "status": 200
+          },
+          {
+            "collection": "products",
+            "fields": [
+              "status",
+              "sizeKeys",
+              "priceUGX"
+            ],
+            "status": 200
+          },
+          {
+            "collection": "products",
+            "fields": [
+              "status",
+              "categoryId",
+              "availability",
+              "priceUGX"
+            ],
+            "status": 200
+          },
+          {
+            "collection": "products",
+            "fields": [
+              "status",
+              "categoryId",
+              "sizeKeys",
+              "priceUGX"
+            ],
+            "status": 200
+          },
+          {
+            "collection": "products",
+            "fields": [
+              "status",
+              "availability",
+              "sizeKeys",
+              "priceUGX"
+            ],
+            "status": 200
+          },
+          {
+            "collection": "products",
+            "fields": [
+              "status",
+              "categoryId",
+              "availability",
+              "sizeKeys",
+              "priceUGX"
+            ],
+            "status": 200
+          },
+          {
+            "collection": "products",
+            "fields": [
+              "status",
+              "priceUGX"
+            ],
+            "status": 200
+          },
+          {
+            "collection": "products",
+            "fields": [
+              "status",
+              "categoryId",
+              "priceUGX"
+            ],
+            "status": 200
+          },
+          {
+            "collection": "products",
+            "fields": [
+              "status",
+              "availability",
+              "priceUGX"
+            ],
+            "status": 200
+          },
+          {
+            "collection": "products",
+            "fields": [
+              "status",
+              "sizeKeys",
+              "priceUGX"
+            ],
+            "status": 200
+          },
+          {
+            "collection": "products",
+            "fields": [
+              "status",
+              "categoryId",
+              "availability",
+              "priceUGX"
+            ],
+            "status": 200
+          },
+          {
+            "collection": "products",
+            "fields": [
+              "status",
+              "categoryId",
+              "sizeKeys",
+              "priceUGX"
+            ],
+            "status": 200
+          },
+          {
+            "collection": "products",
+            "fields": [
+              "status",
+              "availability",
+              "sizeKeys",
+              "priceUGX"
+            ],
+            "status": 200
+          },
+          {
+            "collection": "products",
+            "fields": [
+              "status",
+              "categoryId",
+              "availability",
+              "sizeKeys",
+              "priceUGX"
+            ],
+            "status": 200
+          }
+        ]
+      }
+    },
+    {
+      "name": "Storage cross-service rules permit only published revision",
+      "status": "pass",
+      "evidence": [
+        {
+          "name": "product-media/preview-painted-denim/preview-test-v1/share.jpg",
+          "status": 200
+        },
+        {
+          "name": "product-drafts/preview-test-private/test-operator/unpublished.jpg",
+          "status": 403
+        },
+        {
+          "name": "product-media/preview-test-private/preview-test-v1/share.jpg",
+          "status": 403
+        }
+      ]
+    },
+    {
+      "name": "versioned media cache and repeated CDN response",
+      "status": "pass",
+      "evidence": [
+        {
+          "cache-control": "public, max-age=31536000, immutable",
+          "content-type": "image/jpeg",
+          "x-cache": "HIT",
+          "x-cache-hits": "1",
+          "x-robots-tag": "noindex",
+          "x-served-by": "cache-cpt13824-CPT"
+        },
+        {
+          "cache-control": "public, max-age=31536000, immutable",
+          "content-type": "image/jpeg",
+          "x-cache": "HIT",
+          "x-cache-hits": "1",
+          "x-robots-tag": "noindex",
+          "x-served-by": "cache-cpt13827-CPT"
+        }
+      ]
+    },
+    {
+      "name": "orderSources TTL policy",
+      "status": "fail",
+      "evidence": "TTL policy is absent or inactive"
+    },
+    {
+      "name": "Shared-link HTML matches the Hosting app build",
+      "status": "pass",
+      "evidence": [
+        {
+          "page": "product-share.html",
+          "matchesBuiltApp": true,
+          "assetStatus": 200
+        },
+        {
+          "page": "event-share.html",
+          "matchesBuiltApp": true,
+          "assetStatus": 200
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,150 @@
+{
+  "note": "Activity during the release window. Google-managed provisioning is included. Browser-originated console changes are excluded. Event ordering alone does not establish causation for every automated grant.",
+  "entries": [
+    {
+      "timestamp": "2026-11-16T18:36:32.341630Z",
+      "method": "SetIamPolicy",
+      "resource": "projects/night-in-kampala",
+      "deltas": [
+        {
+          "action": "ADD",
+          "role": "roles/cloudfunctions.standardServiceAgent",
+          "member": "serviceAccount:service-1097680313454@gcf-admin-robot.iam.gserviceaccount.com"
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-11-16T18:36:33.735593Z",
+      "method": "SetIamPolicy",
+      "resource": "projects/night-in-kampala",
+      "deltas": [
+        {
+          "action": "ADD",
+          "role": "roles/editor",
+          "member": "serviceAccount:night-in-kampala@appspot.gserviceaccount.com"
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-11-16T18:36:34.234743Z",
+      "method": "SetIamPolicy",
+      "resource": "projects/night-in-kampala",
+      "deltas": [
+        {
+          "action": "ADD",
+          "role": "roles/containerregistry.ServiceAgent",
+          "member": "serviceAccount:service-1097680313454@containerregistry.iam.gserviceaccount.com"
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-11-16T18:36:35.038179Z",
+      "method": "SetIamPolicy",
+      "resource": "projects/night-in-kampala",
+      "deltas": [
+        {
+          "action": "ADD",
+          "role": "roles/cloudbuild.builds.builder",
+          "member": "serviceAccount:1097680313454@cloudbuild.gserviceaccount.com"
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-11-16T18:36:35.538787Z",
+      "method": "SetIamPolicy",
+      "resource": "projects/night-in-kampala",
+      "deltas": [
+        {
+          "action": "ADD",
+          "role": "roles/cloudbuild.serviceAgent",
+          "member": "serviceAccount:service-1097680313454@gcp-sa-cloudbuild.iam.gserviceaccount.com"
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-11-16T18:38:04.658186Z",
+      "method": "SetIamPolicy",
+      "resource": "projects/night-in-kampala",
+      "deltas": [
+        {
+          "action": "ADD",
+          "role": "roles/editor",
+          "member": "serviceAccount:1097680313454@cloudservices.gserviceaccount.com"
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-11-16T18:38:20.465305Z",
+      "method": "SetIamPolicy",
+      "resource": "projects/night-in-kampala",
+      "deltas": [
+        {
+          "action": "ADD",
+          "role": "roles/firebasemods.serviceAgent",
+          "member": "serviceAccount:service-1097680313454@gcp-sa-firebasemods.iam.gserviceaccount.com"
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-11-16T18:38:28.833465Z",
+      "method": "SetIamPolicy",
+      "resource": "projects/night-in-kampala",
+      "deltas": [
+        {
+          "action": "ADD",
+          "role": "roles/run.serviceAgent",
+          "member": "serviceAccount:service-1097680313454@serverless-robot-prod.iam.gserviceaccount.com"
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-11-16T18:38:30.668123Z",
+      "method": "SetIamPolicy",
+      "resource": "projects/night-in-kampala",
+      "deltas": [
+        {
+          "action": "ADD",
+          "role": "roles/editor",
+          "member": "serviceAccount:1097680313454-compute@developer.gserviceaccount.com"
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-11-16T18:39:34.920564Z",
+      "method": "SetIamPolicy",
+      "resource": "projects/night-in-kampala",
+      "deltas": [
+        {
+          "action": "ADD",
+          "role": "roles/artifactregistry.serviceAgent",
+          "member": "serviceAccount:service-1097680313454@gcp-sa-artifactregistry.iam.gserviceaccount.com"
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-11-16T18:40:50.867351Z",
+      "method": "SetIamPolicy",
+      "resource": "projects/night-in-kampala",
+      "agent": "node,gzip(gfe)",
+      "deltas": [
+        {
+          "action": "ADD",
+          "role": "roles/firebaserules.firestoreServiceAgent",
+          "member": "serviceAccount:service-1097680313454@gcp-sa-firebasestorage.iam.gserviceaccount.com"
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-11-16T18:45:26.831273Z",
+      "method": "SetIamPolicy",
+      "resource": "projects/night-in-kampala",
+      "deltas": [
+        {
+          "action": "ADD",
+          "role": "roles/firebaseauth.admin",
+          "member": "serviceAccount:firebase-adminsdk-fbsvc@night-in-kampala.iam.gserviceaccount.com"
+        }
+      ]
+    }
+  ]
+}

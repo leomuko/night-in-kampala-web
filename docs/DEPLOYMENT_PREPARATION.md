@@ -73,7 +73,7 @@ Run the dry run again to verify that the deletion lists are empty. Review catego
 
 `npm run check` runs the secret scan, ESLint, application tests, metadata tests, deployment-boundary/build tests, the offline build, security-rule tests, Hosting HTTP tests and launch cleanup tests on isolated emulators. GitHub Actions runs that command on main-branch pushes and pull requests with Node 24 and Java 21, read-only repository permissions and no Firebase credentials. The updated workflow is in the local review commits. No deployment is part of CI.
 
-The single-project release preparation passed `npm run check` with **127 tests**. The run covered 67 app tests, 15 metadata tests, six deployment tests, ten rules tests, 24 emulator HTTP tests, four cleanup and role-tool tests and one secret-scan test. Deployment tests build synthetic preview and production artifacts and inspect Function metadata locally. Cleanup tests use only the dedicated demo project. Cloud IAM, billing, ingress, CDN expiry and device behaviour still require the actual preview.
+The single-project release preparation passed `npm run check` with **129 tests**. The run covered 69 app tests, 15 metadata tests, six deployment tests, ten rules tests, 24 emulator HTTP tests, four cleanup and role-tool tests and one secret-scan test. Deployment tests build synthetic preview and production artifacts and inspect Function metadata locally. Cleanup tests use only the dedicated demo project. Cloud IAM, billing, ingress, CDN expiry and device behaviour still require the actual preview.
 
 ## References
 
@@ -96,3 +96,5 @@ Type the displayed phrase at the prompt. For non-interactive operation, supply i
 Part A passed locally on 16 November 2026 before cloud access. The cleanup regression retains unmarked unpublished work, the role tool uses existing accounts, and cloud ordering remains paused. The owner has authorized Part B preview preparation and deployment after this gate.
 
 The permanent account `superadmin@nightinkampala.com` must be retained during launch cleanup. Grant it the owner role and keep it free of the `testAccount` claim. Its password is controlled by the owner. Only disposable staff logins receive the test claim.
+
+The first preview is deployed. [Hosted evidence and the owner domain step](qa/first-preview/README.md) record the pause before Part C. The registered public App Check key is configured, and proxy hops remain null.
