@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Button, ErrorState, LoadingState } from '../../components/UI.jsx';
 import CategoryEditor from './CategoryEditor.jsx';
+import PublicationControls from './PublicationControls.jsx';
 import PhotoEditor from './PhotoEditor.jsx';
 import DraftEditor from './DraftEditor.jsx';
 import { readEditorData } from './catalogueAdmin.js';
@@ -37,6 +38,7 @@ export default function StaffCatalogue({ user }) {
     </section>
     <DraftEditor key={selection.key} draft={draft} categories={state.categories} onSave={saveDraft} />
     {draft.slug && <PhotoEditor key={selection.key} draft={draft} user={user} onSave={saveDraft} />}
+    {draft.slug && <PublicationControls key={draft.slug} draft={draft} />}
     <CategoryEditor items={state.categories} onSave={categories => setState(previous => ({ ...previous, categories }))} />
   </div>;
 }

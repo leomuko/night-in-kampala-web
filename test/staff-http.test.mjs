@@ -109,7 +109,7 @@ test('staff reopen saved drafts, concurrent edits are rejected and category IDs 
   }
 });
 
-test('photo uploads are validated, processed into private renditions and reordered through staff calls', async () => {
+test('photo processing and catalogue publication work through staff, Storage and Hosting', async () => {
   const app = initializeApp({ projectId: project }, 'catalogue-photo-test');
   const db = getFirestore(app);
   const bucket = getStorage(app).bucket(`${project}.appspot.com`);
@@ -126,12 +126,17 @@ test('photo uploads are validated, processed into private renditions and reorder
   const call = (name, data) => post(endpoint.replace(/staffAccess$/, name), { data }, token);
   const slug = 'photo-integration-test';
   const path = db.doc(`productDrafts/${slug}`);
+  const categoryPath = db.doc('catalogueSettings/categories');
+  const previousCategories = await categoryPath.get();
   const jpeg = await sharp({ create: { width: 1400, height: 800, channels: 3, background: 'gray' } }).jpeg().toBuffer();
   async function upload(id, bytes) {
     await uploadBytes(ref(storage, `product-drafts/${slug}/${uid}/${id}.jpg`), bytes, { contentType: 'image/jpeg' });
   }
   try {
     await path.set({ revision: 1 });
+    await db.doc('catalogueSettings/categories').set({
+      items: [{ id: 'photo-test', label: 'Illustrative photo test', active: true }],
+    }, { merge: true });
     await upload('invalid', new Uint8Array([1, 2, 3]));
     assert.equal((await call('cataloguePhotoAdd', { slug, id: 'invalid', revision: 1, extension: 'jpg', alt: 'Invalid' })).status, 400);
     for (const [index, id] of ['front', 'back'].entries()) {
@@ -148,10 +153,65 @@ test('photo uploads are validated, processed into private renditions and reorder
     const photos = [{ id: 'back', alt: 'Back view' }, { id: 'front', alt: 'Front view' }];
     assert.equal((await call('cataloguePhotosSave', { slug, revision: 3, photos })).status, 200);
     assert.deepEqual((await path.get()).data().photos.map(({ id, alt }) => ({ id, alt })), photos);
+    const item = {
+      name: 'Illustrative measured piece', itemCode: 'NK-DEMO-PHOTO', categoryId: 'photo-test', stockType: 'one-of-one',
+      sizeLabel: 'Waist 32', priceUGX: 85000, measurements: [{ label: 'Waist', cm: 81 }],
+      condition: 'Illustrative condition', reworkNotes: 'Illustrative rework', care: 'Illustrative care', shareDescription: 'Illustrative piece',
+    };
+    assert.equal((await call('cataloguePublish', { slug, revision: 4 })).body.error?.status, 'FAILED_PRECONDITION');
+    assert.equal((await call('catalogueDraftSave', { slug, revision: 4, draft: item })).status, 200);
+    const publish = await call('cataloguePublish', { slug, revision: 5 });
+    assert.equal(publish.status, 200, JSON.stringify(publish.body.error));
+    const publicRef = db.doc(`products/${slug}`);
+    const firstPublic = (await publicRef.get()).data();
+    const home = 'http://127.0.0.1:5500';
+    const image = await fetch(home + firstPublic.share.imageUrl);
+    assert.equal(image.status, 200);
+    assert.match(image.headers.get('cache-control'), /max-age=31536000, immutable/);
+    assert.match(image.headers.get('content-type'), /image\/jpeg/);
+    assert.equal((await sharp(Buffer.from(await image.arrayBuffer())).metadata()).width, 1200);
+    assert.equal((await fetch(home + firstPublic.share.imageUrl, { method: 'HEAD' })).status, 200);
+    assert.equal((await fetch(home + firstPublic.share.imageUrl, { method: 'POST' })).status, 405);
+    assert.equal((await call('catalogueAvailability', { slug, availability: 'sold' })).status, 200);
+    assert.equal((await publicRef.get()).data().availability, 'sold');
+    const audit = await db.collection('auditLogs').where('productId', '==', slug).get();
+    assert.ok(audit.docs.some(doc => doc.data().action === 'change-availability' && doc.data().actorUid === uid));
+
+    const edited = { ...item, name: 'Illustrative edited piece', priceUGX: 160000 };
+    assert.equal((await call('catalogueDraftSave', { slug, revision: 5, draft: edited })).status, 200);
+    assert.equal((await call('cataloguePhotosSave', { slug, revision: 6, photos: photos.toReversed() })).status, 200);
+    assert.equal((await call('cataloguePublish', { slug, revision: 7 })).status, 200);
+    const current = (await publicRef.get()).data();
+    assert.equal(current.priceUGX, 160000);
+    assert.equal(current.availability, 'sold');
+    assert.notEqual(current.share.imageUrl, firstPublic.share.imageUrl);
+    assert.equal(current.share.imageAlt, 'Front view');
+    const html = await fetch(`${home}/products/${slug}`);
+    assert.match(await html.text(), /Illustrative edited piece/);
+    assert.equal((await fetch(home + firstPublic.share.imageUrl)).status, 404);
+
+    const inventory = db.doc(`inventory/${slug}`);
+    await inventory.update({ reservedUnits: 1 });
+    assert.equal((await call('catalogueAvailability', { slug, availability: 'available' })).body.error?.status, 'FAILED_PRECONDITION');
+    await inventory.update({ reservedUnits: 0 });
+    assert.equal((await call('catalogueAvailability', { slug, availability: 'available' })).status, 200);
+    assert.equal((await publicRef.get()).data().availability, 'available');
+    assert.equal((await call('catalogueWithdraw', { slug, status: 'draft' })).status, 200);
+    const withdrawn = await fetch(home + current.share.imageUrl);
+    assert.equal(withdrawn.status, 404);
+    assert.match(withdrawn.headers.get('cache-control'), /no-store/);
+    assert.equal((await fetch(`${home}/products/${slug}`)).status, 404);
   } finally {
     await bucket.deleteFiles({ prefix: `product-drafts/${slug}/` });
     await bucket.deleteFiles({ prefix: `product-processed/${slug}/` });
     await path.delete();
+    await db.doc(`products/${slug}`).delete();
+    await db.doc(`inventory/${slug}`).delete();
+    if (previousCategories.exists) await categoryPath.set(previousCategories.data());
+    else await categoryPath.delete();
+    const audit = await db.collection('auditLogs').where('productId', '==', slug).get();
+    await Promise.all(audit.docs.map(doc => doc.ref.delete()));
+    await bucket.deleteFiles({ prefix: `product-media/${slug}/` });
     await getAuth(app).deleteUser(uid);
     await deleteWebApp(webApp);
     await deleteApp(app);

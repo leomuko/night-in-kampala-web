@@ -21,6 +21,7 @@ export default defineConfig(({ command, mode }) => {
     },
   }],
   server: {
+    proxy: { '/media/products/': 'http://127.0.0.1:5500' },
     watch: { ignored: ['**/.cache/**', '**/artifacts/**', '**/docs/**'] },
   },
   test: {

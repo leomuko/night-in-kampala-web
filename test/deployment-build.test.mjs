@@ -24,6 +24,8 @@ test('predeploy builds matching browser/Function artifacts and imports the confi
     const manifest = JSON.parse(await readFile(path.join(root, 'firebase.staging.generated.json'), 'utf8'));
     assert.ok(manifest.functions[0].predeploy[0].endsWith(' staging'));
     assert.ok(manifest.hosting.predeploy[0].endsWith(' staging'));
+    const media = manifest.hosting.rewrites.find(item => item.source === '/media/products/**');
+    assert.equal(media.function.functionId, 'catalogueMedia');
     for (const rewrite of manifest.hosting.rewrites.filter(item => item.function)) {
       assert.equal(rewrite.function.region, 'europe-west1');
       assert.equal(rewrite.function.pinTag, true);

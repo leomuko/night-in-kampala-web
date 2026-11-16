@@ -7,6 +7,9 @@ import { createSharedLinkHandler } from './shared-links.js';
 import { saveCategory, saveProductDraft } from './catalogue-drafts.js';
 import { catalogueBucket } from './catalogue-bucket.js';
 import { addDraftPhoto, updateDraftPhotos } from './catalogue-media.js';
+import { publishCatalogueProduct, withdrawCatalogueProduct } from './catalogue-publish.js';
+import { changeCatalogueAvailability } from './catalogue-stock.js';
+import { catalogueMediaHandler } from './serve-catalogue-media.js';
 import { staffCallable } from './staff-access.js';
 import { resolveFunctionRuntime } from './runtime-config.js';
 
@@ -46,3 +49,7 @@ export const catalogueDraftSave = staffCallable(runtime, (data, actor) => savePr
 export const catalogueCategorySave = staffCallable(runtime, data => saveCategory(db, data));
 export const cataloguePhotoAdd = staffCallable(runtime, (data, actor) => addDraftPhoto(db, catalogueBucket(app, runtime), data, actor));
 export const cataloguePhotosSave = staffCallable(runtime, (data, actor) => updateDraftPhotos(db, data, actor));
+export const cataloguePublish = staffCallable(runtime, (data, actor) => publishCatalogueProduct(db, catalogueBucket(app, runtime), data, actor));
+export const catalogueWithdraw = staffCallable(runtime, (data, actor) => withdrawCatalogueProduct(db, data, actor));
+export const catalogueAvailability = staffCallable(runtime, (data, actor) => changeCatalogueAvailability(db, data, actor));
+export const catalogueMedia = onRequest({ region: runtime.region, maxInstances: 3 }, catalogueMediaHandler(db, () => catalogueBucket(app, runtime)));
