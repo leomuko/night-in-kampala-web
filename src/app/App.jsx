@@ -9,6 +9,8 @@ import { DropPage, DropsPage } from '../features/editorial/DropPages.jsx';
 import ArchivePage from '../features/catalogue/ArchivePage.jsx';
 import ProductPage from '../features/catalogue/ProductPage.jsx';
 import ShopPage from '../features/catalogue/ShopPage.jsx';
+import BagProvider from '../features/orders/BagProvider.jsx';
+import BagPage from '../features/orders/BagPage.jsx';
 import HomePage from '../features/home/HomePage.jsx';
 import PlaceholderPage from './PlaceholderPage.jsx';
 import NotFoundPage from './NotFoundPage.jsx';
@@ -33,7 +35,7 @@ function Layout() {
 }
 
 export default function App() {
-  return <Routes><Route element={<Layout />}>
+  return <BagProvider><Routes><Route element={<Layout />}>
     <Route index element={<HomePage />} />
     <Route path="shop" element={<ShopPage />} />
     <Route path="collections" element={<DropsPage />} />
@@ -46,11 +48,12 @@ export default function App() {
     <Route path="help/:slug" element={<HelpPage />} />
     <Route path="lookbooks" element={<LookbooksPage />} />
     <Route path="lookbooks/:slug" element={<LookbookPage />} />
-    {['cart', 'checkout'].map(page => <Route key={page} path={page} element={<PlaceholderPage page={page} />} />)}
+    <Route path="cart" element={<BagPage />} />
+    <Route path="checkout" element={<PlaceholderPage page="checkout" />} />
     <Route path="products/:slug" element={<ProductPage />} />
     <Route path="orders/:id" element={<PlaceholderPage page="orders" />} />
     <Route path="admin/*" element={<AdminShell />} />
     {ComponentPage && <Route path="components" element={<ComponentPage />} />}
     <Route path="*" element={<NotFoundPage />} />
-  </Route></Routes>;
+  </Route></Routes></BagProvider>;
 }
