@@ -1,6 +1,6 @@
 # Explicit release preparation before P1.14
 
-The owner approved the single-project model on **16 November 2026**. Both profiles target `night-in-kampala`; Functions use `europe-west1`, Firestore stays in `eur3`, and the existing bucket stays in `US-EAST1`. The first preview release awaits the owner’s go-ahead.
+The owner approved the single-project model on **16 November 2026**. Both profiles target `night-in-kampala`; Functions use `europe-west1`, Firestore stays in `eur3`, and the existing bucket stays in `US-EAST1`. The owner authorized the first preview release after the Part A local gate passes. App Check registration is deferred until the preview URL exists.
 
 ## Approved release model
 
@@ -28,13 +28,13 @@ P1.13 records the approved topology. P1.14 requires the console checks, a review
 
 ### Owner checklist before the first preview deploy
 
-- [ ] Confirm `night-in-kampala` is on Blaze. Set a project budget and alert recipients. Alerts notify the team about spending. [Firebase budget alerts](https://firebase.google.com/docs/projects/billing/budget-alerts).
-- [ ] In Firebase Storage → Rules, close test mode on `night-in-kampala.firebasestorage.app`. Confirm client reads and writes are denied until the reviewed rules release. During P1.14, enable and verify the permissions that let Storage Rules look up Firestore documents. [Storage rule conditions](https://firebase.google.com/docs/storage/security/rules-conditions).
-- [ ] In Google Cloud → APIs & Services → Credentials, restrict the exposed browser API key to the APIs and web origins this app needs, or create a restricted replacement and retire the old key after verifying the replacement. Put the active key in the ignored deployment profile. [Firebase API key restrictions](https://firebase.google.com/docs/projects/api-keys).
+- [x] Owner confirmed `night-in-kampala` is on Blaze. Set a project budget and alert recipients. Alerts notify the team about spending. [Firebase budget alerts](https://firebase.google.com/docs/projects/billing/budget-alerts).
+- [x] Owner confirmed deny-all Firestore and Storage client rules. In Firebase Storage → Rules, close test mode on `night-in-kampala.firebasestorage.app`. Confirm client reads and writes are denied until the reviewed rules release. During P1.14, enable and verify the permissions that let Storage Rules look up Firestore documents. [Storage rule conditions](https://firebase.google.com/docs/storage/security/rules-conditions).
+- [x] Owner confirmed the browser key is restricted. In Google Cloud → APIs & Services → Credentials, restrict the exposed browser API key to the APIs and web origins this app needs, or create a restricted replacement and retire the old key after verifying the replacement. Put the active key in the ignored deployment profile. [Firebase API key restrictions](https://firebase.google.com/docs/projects/api-keys).
 - [ ] Create a score-based reCAPTCHA Enterprise website key for the approved preview hostname and register the Firebase web app under App Check. Confirm the actual preview hostname, pass the public site key as `order.appCheckSiteKey`, and verify an attested order call on preview. Include the approved live domain before production. [App Check for web](https://firebase.google.com/docs/app-check/web/recaptcha-enterprise-provider).
-- [ ] Create `ORDER_IDENTITY_KEY` in Secret Manager for Functions, following [the order identity instructions](#order-identity-trusted-source-and-retention). Keep the generated value in Secret Manager.
+- [x] Owner confirmed `ORDER_IDENTITY_KEY` exists in Secret Manager for Functions, following [the order identity instructions](#order-identity-trusted-source-and-retention). Keep the generated value in Secret Manager.
 
-Confirm the completed checklist and give explicit authorization before running the preview release. P1.14 also verifies the deployed composite indexes, the `orderSources.expiresAt` TTL policy, and the actual preview with the reviewed rules and Function settings.
+The first preview proceeds under the owner’s Part B authorization after the local gate. Keep `order.appCheckSiteKey` empty and `order.trustedProxyHops` null. Product and bag controls show “Ordering opens soon”, and the checkout route offers browsing without collecting contact details. Cloud order submission stays disabled. App Check for Firestore and Storage remains an owner decision. P1.14 also verifies the deployed composite indexes, the `orderSources.expiresAt` TTL policy, and the actual preview with the reviewed rules and Function settings.
 
 ## Indexing at launch
 

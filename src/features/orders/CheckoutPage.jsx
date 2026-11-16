@@ -12,8 +12,18 @@ import OrderReceipt from './OrderReceipt.jsx';
 import { saveRecentOrder } from './receiptData.js';
 import OrderItems from './OrderItems.jsx';
 import useBagReview from './useBagReview.js';
+import { isOrderingOpen } from './orderAvailability.js';
 
 export default function CheckoutPage({ onOrder = createOrder }) {
+  if (!isOrderingOpen()) return <section className="container page-section order-page stack">
+    <h1>Ordering opens soon</h1>
+    <p>Explore the pieces while we prepare to take orders.</p>
+    <Link className="text-link" to="/shop">Browse shop</Link>
+  </section>;
+  return <CheckoutForm onOrder={onOrder} />;
+}
+
+function CheckoutForm({ onOrder }) {
   const { items, removeSubmitted } = useBag();
   const { rows, failed, loading, retry } = useBagReview(items);
   const [country, setCountry] = useState('UG');

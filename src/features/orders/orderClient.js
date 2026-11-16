@@ -1,9 +1,11 @@
 import { emulatorOrderCheck } from '../../../functions/order-model.js';
 import { getFirebaseApp, getFirebaseRuntime } from '../../services/firebaseApp.js';
 import { getFirebaseFunctions } from '../../services/firebase.js';
+import { isOrderingOpen } from './orderAvailability.js';
 
 let appCheck;
 export async function createOrder(data) {
+  if (!isOrderingOpen()) throw new Error('Ordering opens soon.');
   const { mode } = getFirebaseRuntime();
   if (mode === 'cloud') {
     const siteKey = import.meta.env.VITE_APP_CHECK_SITE_KEY;

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Button, Select } from '../../components/UI.jsx';
 import { maxBagItems } from './bagData.js';
 import { useBag } from './bagContext.js';
+import { isOrderingOpen } from './orderAvailability.js';
 
 export default function ProductOrdering({ slug, product }) {
   const bag = useBag();
@@ -12,7 +13,8 @@ export default function ProductOrdering({ slug, product }) {
   const [message, setMessage] = useState('');
   const size = sizes.some(option => option.id === selected) ? selected : sizes[0]?.id;
   const real = product.isRealCatalogueStock === true;
-  const eligible = product.status === 'published' && real && product.purchasable === true
+  const open = isOrderingOpen();
+  const eligible = open && product.status === 'published' && real && product.purchasable === true
     && ['available', 'requested'].includes(product.availability) && Boolean(size && bag);
 
   function add() {
@@ -26,6 +28,7 @@ export default function ProductOrdering({ slug, product }) {
   }
 
   return <div className="product-ordering">
+    {!open && <p role="status">Ordering opens soon</p>}
     {eligible && product.stockType === 'repeatable' && <Select label="Size to request" value={size}
       onChange={event => { setSelected(event.target.value); setMessage(''); }}>
       {sizes.map(option => <option value={option.id} key={option.id}>{option.label}</option>)}

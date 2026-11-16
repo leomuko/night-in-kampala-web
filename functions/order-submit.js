@@ -31,6 +31,8 @@ export function orderSource(request, runtime, proxyHops) {
     }
     return 'loopback';
   }
+  if (!runtime.order?.appCheckSiteKey || runtime.order.appCheckSiteKey === 'REPLACE'
+    || proxyHops === null || proxyHops === undefined) throw new HttpsError('failed-precondition', 'Ordering opens soon.');
   if (!request.app) throw new HttpsError('unauthenticated', 'The form could not verify this app.');
   // A cloud deployment must confirm the appended client position and restrict ingress
   // in staging. Leftmost entries can originate in the incoming request.
