@@ -65,7 +65,7 @@ export function assertDraftRevision(snapshot, revision) {
 
 export async function saveProductDraft(db, data, actor) {
   const fields = draftFields(data?.draft);
-  const supplied = data.slug === undefined ? '' : catalogueId(data.slug);
+  const supplied = data.slug == null ? '' : catalogueId(data.slug);
   if (!supplied && (!fields.name || data.revision !== 0)) {
     throw new HttpsError('invalid-argument', 'Enter a name for the new piece.');
   }

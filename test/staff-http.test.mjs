@@ -97,7 +97,7 @@ test('staff reopen saved drafts, concurrent edits are rejected and category IDs 
     assert.equal(reloaded.isRealCatalogueStock, false);
     const generated = await call('catalogueDraftSave', { revision: 0, draft: { ...draft, name: 'Slug Test Denim' } });
     assert.equal(generated.body.result?.slug, 'slug-test-denim');
-    const second = await call('catalogueDraftSave', { revision: 0, draft: { ...draft, name: 'Slug Test Denim' } });
+    const second = await call('catalogueDraftSave', { slug: null, revision: 0, draft: { ...draft, name: 'Slug Test Denim' } });
     assert.match(second.body.result?.slug, /^slug-test-denim-/);
     const renamed = await call('catalogueDraftSave', { ...generated.body.result, draft: { ...draft, name: 'Renamed denim' } });
     assert.equal(renamed.body.result?.slug, generated.body.result.slug);

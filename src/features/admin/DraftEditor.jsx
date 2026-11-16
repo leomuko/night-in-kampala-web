@@ -45,7 +45,7 @@ export default function DraftEditor({ draft, categories, onSave }) {
     setSaved(false);
     setBusy(true);
     try {
-      const result = await callStaff('catalogueDraftSave', { slug, revision: draft.revision ?? 0, draft: proposed });
+      const result = await callStaff('catalogueDraftSave', { ...(slug ? { slug } : {}), revision: draft.revision ?? 0, draft: proposed });
       onSave({ ...draft, ...proposed, ...result });
       setSaved(true);
     } catch (failure) {

@@ -37,7 +37,10 @@ export default function ProductTable({ rows, onEdit, onAdd }) {
         <tbody>{products.map(product => <tr key={product.slug}>
           <th scope="row"><div className="staff-table-product">
             {product.photos?.[0] ? <PhotoPreview key={product.photos[0].id} photo={product.photos[0]} thumbnail /> : <span className="staff-thumbnail" />}
-            <button className="text-button" type="button" onClick={() => onEdit(product.slug)}>{product.name || product.slug}</button>
+            <div>
+              <button className="text-button" type="button" onClick={() => onEdit(product.slug)}>{product.name || product.slug}</button>
+              {product.photos?.[0] && product.photos[0].kind !== 'photograph' && <p className="placeholder-label">Illustrative image</p>}
+            </div>
           </div></th>
           <td>{product.sizeLabel || '—'}</td><td>{product.priceUGX ? formatPrice(product.priceUGX) : '—'}</td>
           <td>{quantity(product) ?? '—'}</td><td>{status(product)}</td>

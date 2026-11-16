@@ -38,7 +38,8 @@ test('measurement controls submit labels and numbers without requiring a URL slu
   await user.type(screen.getByLabelText('Measurement 1 (cm)'), '81.5');
   await user.click(screen.getByRole('button', { name: 'Save draft' }));
   expect(callStaff).toHaveBeenCalledWith('catalogueDraftSave', expect.objectContaining({
-    slug: undefined, revision: 0, draft: expect.objectContaining({ name: 'Test denim', measurements: [{ label: 'Waist', cm: 81.5 }] }),
+    revision: 0, draft: expect.objectContaining({ name: 'Test denim', measurements: [{ label: 'Waist', cm: 81.5 }] }),
   }));
+  expect(callStaff.mock.lastCall[1]).not.toHaveProperty('slug');
   expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ slug: 'test-denim' }));
 });
