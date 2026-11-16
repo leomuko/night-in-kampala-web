@@ -42,3 +42,19 @@ test('a missing or private piece has no order or product details', async () => {
   expect(await screen.findByRole('heading', { name: 'Piece unavailable' })).toBeInTheDocument();
   expect(screen.queryByRole('button', { name: 'Add to bag' })).toBeNull();
 });
+
+test('a requested real piece can enter the bag and a reserved piece stays disabled', async () => {
+  const { default: BagProvider } = await import('../orders/BagProvider.jsx');
+  const product = { slug: 'real', name: 'Test denim', status: 'published', isRealCatalogueStock: true, purchasable: true,
+    priceUGX: 85000, stockType: 'one-of-one', sizeLabel: 'Waist 32', requestableSizes: [{ id: 'waist-32', label: 'Waist 32' }], availability: 'requested' };
+  readPublicDocument.mockResolvedValueOnce(product);
+  const visit = () => render(<MemoryRouter initialEntries={['/products/real']}><BagProvider><Routes><Route path="/products/:slug" element={<ProductPage />} /></Routes></BagProvider></MemoryRouter>);
+  const real = visit();
+  await userEvent.click(await screen.findByRole('button', { name: 'Add to bag' }));
+  expect(screen.getByRole('link', { name: 'View bag' })).toHaveAttribute('href', '/cart');
+  expect(JSON.parse(localStorage.getItem('nk-bag-v1'))[0]).toEqual({ slug: 'real', size: 'waist-32', quantity: 1, priceUGX: 85000 });
+  real.unmount();
+  readPublicDocument.mockResolvedValueOnce({ ...product, availability: 'reserved', purchasable: false });
+  visit();
+  expect(await screen.findByRole('button', { name: 'Add to bag' })).toBeDisabled();
+});

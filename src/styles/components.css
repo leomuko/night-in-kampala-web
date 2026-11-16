@@ -77,3 +77,5 @@
 .garment-card h3 { font-family: var(--font-ui); }
 .badge--requested { background: var(--color-paper); color: var(--color-ink); border: var(--border-width) solid var(--color-ink); }
 .garment-image--sold img { opacity: var(--opacity-sold-image); }
+.bag-link { position: relative; }
+.bag-count { position: absolute; inset: var(--space-1) var(--space-1) auto auto; min-width: var(--space-4); background: var(--color-ink); color: var(--color-paper); padding-inline: var(--space-1); font-size: var(--text-label); text-align: center; }

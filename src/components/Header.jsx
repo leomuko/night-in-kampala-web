@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
+import { useBag } from '../features/orders/bagContext.js';
 import { navigation } from '../app/navigation.js';
 import Dialog from './Dialog.jsx';
 import Icon from './Icon.jsx';
@@ -11,6 +12,7 @@ function initialRegion() {
 }
 
 export default function Header() {
+  const count = useBag()?.items.reduce((total, item) => total + item.quantity, 0) ?? 0;
   const [dialog, setDialog] = useState(null);
   const [region, setRegion] = useState(initialRegion);
   function saveRegion(event) {
@@ -27,7 +29,9 @@ export default function Header() {
       <nav className="desktop-nav" aria-label="Main navigation">{navigation.map(item => <NavLink key={item.to} to={item.to}>{item.label}</NavLink>)}</nav>
       <div className="header-actions">
         <button className="market-control" type="button" aria-label="Choose shopping region" aria-haspopup="dialog" onClick={() => setDialog('region')}>{region === 'uganda' ? 'UG' : 'INT'} / UGX <Icon name="chevron" /></button>
-        <Link className="icon-button" to="/cart" aria-label="Your bag"><Icon name="bag" /></Link>
+        <Link className="icon-button bag-link" to="/cart" aria-label={count ? `Your bag, ${count} ${count === 1 ? 'item' : 'items'}` : 'Your bag'}>
+          <Icon name="bag" />{count > 0 && <span className="bag-count" aria-hidden="true">{count}</span>}
+        </Link>
       </div>
     </div></header>
     <Dialog open={dialog === 'menu'} onClose={() => setDialog(null)} title="Menu" className="navigation-dialog">

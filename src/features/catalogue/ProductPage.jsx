@@ -1,7 +1,8 @@
 import { Link, useParams } from 'react-router-dom';
-import { Accordion, Button, ErrorState, LoadingState } from '../../components/UI.jsx';
+import { Accordion, ErrorState, LoadingState } from '../../components/UI.jsx';
 import { formatPrice, previewProducts } from '../../data/previewProducts.js';
 import { getFirebaseRuntime } from '../../services/firebaseApp.js';
+import ProductOrdering from '../orders/ProductOrdering.jsx';
 import { availabilityLabels } from './catalogueData.js';
 import ProductGallery from './ProductGallery.jsx';
 import useDetailHead from './useDetailHead.js';
@@ -39,15 +40,12 @@ export default function ProductPage() {
         <p>{formatPrice(product.priceUGX ?? product.price)}</p>
       </div>
       {product.availability === 'requested' && <p>Someone has requested this piece. Another request is welcome. We’ll confirm requests in the order received.</p>}
-      {product.sizeLabel && <p><strong>Size</strong> {product.sizeLabel}</p>}
+      {product.sizeLabel && product.stockType !== 'repeatable' && <p><strong>Size</strong> {product.sizeLabel}</p>}
       {!!product.measurements?.length && <section className="product-measurements">
         <h2>Measurements (cm)</h2>
         <dl>{product.measurements.map(({ label, cm }, index) => <div key={`${label}-${index}`}><dt>{label}</dt><dd>{cm}</dd></div>)}</dl>
       </section>}
-      <div className="product-ordering">
-        <Button disabled>Add to bag</Button>
-        <p className="helper">{illustrative ? 'Illustrative piece. Ordering is unavailable.' : 'Ordering will open with the first collection.'}</p>
-      </div>
+      <ProductOrdering key={slug} slug={slug} product={product} />
       <div className="product-accordions">
         {product.condition && <Accordion title="Condition" open><p>{product.condition}</p></Accordion>}
         {product.reworkNotes && <Accordion title="How it was reworked"><p>{product.reworkNotes}</p></Accordion>}
