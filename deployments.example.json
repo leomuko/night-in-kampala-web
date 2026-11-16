@@ -1,18 +1,19 @@
 {
-  "staging": {
+  "preview": {
     "indexPublicPages": false,
     "approved": false,
-    "projectId": "replace-with-staging-project",
-    "region": "REQUIRES_REGION_DECISION",
-    "origin": "https://replace-with-staging-origin.invalid",
-    "webConfig": { "apiKey": "REPLACE", "projectId": "replace-with-staging-project", "authDomain": "replace-with-staging-project.firebaseapp.com", "storageBucket": "replace-with-staging-project.firebasestorage.app", "appId": "REPLACE", "messagingSenderId": "REPLACE" }
+    "projectId": "night-in-kampala",
+    "channel": "review",
+    "region": "europe-west1",
+    "origin": "https://replace-with-preview-channel-url.invalid",
+    "webConfig": { "apiKey": "REPLACE", "projectId": "night-in-kampala", "authDomain": "night-in-kampala.firebaseapp.com", "storageBucket": "night-in-kampala.firebasestorage.app", "appId": "REPLACE", "messagingSenderId": "REPLACE" }
   },
   "production": {
     "indexPublicPages": false,
     "approved": false,
-    "projectId": "replace-with-production-project",
-    "region": "REQUIRES_REGION_DECISION",
-    "origin": "https://replace-with-production-origin.invalid",
-    "webConfig": { "apiKey": "REPLACE", "projectId": "replace-with-production-project", "authDomain": "replace-with-production-project.firebaseapp.com", "storageBucket": "replace-with-production-project.firebasestorage.app", "appId": "REPLACE", "messagingSenderId": "REPLACE" }
+    "projectId": "night-in-kampala",
+    "region": "europe-west1",
+    "origin": "https://replace-with-live-origin.invalid",
+    "webConfig": { "apiKey": "REPLACE", "projectId": "night-in-kampala", "authDomain": "night-in-kampala.firebaseapp.com", "storageBucket": "night-in-kampala.firebasestorage.app", "appId": "REPLACE", "messagingSenderId": "REPLACE" }
   }
 }

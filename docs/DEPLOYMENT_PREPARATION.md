@@ -11,6 +11,17 @@ The owner approved the single-project model on **16 November 2026**. Both profil
 
 [Firebase preview channels](https://firebase.google.com/docs/hosting/test-preview-deploy).
 
+## Prepare locally
+
+Copy the example to ignored `deployments.local.json`, fill the approved project’s public web config and exact HTTPS origins, and set each intended profile to `approved: true`. Choose a non-live channel ID for preview. The preview origin is the exact Hosting URL Firebase assigns to that channel. Record it after the owner authorizes channel creation.
+
+- `npm run build` makes the offline build. `npm run prepare:deployment -- preview` prepares ignored cloud artifacts locally.
+- `npm run prepare:deployment -- production --confirm "DEPLOY LIVE night-in-kampala"` prepares the live build locally with typed confirmation.
+- After separate owner authorization, `npm run release:firebase -- preview` deploys Functions, Firestore rules/indexes and Storage rules, then invokes `firebase hosting:channel:deploy` for the named channel. The preview uses the shared Function deployment and never selects the live Hosting channel. Auth-domain synchronization is disabled in the command. Review and add approved domains in the console.
+- `npm run release:firebase -- production --confirm "DEPLOY LIVE night-in-kampala"` is reserved for an owner-authorized launch after cleanup. The live configuration pins Hosting rewrite Functions. Generated predeploy hooks check the target project and release stage. The checked-in configuration rejects release hooks without a profile.
+
+The release command is project-wide for backend services. Review functions, rules, indexes, and cleanup scope before authorizing it. [Hosting with Functions](https://firebase.google.com/docs/hosting/functions) and [preview channel behaviour](https://firebase.google.com/docs/hosting/test-preview-deploy).
+
 ## Gates
 
 P1.13 records the approved topology. P1.14 requires the console checks, a reviewed local preparation, explicit owner authorization, and verification against the actual preview URL. P1.15 requires the owner to verify a WhatsApp product preview on a phone. Work on these gates has made no cloud changes.

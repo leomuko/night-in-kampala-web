@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { demoFirebaseConfig, PROTECTED_PROJECT_ID, resolveFirebaseRuntime } from './firebaseConfig.js';
+import { demoFirebaseConfig, resolveFirebaseRuntime } from './firebaseConfig.js';
 
 import { fixtureFirebaseConfig } from '../test/fixtureFirebaseConfig.js';
 
@@ -14,14 +14,14 @@ describe('Firebase target selection', () => {
   });
   test('cloud access requires an explicit target and complete project config', () => {
     expect(resolveFirebaseRuntime({ development: true, hostname: 'localhost', useEmulators: 'false' }).mode).toBe('preview');
-    expect(() => resolveFirebaseRuntime({ development: false, target: 'staging' })).toThrow(/complete/);
+    expect(() => resolveFirebaseRuntime({ development: false, target: 'preview' })).toThrow(/complete/);
     expect(resolveFirebaseRuntime({ development: false, target: 'production', cloudConfig: fixtureFirebaseConfig })).toMatchObject({ mode: 'cloud', target: 'production', config: fixtureFirebaseConfig });
   });
-  test('staging rejects the registered project and cross-project Storage/Auth', () => {
-    const staging = { ...fixtureFirebaseConfig, projectId: 'nik-example-staging', authDomain: 'nik-example-staging.firebaseapp.com', storageBucket: 'nik-example-staging.firebasestorage.app' };
-    expect(() => resolveFirebaseRuntime({ development: false, target: 'staging', cloudConfig: { ...fixtureFirebaseConfig, projectId: PROTECTED_PROJECT_ID } })).toThrow(/protected/);
-    expect(resolveFirebaseRuntime({ development: false, target: 'staging', cloudConfig: staging }).config.projectId).toBe(staging.projectId);
-    expect(() => resolveFirebaseRuntime({ development: false, target: 'staging', cloudConfig: { ...staging, storageBucket: fixtureFirebaseConfig.storageBucket } })).toThrow(/belong/);
+  test('Hosting preview accepts the registered project and rejects cross-project storage', () => {
+    const projectId = 'night-in-kampala';
+    const preview = { ...fixtureFirebaseConfig, projectId, authDomain: `${projectId}.firebaseapp.com`, storageBucket: `${projectId}.firebasestorage.app` };
+    expect(resolveFirebaseRuntime({ development: false, target: 'preview', cloudConfig: preview }).config.projectId).toBe(projectId);
+    expect(() => resolveFirebaseRuntime({ development: false, target: 'preview', cloudConfig: { ...preview, storageBucket: fixtureFirebaseConfig.storageBucket } })).toThrow(/belong/);
   });
   test.each([
     { development: false, hostname: 'localhost', useEmulators: 'true' },

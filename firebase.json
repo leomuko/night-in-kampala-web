@@ -1,6 +1,6 @@
 {
-  "firestore": { "rules": "firestore.rules", "indexes": "firestore.indexes.json" },
-  "storage": { "rules": "storage.rules" },
+  "firestore": { "rules": "firestore.rules", "indexes": "firestore.indexes.json", "predeploy": ["node \"$PROJECT_DIR/scripts/prepare-deployment.mjs\""] },
+  "storage": { "rules": "storage.rules", "predeploy": ["node \"$PROJECT_DIR/scripts/prepare-deployment.mjs\""] },
   "functions": [{ "source": "functions", "codebase": "local-foundations", "runtime": "nodejs24", "predeploy": ["node \"$PROJECT_DIR/scripts/prepare-deployment.mjs\""] }],
   "hosting": {
     "predeploy": ["node \"$PROJECT_DIR/scripts/prepare-deployment.mjs\""],

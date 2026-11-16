@@ -3,7 +3,7 @@ import { connectLocalFirebase } from './localFirebase.js';
 
 let cloudServices;
 export async function getFirebaseServices() {
-  if (getFirebaseRuntime().mode === 'preview') throw new Error('Offline preview: configure an explicit staging or production target before using Firebase services.');
+  if (getFirebaseRuntime().mode === 'preview') throw new Error('Offline preview: configure an explicit Hosting preview or production target before using Firebase services.');
   if (getFirebaseRuntime().mode === 'emulator') {
     const { app, auth, db, storage } = await connectLocalFirebase();
     return { app, auth, db, storage };

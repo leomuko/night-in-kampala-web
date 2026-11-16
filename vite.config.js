@@ -8,7 +8,7 @@ export default defineConfig(({ command, mode }) => {
   const indexPublicPages = publicIndexingEnabled(env.VITE_FIREBASE_TARGET, env.VITE_PUBLIC_INDEXING);
   if (command === 'build') {
     const runtime = resolveFirebaseRuntime({ development: false, useEmulators: env.VITE_USE_EMULATORS, target: env.VITE_FIREBASE_TARGET, cloudConfig: env.VITE_FIREBASE_CONFIG });
-    if (mode === 'preview' ? runtime.mode !== 'preview' : runtime.target !== mode) throw new Error('Build mode and explicit Firebase target must match. Use npm run build for an offline preview.');
+    if (mode === 'offline' ? runtime.mode !== 'preview' : runtime.target !== mode) throw new Error('Build mode and explicit Firebase target must match. Use npm run build for an offline preview.');
   }
   return {
   plugins: [react(), {
