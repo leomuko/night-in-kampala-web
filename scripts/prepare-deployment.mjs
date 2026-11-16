@@ -11,7 +11,7 @@ const config = selectDeployment(profiles, target, process.env.GCLOUD_PROJECT);
 const env = {
   ...process.env, VITE_USE_EMULATORS: 'false', VITE_FIREBASE_TARGET: target,
   VITE_FIREBASE_CONFIG: JSON.stringify(config.webConfig), VITE_FIREBASE_FUNCTIONS_REGION: config.region,
-  VITE_PUBLIC_INDEXING: config.indexPublicPages === true ? 'true' : 'false',
+  VITE_SITE_ORIGIN: config.origin, VITE_PUBLIC_INDEXING: config.indexPublicPages === true ? 'true' : 'false',
 };
 const build = spawnSync(process.execPath, ['node_modules/vite/bin/vite.js', 'build', '--mode', target], { cwd: root, env, stdio: 'inherit' });
 if (build.error || build.status !== 0) throw new Error('Cloud build failed; deployment preparation stopped.');

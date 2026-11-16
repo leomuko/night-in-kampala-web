@@ -23,7 +23,7 @@ function Layout() {
     routeHead.apply(location.pathname, `${names[section] || 'Reworked in Kampala'} — Night in Kampala`);
   }, [location.pathname, routeHead]);
   const serverStatus = routeHead.statusFor(location.pathname);
-  const page = serverStatus === 404 ? <NotFoundPage /> : serverStatus === 503 ? <div className="container page-section"><ErrorState>This page is temporarily unavailable. Please refresh to try again.</ErrorState></div> : <Outlet />;
+  const page = serverStatus === 404 ? <NotFoundPage /> : serverStatus === 503 ? <div className="container page-section"><ErrorState>This page is temporarily unavailable. Please refresh to try again.</ErrorState></div> : <Outlet context={routeHead} />;
   return <><a className="skip-link" href="#main-content">Skip to content</a><Header /><main id="main-content" tabIndex="-1"><Suspense fallback={<div className="container page-section"><LoadingState /></div>}>{page}</Suspense></main><Footer /></>;
 }
 

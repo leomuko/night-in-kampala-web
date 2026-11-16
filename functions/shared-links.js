@@ -47,6 +47,21 @@ function publicImage(value, origin) {
   return url.href;
 }
 
+export function publicDetailMetadata(document, route, origin) {
+  const title = optionalText(route.collection === 'products' ? document.name : document.title, 200, 'Explore Night in Kampala');
+  const share = document.share;
+  let image;
+  try { image = publicImage(share?.imageUrl, origin); }
+  catch { image = publicImage(DEFAULT_SHARE_IMAGE, origin); }
+  return {
+    title: `${title} — Night in Kampala`,
+    description: optionalText(share?.description, 500, `${title}. Explore reworked clothing, stories and fashion from Night in Kampala.`),
+    canonical: `${origin}${route.path}`,
+    image,
+    imageAlt: image === `${origin}${DEFAULT_SHARE_IMAGE}` ? 'Night in Kampala — AI-generated campaign placeholder' : optionalText(share?.imageAlt, 300, title),
+  };
+}
+
 function replaceHead(template, metadata, path, status, indexPublicPages) {
   const start = template.indexOf(HEAD_START);
   const end = template.indexOf(HEAD_END);
@@ -92,18 +107,7 @@ export function createSharedLinkHandler({ origin, template, readDocument, report
     try {
       const document = await readDocument(route.collection, route.slug);
       if (!document || document.status !== 'published') return errorPage(404, route.path);
-      const title = optionalText(route.collection === 'products' ? document.name : document.title, 200, 'Explore Night in Kampala');
-      const share = document.share;
-      let image;
-      try { image = publicImage(share?.imageUrl, origin); }
-      catch { image = publicImage(DEFAULT_SHARE_IMAGE, origin); }
-      const metadata = {
-        title: `${title} — Night in Kampala`,
-        description: optionalText(share?.description, 500, `${title}. Explore reworked clothing, stories and fashion from Night in Kampala.`),
-        canonical: `${origin}${route.path}`,
-        image,
-        imageAlt: image === `${origin}${DEFAULT_SHARE_IMAGE}` ? 'Night in Kampala — AI-generated campaign placeholder' : optionalText(share?.imageAlt, 300, title),
-      };
+      const metadata = publicDetailMetadata(document, route, origin);
       return {
         status: 200,
         headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': PREVIEW_CACHE_CONTROL, 'X-Content-Type-Options': 'nosniff' },

@@ -1,9 +1,14 @@
-import { afterEach, expect, test } from 'vitest';
+import { afterEach, expect, test, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router-dom';
+import { Link, MemoryRouter, useNavigate } from 'react-router-dom';
 import App from './App.jsx';
 import { createRouteHeadManager } from './routeHead.js';
+import { readPublicDocument } from '../features/catalogue/catalogueData.js';
+
+vi.mock('../features/catalogue/catalogueData.js', async original => ({
+  ...(await original()), readPublicDocument: vi.fn(() => new Promise(() => {})),
+}));
 
 const selector = 'title, meta[name="description"], meta[name="robots"], meta[name^="nik:"], meta[property^="og:"], link[rel="canonical"]';
 afterEach(() => document.head.querySelectorAll(selector).forEach(node => node.remove()));
@@ -53,4 +58,34 @@ test('production indexing stays off on private routes and returns on public navi
   expect(document.querySelector('meta[name="robots"]').content).toBe('noindex, nofollow');
   head.apply('/shop', 'Shop');
   expect(document.querySelector('meta[name="robots"]').content).toBe('index, follow');
+});
+
+function DetailLinks() {
+  const navigate = useNavigate();
+  return <><Link to="/products/second">Next piece</Link><Link to="/products/missing">Missing piece</Link><button onClick={() => navigate(-1)}>Go back</button><App /></>;
+}
+
+test('in-app product navigation and Back replace the head and unavailable items clear it', async () => {
+  readPublicDocument.mockImplementation(async (_collection, slug) => slug === 'missing' ? null : {
+    slug, name: slug === 'first' ? 'First piece' : 'Second piece', priceUGX: 85000, availability: 'sold',
+    share: slug === 'first' ? { description: 'First description', imageUrl: '/share/first.jpg' } : {},
+  });
+  const user = userEvent.setup();
+  render(<MemoryRouter initialEntries={['/products/first']}><DetailLinks /></MemoryRouter>);
+  await screen.findByRole('heading', { name: 'First piece' });
+  expect(document.title).toBe('First piece — Night in Kampala');
+  expect(document.querySelector('meta[name="description"]').content).toBe('First description');
+  await user.click(screen.getByRole('link', { name: 'Next piece' }));
+  await screen.findByRole('heading', { name: 'Second piece' });
+  expect(document.querySelector('link[rel="canonical"]').href).toMatch(/\/products\/second$/);
+  expect(document.querySelector('meta[property="og:image"]').content).toMatch(/\/share\/campaign.jpg$/);
+  expect(document.querySelectorAll('meta[property="og:image"]')).toHaveLength(1);
+  await user.click(screen.getByRole('button', { name: 'Go back' }));
+  await screen.findByRole('heading', { name: 'First piece' });
+  expect(document.querySelector('meta[property="og:image"]').content).toMatch(/\/share\/first.jpg$/);
+  await user.click(screen.getByRole('link', { name: 'Missing piece' }));
+  await screen.findByRole('heading', { name: 'Piece unavailable' });
+  expect(document.querySelector('meta[property="og:image"]')).toBeNull();
+  expect(document.querySelector('link[rel="canonical"]')).toBeNull();
+  expect(document.querySelector('meta[name="robots"]').content).toBe('noindex, nofollow');
 });

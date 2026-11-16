@@ -4,11 +4,13 @@ import { formatPrice, previewProducts } from '../../data/previewProducts.js';
 import { getFirebaseRuntime } from '../../services/firebaseApp.js';
 import { availabilityLabels } from './catalogueData.js';
 import ProductGallery from './ProductGallery.jsx';
+import useDetailHead from './useDetailHead.js';
 import usePublicDocument from './usePublicDocument.js';
 
 export default function ProductPage() {
   const { slug } = useParams();
   const state = usePublicDocument('products', slug);
+  useDetailHead('products', slug, state);
   const fixture = getFirebaseRuntime().mode === 'preview' && previewProducts.find(product => product.slug === slug);
   const product = state.document ?? fixture;
 
