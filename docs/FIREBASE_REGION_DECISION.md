@@ -8,14 +8,14 @@ Cloud Firestore documents that an instance's location cannot be changed after pr
 
 ## Storage bucket check on 16 November 2026
 
-An authenticated, read-only Cloud Storage metadata request through the Firebase CLI confirmed `night-in-kampala.firebasestorage.app` in `US-EAST1` with location type `region` and default storage class `REGIONAL`. Firestore remains recorded in the Europe multi-region `eur3`. The bucket is outside Europe, so the owner's location gate pauses Phase 2 after P2.01. The owner needs to decide how to proceed with Storage placement.
+An authenticated, read-only Cloud Storage metadata request through the Firebase CLI confirmed `night-in-kampala.firebasestorage.app` in `US-EAST1` with location type `region` and default storage class `REGIONAL`. Firestore remains recorded in the Europe multi-region `eur3`. The bucket is outside Europe. The owner approved keeping the existing US-EAST1 bucket and resuming local Phase 2 development on 16 November 2026. Firestore and Storage therefore span Europe and the US. Staging placement and the Functions region remain open.
 
-The owner reported that the bucket is empty and in test mode. The metadata check did not inspect objects or rules. Confirm in the Firebase console that the live Storage rules deny all client reads and writes until a reviewed deployment.
+The owner reported an empty bucket and gave conflicting descriptions of live client access. Live rules remain unverified. Confirm in the Firebase console that the live rules deny all client reads and writes until a reviewed deployment.
 
 ## Remaining location work
 
 1. Retain the existing default Firestore database in `eur3` and confirm its intended role. Cloud staging and production must use distinct projects/origins; supply/select a separate staging project before synthetic cloud data is introduced. No new project/database has been created. Current code protects `night-in-kampala` from staging use while its intended production role is confirmed.
-2. Resolve the confirmed Storage location mismatch with the owner. Review any existing Functions deployments when P1.13 resumes.
+2. Retain the owner-approved US-EAST1 Storage bucket. Assess the cross-region topology before staging. Review any existing Functions deployments when P1.13 resumes.
 3. Use Firebase's documented `eur3` → `europe-west1` mapping as the Functions proposal. Verify the intended Functions generation and Hosting rewrite support, and account for any existing Storage location. This is a service-proximity recommendation, not a measured Kampala latency result.
 4. Record the remaining concrete topology, costs/constraints and staging arrangement before provisioning or deployment. Obtain approval for any new resource placement; Firestore's existing owner selection needs no repeat approval.
 
