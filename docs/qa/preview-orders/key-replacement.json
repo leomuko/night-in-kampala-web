@@ -1,0 +1,32 @@
+{
+  "newKeyMatchesOwnerPrefix": true,
+  "bothProfilesUseNewKey": true,
+  "remainingLocalFiles": [],
+  "gitHistoryExamined": false,
+  "checks": [
+    {
+      "path": "/",
+      "entry": "/assets/index-AtbNQ66w.js",
+      "resolvedEntry": "/assets/index-AtbNQ66w.js",
+      "status": 200,
+      "containsNewKey": true,
+      "containsRetiringKey": false
+    },
+    {
+      "path": "/products/preview-painted-denim",
+      "entry": "/assets/index-CTJL3u1e.js",
+      "resolvedEntry": "/assets/index-AtbNQ66w.js",
+      "status": 200,
+      "containsNewKey": true,
+      "containsRetiringKey": false
+    },
+    {
+      "path": "/events/preview-test-event",
+      "entry": "/assets/index-CTJL3u1e.js",
+      "resolvedEntry": "/assets/index-AtbNQ66w.js",
+      "status": 200,
+      "containsNewKey": true,
+      "containsRetiringKey": false
+    }
+  ]
+}
