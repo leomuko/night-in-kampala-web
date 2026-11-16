@@ -36,8 +36,8 @@ export default function StaffCatalogue({ user }) {
         </li>)}
       </ul>
     </section>
-    <DraftEditor key={selection.key} draft={draft} categories={state.categories} onSave={saveDraft} />
-    {draft.slug && <PhotoEditor key={selection.key} draft={draft} user={user} onSave={saveDraft} />}
+    <DraftEditor key={`draft-${selection.key}`} draft={draft} categories={state.categories} onSave={saveDraft} />
+    {draft.slug && <PhotoEditor key={`photos-${selection.key}`} draft={draft} user={user} onSave={saveDraft} />}
     {draft.slug && <PublicationControls key={draft.slug} draft={draft} />}
     <CategoryEditor items={state.categories} onSave={categories => setState(previous => ({ ...previous, categories }))} />
   </div>;

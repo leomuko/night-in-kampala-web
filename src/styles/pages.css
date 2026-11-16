@@ -46,6 +46,7 @@
 .product-layout nav { grid-column: 1 / -1; font-size: var(--text-small); }
 .product-layout > div { min-width: 0; }
 .product-heading { display: grid; justify-items: start; gap: var(--space-2); }
+.product-heading h1 { font-size: var(--text-heading); overflow-wrap: anywhere; }
 .product-information { align-items: stretch; }
 .product-ordering { display: grid; gap: var(--space-2); }
 .product-measurements h2 { font: var(--weight-semibold) var(--text-body)/var(--leading-body) var(--font-ui); }
