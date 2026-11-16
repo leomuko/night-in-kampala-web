@@ -6,10 +6,16 @@ Project **night-in-kampala** and its web app are configured; see [FIREBASE_SETUP
 
 Cloud Firestore documents that an instance's location cannot be changed after provisioning. A migration is a separate project, not a later configuration edit. Inspect existing project resources before assuming a new default database location remains free to choose. [Firestore location documentation](https://firebase.google.com/docs/firestore/locations).
 
+## Storage bucket check on 16 November 2026
+
+An authenticated, read-only Cloud Storage metadata request through the Firebase CLI confirmed `night-in-kampala.firebasestorage.app` in `US-EAST1` with location type `region` and default storage class `REGIONAL`. Firestore remains recorded in the Europe multi-region `eur3`. The bucket is outside Europe, so the owner's location gate pauses Phase 2 after P2.01. The owner needs to decide how to proceed with Storage placement.
+
+The owner reported that the bucket is empty and in test mode. The metadata check did not inspect objects or rules. Confirm in the Firebase console that the live Storage rules deny all client reads and writes until a reviewed deployment.
+
 ## Remaining location work
 
 1. Retain the existing default Firestore database in `eur3` and confirm its intended role. Cloud staging and production must use distinct projects/origins; supply/select a separate staging project before synthetic cloud data is introduced. No new project/database has been created. Current code protects `night-in-kampala` from staging use while its intended production role is confirmed.
-2. Inspect any existing Storage bucket and Functions deployments before choosing their locations. The configured bucket name alone does not confirm that the bucket exists or reveal its location.
+2. Resolve the confirmed Storage location mismatch with the owner. Review any existing Functions deployments when P1.13 resumes.
 3. Use Firebase's documented `eur3` → `europe-west1` mapping as the Functions proposal. Verify the intended Functions generation and Hosting rewrite support, and account for any existing Storage location. This is a service-proximity recommendation, not a measured Kampala latency result.
 4. Record the remaining concrete topology, costs/constraints and staging arrangement before provisioning or deployment. Obtain approval for any new resource placement; Firestore's existing owner selection needs no repeat approval.
 
@@ -24,7 +30,7 @@ Firebase identifies `eur3` as Europe multi-region and maps it to `europe-west1` 
 | Firestore database | `(default)`, Native mode, Standard edition; existing owner-created database |
 | Firestore location | `eur3` (Europe multi-region), confirmed; preserve it |
 | Functions region and generation | `europe-west1` proposed from the official mapping; not configured/deployed as a cloud resource |
-| Storage bucket location | Not inspected; configured name is `night-in-kampala.firebasestorage.app` |
+| Storage bucket | `night-in-kampala.firebasestorage.app`, confirmed in `US-EAST1` (regional), default storage class `REGIONAL` |
 | Hosting rewrite compatibility | Not verified for a selected topology |
 | Uganda / international latency evidence | Not collected |
 | Cost and location requirements | Not confirmed |
