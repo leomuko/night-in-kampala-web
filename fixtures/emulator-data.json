@@ -7,7 +7,7 @@
   },
   "content": {
     "collections": { "title": "Illustrative drop", "share": { "description": "An illustrative collection of reworked clothing. No live stock.", "imageUrl": "/share/painted-denim.jpg", "imageAlt": "AI-generated illustrative garment" } },
-    "events": { "title": "Event title to be supplied", "share": { "description": "Fashion-event page fixture. Date, venue and photography await owner approval.", "imageUrl": "/share/campaign.jpg", "imageAlt": "AI-generated campaign placeholder, not an event photograph" } },
+    "events": { "title": "Event title to be supplied", "city": "Kampala", "season": "upcoming", "share": { "description": "Fashion-event page fixture. Date, venue and photography await owner approval.", "imageUrl": "/share/campaign.jpg", "imageAlt": "AI-generated campaign placeholder, not an event photograph" } },
     "lookbooks": { "title": "Illustrative lookbook", "share": { "description": "Illustrative reworked-clothing campaign. AI-generated placeholder photography.", "imageUrl": "/share/campaign.jpg", "imageAlt": "AI-generated campaign placeholder" } }
   }
 }

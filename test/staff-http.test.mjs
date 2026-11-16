@@ -219,6 +219,26 @@ test('photo processing and catalogue publication work through staff, Storage and
     assert.ok(dropHtml.includes(current.share.imageUrl));
     assert.match(dropHtml, /Illustrative test drop/);
 
+    const eventSlug = 'catalogue-event-test';
+    const eventUrl = `${home}/events/${eventSlug}`;
+    const eventDraft = (date, revision, season = 'upcoming') => ({
+      collection: 'events', slug: eventSlug, revision,
+      draft: { title: 'Illustrative fashion event', body: 'Development example', city: 'Kampala', date, venue: '', season },
+    });
+    assert.equal((await call('editorialDraftSave', eventDraft('2030-02-30', 0))).status, 400);
+    assert.equal((await call('editorialDraftSave', eventDraft('', 0))).status, 200);
+    assert.equal((await fetch(eventUrl)).status, 404);
+    await assert.rejects(getDoc(webDoc(guest, 'events', eventSlug)), { code: 'permission-denied' });
+    const publishEvent = revision => call('editorialPublish', { collection: 'events', slug: eventSlug, revision });
+    assert.equal((await publishEvent(1)).status, 200);
+    const event = (await getDoc(webDoc(guest, 'events', eventSlug))).data();
+    assert.deepEqual([event.city, event.date, event.venue, event.illustrative], ['Kampala', '', '', true]);
+    assert.match(await (await fetch(eventUrl)).text(), /Illustrative fashion event/);
+    assert.equal((await call('editorialDraftSave', eventDraft('2030-02-03', 1, 'past'))).status, 200);
+    assert.equal((await publishEvent(2)).status, 200);
+    const past = query(collection(guest, 'events'), where('status', '==', 'published'), where('season', '==', 'past'), limit(13));
+    assert.equal((await getDocs(past)).docs.find(doc => doc.id === eventSlug)?.data().date, '2030-02-03');
+
     const inventory = db.doc(`inventory/${slug}`);
     await inventory.update({ reservedUnits: 1 });
     assert.equal((await call('catalogueAvailability', { slug, availability: 'available' })).body.error?.status, 'FAILED_PRECONDITION');
@@ -239,7 +259,9 @@ test('photo processing and catalogue publication work through staff, Storage and
     await path.delete();
     await db.doc('contentDrafts/collections--photo-test-drop').delete();
     await db.doc('collections/photo-test-drop').delete();
-    const contentAudit = await db.collection('auditLogs').where('slug', '==', 'photo-test-drop').get();
+    await db.doc('contentDrafts/events--catalogue-event-test').delete();
+    await db.doc('events/catalogue-event-test').delete();
+    const contentAudit = await db.collection('auditLogs').where('slug', 'in', ['photo-test-drop', 'catalogue-event-test']).get();
     await Promise.all(contentAudit.docs.map(doc => doc.ref.delete()));
     await db.doc(`products/${slug}`).delete();
     await db.doc(`inventory/${slug}`).delete();

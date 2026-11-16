@@ -36,6 +36,17 @@ function DropFields({ draft }) {
   </div>;
 }
 
+function EventFields({ draft }) {
+  return <>
+    <Field name="city" label="City" defaultValue={draft.city ?? ''} maxLength={120} />
+    <Field name="date" label="Event date (optional)" type="date" defaultValue={draft.date ?? ''} />
+    <Field name="venue" label="Venue (optional)" defaultValue={draft.venue ?? ''} maxLength={160} />
+    <Select name="season" label="Event listing" defaultValue={draft.season ?? 'upcoming'}>
+      <option value="upcoming">Upcoming</option><option value="past">Past</option>
+    </Select>
+  </>;
+}
+
 function DraftForm({ collection, draft, save }) {
   const [status, setStatus] = useState('');
   const [error, setError] = useState('');
@@ -52,7 +63,7 @@ function DraftForm({ collection, draft, save }) {
     try {
       const saved = await callStaff('editorialDraftSave', {
         collection, slug, revision: draft.revision ?? 0,
-        draft: { title: fields.get('title'), body: fields.get('body'), productIds: fields.getAll('productId'), coverProductId: fields.get('coverProductId') },
+        draft: { ...Object.fromEntries(fields), productIds: fields.getAll('productId') },
       });
       save({ ...draft, ...saved });
       setStatus('Draft saved.');
@@ -72,7 +83,7 @@ function DraftForm({ collection, draft, save }) {
     <Field name="slug" label="Page slug" defaultValue={draft.slug ?? ''} readOnly={Boolean(draft.slug)} maxLength={120} required pattern="[a-z0-9]+(?:-[a-z0-9]+)*" />
     <Field name="title" label="Title" defaultValue={draft.title ?? ''} maxLength={160} />
     <label className="field content-fields">Description<textarea name="body" rows={5} maxLength={5000} defaultValue={draft.body ?? ''} /></label>
-    <DropFields draft={draft} />
+    {collection === 'collections' ? <DropFields draft={draft} /> : <EventFields draft={draft} />}
     {draft.publishedRevision && <p className="helper">Published revision {draft.publishedRevision}</p>}
     <div className="staff-actions">
       <Button type="submit" disabled={busy} value="save">Save draft</Button>

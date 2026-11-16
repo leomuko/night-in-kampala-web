@@ -6,6 +6,8 @@ import ContentEditor from './ContentEditor.jsx';
 import StaffCatalogue from './StaffCatalogue.jsx';
 import { useStaffSession } from './useStaffSession.js';
 
+const staffSections = { products: 'Products', collections: 'Drops', events: 'Events' };
+
 export default function AdminShell() {
   const { status, auth, user, role } = useStaffSession();
   const [section, setSection] = useState('products');
@@ -40,11 +42,10 @@ export default function AdminShell() {
       </div>
       {role && <>
         <div className="staff-actions" role="group" aria-label="Staff sections">
-          <Button variant="secondary" aria-pressed={section === 'products'} onClick={() => setSection('products')}>Products</Button>
-          <Button variant="secondary" aria-pressed={section === 'collections'} onClick={() => setSection('collections')}>Drops</Button>
+          {Object.entries(staffSections).map(([id, label]) => <Button key={id} variant="secondary" aria-pressed={section === id} onClick={() => setSection(id)}>{label}</Button>)}
         </div>
         {section === 'products' ? <StaffCatalogue key={user.uid} user={user} />
-          : <ContentEditor key={`${user.uid}-${section}`} collection={section} heading="Drop drafts" />}
+          : <ContentEditor key={`${user.uid}-${section}`} collection={section} heading={`${staffSections[section]} drafts`} />}
       </>}
     </>}
     <Link className="text-link" to="/">Return to store</Link>

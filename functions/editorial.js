@@ -11,9 +11,22 @@ function dropFields(input) {
   return { productIds, coverProductId: input.coverProductId ? catalogueId(input.coverProductId) : '' };
 }
 
+function eventFields(input) {
+  const date = boundedText(input.date, 10, 'Date');
+  if (date && (!/^[1-9]\d{3}-\d{2}-\d{2}$/.test(date)
+    || Number.isNaN(Date.parse(date)) || new Date(date).toISOString().slice(0, 10) !== date)) {
+    throw new HttpsError('invalid-argument', 'Enter a valid calendar date or leave it blank.');
+  }
+  if (!['upcoming', 'past'].includes(input.season)) throw new HttpsError('invalid-argument', 'Choose Upcoming or Past.');
+  return {
+    city: boundedText(input.city, 120, 'City'), venue: boundedText(input.venue, 160, 'Venue'),
+    date, season: input.season,
+  };
+}
+
 function editorialIdentity(data) {
   const collection = data?.collection;
-  if (collection !== 'collections') throw new HttpsError('invalid-argument', 'Choose a supported content type.');
+  if (!['collections', 'events'].includes(collection)) throw new HttpsError('invalid-argument', 'Choose a supported content type.');
   return { collection, slug: catalogueId(data?.slug) };
 }
 
@@ -23,7 +36,7 @@ export async function saveEditorialDraft(db, data, actor) {
   const fields = {
     title: boundedText(input.title, 160, 'Title'),
     body: boundedText(input.body, 5000, 'Description'),
-    ...dropFields(input),
+    ...(collection === 'collections' ? dropFields(input) : eventFields(input)),
   };
   const path = db.doc(`contentDrafts/${collection}--${slug}`);
   return db.runTransaction(async tx => {
@@ -63,7 +76,8 @@ export async function publishEditorial(db, data, actor) {
       throw new HttpsError('already-exists', 'This slug belongs to existing content.');
     }
     if (current.data()?.draftRevision === draft.revision && current.data()?.status === 'published') return { status: 'published' };
-    const fields = await validateDrop(tx, db, draft);
+    const fields = collection === 'collections' ? await validateDrop(tx, db, draft) : eventFields(draft);
+    if (collection === 'events' && !fields.city) throw new HttpsError('failed-precondition', 'Enter a city before publishing the event.');
     const description = draft.body.slice(0, 500);
     tx.set(publicPath, {
       title: draft.title, body: draft.body, ...fields,
