@@ -76,6 +76,9 @@ before(async () => {
       setDoc(doc(db, 'products/legacy'), { status: 'published', name: 'Older illustrative fixture' }),
       setDoc(doc(db, 'productDrafts/published'), publishedDraft),
       setDoc(doc(db, 'contentDrafts/collections--published'), { collection: 'collections', title: 'Private draft' }),
+      setDoc(doc(db, 'orderQueue/example'), { state: 'new', unread: true }),
+      setDoc(doc(db, 'orderSettings/config'), { overdueHours: 24 }),
+      setDoc(doc(db, 'orderPolicy/current'), { copy: { payment: 'Pay after confirmation' } }),
       setDoc(doc(db, 'orders/private'), { orderStatus: 'new', paymentStatus: 'unpaid', fulfilmentStatus: 'unfulfilled' }),
       setDoc(doc(db, 'inventory/published'), { availableUnits: 1 }),
       setDoc(doc(db, 'auditLogs/first'), { operation: 'publish', actorUid: 'staff' }),
@@ -145,7 +148,8 @@ test('only catalogue claims read drafts and stock, and only the owner reads audi
     await catalogue(getDoc(doc(db, 'inventory/published')));
     await assertFails(getDocs(collection(db, 'inventory')));
     await (role === 'owner' ? assertSucceeds : assertFails)(getDoc(doc(db, 'auditLogs/first')));
-    await assertFails(getDoc(doc(db, 'orders/private')));
+    await catalogue(getDoc(doc(db, 'orders/private')));
+    await assertFails(getDocs(query(collection(db, 'orders'), limit(24))));
   }
 });
 
@@ -242,4 +246,19 @@ test('public object reads follow the published revision and stop on unpublish', 
   await assertSucceeds(image(inactiveImage));
   await update({ status: 'draft' });
   await assertFails(image(inactiveImage));
+});
+
+
+test('order queue and settings reads are role-scoped and only the policy copy is public', async () => {
+  for (const [role, context] of Object.entries(roles)) {
+    const db = context.firestore();
+    const staff = ['staff', 'owner'].includes(role) ? assertSucceeds : assertFails;
+    const queue = collection(db, 'orderQueue');
+    await staff(getDocs(query(queue, limit(50))));
+    await assertFails(getDocs(query(queue, limit(101))));
+    await staff(getDoc(doc(db, 'orderSettings/config')));
+    await assertSucceeds(getDoc(doc(db, 'orderPolicy/current')));
+    await assertFails(updateDoc(doc(db, 'orderSettings/config'), { overdueHours: 1 }));
+    await assertFails(updateDoc(doc(db, 'orderQueue/example'), { unread: false }));
+  }
 });

@@ -12,6 +12,7 @@ import { changeCatalogueAvailability } from './catalogue-stock.js';
 import { catalogueMediaHandler } from './serve-catalogue-media.js';
 import { saveEditorialDraft, publishEditorial } from './editorial.js';
 import { approvePublication } from './publication-approval.js';
+import { saveOrderSettings } from './order-settings.js';
 import { staffCallable } from './staff-access.js';
 import { resolveFunctionRuntime } from './runtime-config.js';
 
@@ -64,3 +65,4 @@ export const catalogueMedia = onRequest({ region: runtime.region, maxInstances: 
 export const editorialDraftSave = staffCallable(runtime, (data, actor) => saveEditorialDraft(db, data, actor));
 export const editorialPublish = staffCallable(runtime, (data, actor) => publishEditorial(db, data, actor));
 export const publicationApproval = staffCallable(runtime, (data, actor) => approvePublication(db, data, actor));
+export const orderSettingsSave = staffCallable(runtime, (data, actor) => saveOrderSettings(db, data, actor));

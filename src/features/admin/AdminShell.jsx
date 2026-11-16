@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { Link } from 'react-router-dom';
 import { Button, ErrorState, Field, LoadingState } from '../../components/UI.jsx';
+import OrderSettings from './OrderSettings.jsx';
 import ContentEditor from './ContentEditor.jsx';
 import StaffCatalogue from './StaffCatalogue.jsx';
 import { useStaffSession } from './useStaffSession.js';
@@ -33,7 +34,7 @@ export default function AdminShell() {
     <aside className="admin-sidebar">
       <Link to="/" className="wordmark">NIGHT IN KAMPALA</Link>
       <nav aria-label="Staff sections">
-        {Object.entries(staffSections).map(([id, label]) => <Button key={id} variant="secondary" aria-pressed={section === id} onClick={() => setSection(id)}>{label}</Button>)}
+        {Object.entries(role === 'owner' ? { ...staffSections, settings: 'Settings' } : staffSections).map(([id, label]) => <Button key={id} variant="secondary" aria-pressed={section === id} onClick={() => setSection(id)}>{label}</Button>)}
       </nav>
     </aside>
     <div className="admin-dashboard-main">
@@ -42,7 +43,8 @@ export default function AdminShell() {
         <div className="staff-actions"><Link className="button button--secondary" to="/">View store</Link>{actions}</div>
       </div>
       {error && <ErrorState>{error}</ErrorState>}
-      {section === 'products' ? <StaffCatalogue key={user.uid} user={user} role={role} />
+      {section === 'settings' && role === 'owner' ? <OrderSettings key={user.uid} />
+        : section === 'products' || section === 'settings' ? <StaffCatalogue key={user.uid} user={user} role={role} />
         : <ContentEditor key={`${user.uid}-${section}`} collection={section} role={role} heading={`${staffSections[section]} drafts`} />}
     </div>
   </section>;

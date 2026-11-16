@@ -388,3 +388,44 @@ test('photo processing and catalogue publication work through staff, Storage and
     await deleteApp(app);
   }
 });
+
+test('order settings accept only validated owner changes and audit the safe projection', async () => {
+  const app = initializeApp({ projectId: project }, 'order-settings-test');
+  const db = getFirestore(app);
+  const settings = db.doc('orderSettings/config');
+  const policy = db.doc('orderPolicy/current');
+  const prior = await db.getAll(settings, policy);
+  const users = [];
+  const logs = db.collection('auditLogs');
+  try {
+    const claims = {};
+    for (const role of ['staff', 'owner']) {
+      const provision = spawnSync(process.execPath, ['scripts/provision-demo-staff.mjs', project, role], { encoding: 'utf8' });
+      assert.equal(provision.status, 0);
+      const { uid, email, password } = JSON.parse(provision.stdout);
+      users.push(uid);
+      claims[role] = (await post(`${authApi}:signInWithPassword?key=demo-key`, { email, password, returnSecureToken: true })).body.idToken;
+    }
+    const revision = prior[0].data()?.revision ?? 0;
+    const copy = { collection: 'Arrange collection', delivery: 'Delivery to be confirmed', payment: 'Arrange payment' };
+    const data = { revision, whatsappNumber: '', overdueHours: 24, openPerPhone: 3, activePerPiece: 1, submissionsPerHour: 5, copy, copyReviewed: false };
+    const save = (role, values) => post(endpoint.replace(/staffAccess$/, 'orderSettingsSave'), { data: values }, claims[role]);
+    assert.equal((await save('staff', data)).status, 403);
+    assert.equal((await save('owner', { ...data, activePerPiece: 4 })).status, 400);
+    assert.equal((await save('owner', { ...data, whatsappNumber: 'not-a-number' })).status, 400);
+    assert.equal((await save('owner', data)).status, 200);
+    assert.equal((await save('owner', data)).body.error.status, 'ABORTED');
+    assert.deepEqual((await policy.get()).data(), { copy, copyReviewed: false });
+    const audit = await logs.where('actorUid', '==', users[1]).get();
+    assert.equal(audit.size, 1);
+    assert.equal(audit.docs[0].data().action, 'order-settings-update');
+  } finally {
+    await Promise.all(prior.map(doc => doc.exists ? doc.ref.set(doc.data()) : doc.ref.delete()));
+    for (const uid of users) {
+      const audit = await logs.where('actorUid', '==', uid).get();
+      await Promise.all(audit.docs.map(doc => doc.ref.delete()));
+      await getAuth(app).deleteUser(uid);
+    }
+    await deleteApp(app);
+  }
+});

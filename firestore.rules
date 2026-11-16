@@ -39,6 +39,19 @@ service cloud.firestore {
       allow get: if isPublishedContent();
       allow list: if isPublishedContent() && request.query.limit <= 24;
     }
+    match /orders/{id} {
+      allow get: if isCatalogueStaff();
+    }
+    match /orderQueue/{id} {
+      allow get: if isCatalogueStaff();
+      allow list: if isCatalogueStaff() && request.query.limit <= 100;
+    }
+    match /orderSettings/config {
+      allow get: if isCatalogueStaff();
+    }
+    match /orderPolicy/current {
+      allow get: if true;
+    }
     // All Firestore writes go through a trusted server. Orders remain private.
     match /{document=**} { allow read, write: if false; }
   }
