@@ -7,6 +7,7 @@ import { getFirestore } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
 import { initializeApp as initializeWebApp, deleteApp as deleteWebApp } from 'firebase/app';
 import { connectAuthEmulator, getAuth as getWebAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { collection, connectFirestoreEmulator, getDoc, getDocs, getFirestore as getWebFirestore, doc as webDoc, query, where, orderBy, limit } from 'firebase/firestore';
 import { connectStorageEmulator, getStorage as getWebStorage, ref, uploadBytes } from 'firebase/storage';
 import sharp from 'sharp';
 
@@ -114,6 +115,11 @@ test('photo processing and catalogue publication work through staff, Storage and
   const db = getFirestore(app);
   const bucket = getStorage(app).bucket(`${project}.appspot.com`);
   const webApp = initializeWebApp({ apiKey: 'demo-key', projectId: project, storageBucket: bucket.name }, 'photo-uploads');
+  const guestApp = initializeWebApp({ apiKey: 'demo-key', projectId: project }, 'guest-catalogue-test');
+  const guest = getWebFirestore(guestApp);
+  connectFirestoreEmulator(guest, '127.0.0.1', 8080);
+  const archive = query(collection(guest, 'products'), where('status', '==', 'published'),
+    where('availability', '==', 'sold'), orderBy('publishedAt', 'desc'), limit(13));
   const auth = getWebAuth(webApp);
   connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
   const storage = getWebStorage(webApp);
@@ -174,6 +180,8 @@ test('photo processing and catalogue publication work through staff, Storage and
     assert.equal((await fetch(home + firstPublic.share.imageUrl, { method: 'POST' })).status, 405);
     assert.equal((await call('catalogueAvailability', { slug, availability: 'sold' })).status, 200);
     assert.equal((await publicRef.get()).data().availability, 'sold');
+    assert.ok((await getDocs(archive)).docs.some(doc => doc.id === slug));
+    assert.equal((await fetch(`${home}/products/${slug}`)).status, 200);
     const audit = await db.collection('auditLogs').where('productId', '==', slug).get();
     assert.ok(audit.docs.some(doc => doc.data().action === 'change-availability' && doc.data().actorUid === uid));
 
@@ -217,11 +225,13 @@ test('photo processing and catalogue publication work through staff, Storage and
     await inventory.update({ reservedUnits: 0 });
     assert.equal((await call('catalogueAvailability', { slug, availability: 'available' })).status, 200);
     assert.equal((await publicRef.get()).data().availability, 'available');
+    assert.ok(!(await getDocs(archive)).docs.some(doc => doc.id === slug));
     assert.equal((await call('catalogueWithdraw', { slug, status: 'draft' })).status, 200);
     const withdrawn = await fetch(home + current.share.imageUrl);
     assert.equal(withdrawn.status, 404);
     assert.match(withdrawn.headers.get('cache-control'), /no-store/);
     assert.equal((await fetch(`${home}/products/${slug}`)).status, 404);
+    await assert.rejects(getDoc(webDoc(guest, 'products', slug)), { code: 'permission-denied' });
     assert.match(await (await fetch(dropPath)).text(), /\/share\/campaign\.jpg/);
   } finally {
     await bucket.deleteFiles({ prefix: `product-drafts/${slug}/` });
@@ -240,6 +250,7 @@ test('photo processing and catalogue publication work through staff, Storage and
     await bucket.deleteFiles({ prefix: `product-media/${slug}/` });
     await getAuth(app).deleteUser(uid);
     await deleteWebApp(webApp);
+    await deleteWebApp(guestApp);
     await deleteApp(app);
   }
 });

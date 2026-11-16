@@ -4,6 +4,7 @@ import Header from '../components/Header.jsx';
 import Footer from '../components/Footer.jsx';
 import { LoadingState, ErrorState } from '../components/UI.jsx';
 import { DropPage, DropsPage } from '../features/editorial/DropPages.jsx';
+import ArchivePage from '../features/catalogue/ArchivePage.jsx';
 import ProductPage from '../features/catalogue/ProductPage.jsx';
 import ShopPage from '../features/catalogue/ShopPage.jsx';
 import HomePage from '../features/home/HomePage.jsx';
@@ -20,7 +21,7 @@ function Layout() {
     window.scrollTo({ top: 0, behavior: 'instant' });
     if (location.pathname !== '/') document.getElementById('main-content')?.focus({ preventScroll: true });
     const section = location.pathname.split('/')[1];
-    const names = { shop: 'Shop', collections: 'Drops', about: 'Our process', lookbooks: 'Lookbook', events: 'Events', cart: 'Your bag', admin: 'Staff access' };
+    const names = { shop: 'Shop', archive: 'Sold archive', collections: 'Drops', about: 'Our process', lookbooks: 'Lookbook', events: 'Events', cart: 'Your bag', admin: 'Staff access' };
     routeHead.apply(location.pathname, `${names[section] || 'Reworked in Kampala'} — Night in Kampala`);
   }, [location.pathname, routeHead]);
   const serverStatus = routeHead.statusFor(location.pathname);
@@ -34,7 +35,8 @@ export default function App() {
     <Route path="shop" element={<ShopPage />} />
     <Route path="collections" element={<DropsPage />} />
     <Route path="collections/:slug" element={<DropPage />} />
-    {['archive', 'about', 'lookbooks', 'events', 'contact', 'cart', 'checkout'].map(page => <Route key={page} path={page} element={<PlaceholderPage page={page} />} />)}
+    <Route path="archive" element={<ArchivePage />} />
+    {['about', 'lookbooks', 'events', 'contact', 'cart', 'checkout'].map(page => <Route key={page} path={page} element={<PlaceholderPage page={page} />} />)}
     <Route path="products/:slug" element={<ProductPage />} />
     {['lookbooks', 'events', 'help'].map(page => <Route key={page} path={`${page}/:slug`} element={<PlaceholderPage page={page} />} />)}
     <Route path="orders/:id" element={<PlaceholderPage page="orders" />} />
