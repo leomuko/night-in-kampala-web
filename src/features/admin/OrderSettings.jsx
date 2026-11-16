@@ -3,6 +3,7 @@ import { defaultOrderSettings } from '../../../functions/order-model.js';
 import { Button, ErrorState, Field, LoadingState } from '../../components/UI.jsx';
 import { getFirebaseServices } from '../../services/firebase.js';
 import { callStaff, staffError } from './catalogueAdmin.js';
+import PreviewChecks from './PreviewChecks.jsx';
 
 const limits = [
   ['overdueHours', 'Overdue threshold (hours)', 720],
@@ -63,5 +64,6 @@ export default function OrderSettings() {
       <Button type="submit" disabled={busy}>Save settings</Button>
       {saved && <p role="status">Order settings saved.</p>}
     </form>}
+    <PreviewChecks />
   </section>;
 }

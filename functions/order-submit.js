@@ -34,6 +34,10 @@ export function orderSource(request, runtime, proxyHops) {
   if (!runtime.order?.appCheckSiteKey || runtime.order.appCheckSiteKey === 'REPLACE'
     || proxyHops === null || proxyHops === undefined) throw new HttpsError('failed-precondition', 'Ordering opens soon.');
   if (!request.app) throw new HttpsError('unauthenticated', 'The form could not verify this app.');
+  if (runtime.order.proxyVerified !== true && !(runtime.target === 'preview'
+    && request.data?.previewCheck === true && request.auth?.token.owner === true)) {
+    throw new HttpsError('failed-precondition', 'Ordering opens soon.');
+  }
   // A cloud deployment must confirm the appended client position and restrict ingress
   // in staging. Leftmost entries can originate in the incoming request.
   if (!/^[1-5]$/.test(proxyHops ?? '')) throw new HttpsError('failed-precondition', 'Order submission is being configured.');
@@ -89,7 +93,7 @@ export function queueFields(order) {
   };
 }
 
-export async function submitOrder(db, data, source, secret, { previewData = false, now = Date.now() } = {}) {
+export async function submitOrder(db, data, source, secret, { previewData = false, testStockOnly = false, now = Date.now() } = {}) {
   if (typeof secret !== 'string' || secret.length < 20) throw new HttpsError('failed-precondition', 'Order submission is being configured.');
   if (typeof data?.submissionId !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(data.submissionId)) {
     throw new HttpsError('invalid-argument', 'Refresh the order form and try again.');
@@ -131,7 +135,8 @@ export async function submitOrder(db, data, source, secret, { previewData = fals
       const product = snapshots[index * 2].data();
       const stock = snapshots[index * 2 + 1].data();
       const size = product?.requestableSizes?.find(option => option.id === entry.size);
-      if (!canRequestProduct(product) || (!previewData && product.isTestData === true) || !stock || !size || stock.availableUnits < entry.quantity
+      if (!canRequestProduct(product) || (testStockOnly && product.isTestData !== true)
+        || (!previewData && product.isTestData === true) || !stock || !size || stock.availableUnits < entry.quantity
         || sizeUnits(product, stock, entry.size) < entry.quantity) {
         throw new HttpsError('failed-precondition', 'A piece or size is no longer available. Review your bag.');
       }

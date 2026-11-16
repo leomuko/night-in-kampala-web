@@ -16,6 +16,7 @@ test('a cloud preview without App Check offers browsing and keeps all order entr
   vi.stubEnv('VITE_FIREBASE_CONFIG', JSON.stringify(fixtureFirebaseConfig));
   vi.stubEnv('VITE_APP_CHECK_SITE_KEY', '');
   vi.stubEnv('VITE_ORDER_TRUSTED_PROXY_HOPS', '1');
+  vi.stubEnv('VITE_ORDER_PROXY_VERIFIED', 'true');
   expect(isOrderingOpen()).toBe(false);
   const send = vi.fn();
   const { rerender } = render(<MemoryRouter><CheckoutPage onOrder={send} /><ProductOrdering slug="piece" product={{}} /></MemoryRouter>);
@@ -44,5 +45,20 @@ test('server rejects even attested requests until both site key and proxy hop ar
   expect(() => orderSource(request, runtime, 1)).toThrow('Ordering opens soon');
   runtime.order.appCheckSiteKey = 'fixture-site-key';
   expect(() => orderSource(request, runtime, null)).toThrow('Ordering opens soon');
+  expect(() => orderSource(request, runtime, 1)).toThrow('Ordering opens soon');
+  runtime.order.proxyVerified = true;
   expect(orderSource(request, runtime, 1)).toBe('203.0.113.1');
+});
+
+test('proxy calibration accepts only an attested owner preview request before public ordering opens', () => {
+  const runtime = { target: 'preview', order: { appCheckSiteKey: 'fixture-site-key', proxyVerified: false } };
+  const request = { app: { appId: 'fixture' }, auth: { token: { owner: true } }, data: { previewCheck: true },
+    rawRequest: { get: () => '198.51.100.77, 203.0.113.1' } };
+  expect(orderSource(request, runtime, 1)).toBe('203.0.113.1');
+  request.auth.token = { staff: true };
+  expect(() => orderSource(request, runtime, 1)).toThrow('Ordering opens soon');
+  request.auth.token = { owner: true };
+  expect(() => orderSource(request, { ...runtime, target: 'production' }, 1)).toThrow('Ordering opens soon');
+  request.data.previewCheck = false;
+  expect(() => orderSource(request, runtime, 1)).toThrow('Ordering opens soon');
 });

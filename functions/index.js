@@ -1,4 +1,4 @@
-import { onRequest, onCall } from 'firebase-functions/v2/https';
+import { onRequest, onCall, HttpsError } from 'firebase-functions/v2/https';
 import { defineSecret } from 'firebase-functions/params';
 import { initializeApp } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
@@ -13,7 +13,7 @@ import { changeCatalogueAvailability } from './catalogue-stock.js';
 import { catalogueMediaHandler } from './serve-catalogue-media.js';
 import { saveEditorialDraft, publishEditorial } from './editorial.js';
 import { approvePublication } from './publication-approval.js';
-import { orderSource, submitOrder } from './order-submit.js';
+import { orderSource, privateOrderKey, submitOrder } from './order-submit.js';
 import { recordManualSale } from './manual-sale.js';
 import { markCatalogueSold, settleOrder } from './order-settlement.js';
 import { changeOrderStock } from './order-stock.js';
@@ -78,10 +78,17 @@ const orderIdentityKey = defineSecret('ORDER_IDENTITY_KEY');
 export const orderCreate = onCall({
   region: runtime.region, maxInstances: 3, enforceAppCheck: !runtime.emulator,
   ...(runtime.emulator ? {} : { secrets: [orderIdentityKey] }),
-}, request => {
+}, async request => {
+  const previewCheck = runtime.target === 'preview' && request.data?.previewCheck === true;
+  if (previewCheck && request.auth?.token.owner !== true) throw new HttpsError('permission-denied', 'Owner access is required for preview checks.');
+  if (previewCheck && !request.data.items) return { previewAttestationVerified: Boolean(request.app) };
   const source = orderSource(request, runtime, runtime.order?.trustedProxyHops);
   const key = runtime.emulator ? runtime.projectId : orderIdentityKey.value();
-  return submitOrder(db, request.data, source, key, { previewData });
+  const result = await submitOrder(db, request.data, source, key, { previewData, testStockOnly: previewCheck });
+  if (!previewCheck) return result;
+  const sourceKey = privateOrderKey(key, 'source', source);
+  const counters = (await db.doc(`orderSources/${sourceKey}`).get()).data();
+  return { ...result, previewSource: { fingerprint: sourceKey.slice(0, 16), count: counters.timestamps.length } };
 });
 export const orderDesk = staffCallable(runtime, (data, actor) => {
   if (['confirm', 'decline', 'release', 'cancel', 'sell', 'spam'].includes(data?.action)) return changeOrderStock(db, data, actor);

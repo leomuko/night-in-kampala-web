@@ -17,6 +17,7 @@ export function validateCloudDeployment(config) {
     if (!order || order.identitySecret !== 'ORDER_IDENTITY_KEY'
       || (order.trustedProxyHops !== null && (!Number.isInteger(order.trustedProxyHops) || order.trustedProxyHops < 1 || order.trustedProxyHops > 5))
       || typeof order.appCheckSiteKey !== 'string') throw new Error('Invalid order release settings.');
+    if (order.proxyVerified !== undefined && typeof order.proxyVerified !== 'boolean') throw new Error('proxyVerified must be a boolean.');
   }
   return { ...config, origin: configuredOrigin(config.origin), emulator: false };
 }

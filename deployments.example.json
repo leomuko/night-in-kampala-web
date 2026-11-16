@@ -5,7 +5,7 @@
     "projectId": "night-in-kampala",
     "channel": "review",
     "region": "europe-west1",
-    "order": { "identitySecret": "ORDER_IDENTITY_KEY", "trustedProxyHops": null, "appCheckSiteKey": "REPLACE" },
+    "order": { "identitySecret": "ORDER_IDENTITY_KEY", "trustedProxyHops": null, "proxyVerified": false, "appCheckSiteKey": "REPLACE" },
     "origin": "https://replace-with-preview-channel-url.invalid",
     "webConfig": { "apiKey": "REPLACE", "projectId": "night-in-kampala", "authDomain": "night-in-kampala.firebaseapp.com", "storageBucket": "night-in-kampala.firebasestorage.app", "appId": "REPLACE", "messagingSenderId": "REPLACE" }
   },
@@ -14,7 +14,7 @@
     "approved": false,
     "projectId": "night-in-kampala",
     "region": "europe-west1",
-    "order": { "identitySecret": "ORDER_IDENTITY_KEY", "trustedProxyHops": null, "appCheckSiteKey": "REPLACE" },
+    "order": { "identitySecret": "ORDER_IDENTITY_KEY", "trustedProxyHops": null, "proxyVerified": false, "appCheckSiteKey": "REPLACE" },
     "origin": "https://replace-with-live-origin.invalid",
     "webConfig": { "apiKey": "REPLACE", "projectId": "night-in-kampala", "authDomain": "night-in-kampala.firebaseapp.com", "storageBucket": "night-in-kampala.firebasestorage.app", "appId": "REPLACE", "messagingSenderId": "REPLACE" }
   }
