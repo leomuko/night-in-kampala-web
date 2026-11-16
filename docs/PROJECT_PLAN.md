@@ -121,9 +121,9 @@ Proposed frontend: React with JavaScript/JSX, Vite, React Router, reusable acces
 | Emulator Suite | Local development and meaningful tests for permissions, checkout and stock behaviour. |
 | App Check and server controls | Reduce abusive requests; combine with input validation and rate limits. App Check does not replace authorisation. |
 
-Use demo emulators locally and distinct staging/production project IDs and HTTPS origins for cloud work. Default builds are offline previews with no Firebase app. Explicit cloud profiles/configuration are required; the existing registered project is protected from staging use until project roles are resolved. A Hosting preview channel alone does not isolate Firestore. [DEPLOYMENT_PREPARATION.md](DEPLOYMENT_PREPARATION.md) records implemented preparation, tests and remaining release work. No synthetic cloud seeding or deployment has occurred.
+Use demo emulators locally. The owner approved one Firebase project, `night-in-kampala`, on 16 November 2026. The preview profile uses a temporary Hosting channel and the production profile uses the live site. Preview and live share Firestore, Storage, Auth and callable Functions, so shared data stays visible until cleanup and backend releases can affect the live project. Run the reviewed test-data cleanup before launch. Default builds remain offline. [Deployment preparation](DEPLOYMENT_PREPARATION.md) describes the local guards and remaining release work.
 
-**Location gate:** retain the owner's existing Firestore database in `eur3`. P1.13 completes [FIREBASE_REGION_DECISION.md](FIREBASE_REGION_DECISION.md), including remaining Functions/Storage placement and Hosting rewrite compatibility, before any new cloud resource creation. P1.14 staging cannot choose locations implicitly. Local emulators do not provision a real database.
+**Approved locations:** Firestore stays in `eur3`, Functions use `europe-west1`, and Storage stays in `US-EAST1`. A media read or publish can cross the Atlantic between Europe and the US, with latency and possible network charges. Measure that path on the preview channel. [Firebase location decision](FIREBASE_REGION_DECISION.md).
 
 Firebase's current Storage requirements call for the billed Blaze plan. Set budget alerts, monitor image downloads and database usage, constrain function scaling and paginate catalogue reads. Alerts are notifications, not a spending cap. [Firebase Storage requirements](https://firebase.google.com/docs/storage/faqs-storage-changes-announced-sept-2024).
 
@@ -255,7 +255,7 @@ Prioritise meaningful checkout, security-rule and inventory tests. Add focused U
 
 A history scan on 13 November 2026 found one credential-like value in the public GitHub repository: the Firebase web API key, app ID, sender ID and Analytics measurement ID for project `night-in-kampala`, committed in `src/services/firebaseConfig.js` (commit `dd76924`) and partly repeated in `docs/FIREBASE_SETUP.md` and tests. No service-account key, private key, token, password or `.env` file was found in any commit.
 
-A Firebase web API key identifies the project and is visible in any deployed site, so this is not a server credential and Firestore/Storage rules still deny all writes. An unrestricted key can still be used by anyone to call other Google APIs enabled on the project and to create Auth accounts, so it is treated as exposed.
+A Firebase web API key identifies the project and is visible in any deployed site, and Firebase Security Rules govern resource access. The live Storage rules still need owner confirmation. An unrestricted key can still be used by anyone to call other Google APIs enabled on the project and to create Auth accounts, so it is treated as exposed.
 
 **Owner actions in the Google Cloud and Firebase consoles (cannot be done from code):**
 
@@ -266,7 +266,7 @@ A Firebase web API key identifies the project and is visible in any deployed sit
 
 **Code actions:**
 
-1. Remove the real web configuration from tracked source, tests and docs. Keep only the protected project ID needed to refuse the production project as a staging target. Real configuration is supplied through the ignored `deployments.local.json` and environment files.
+1. Remove the real web configuration from tracked source, tests and docs. Keep the approved project ID for validating both release profiles. Real configuration is supplied through the ignored `deployments.local.json` and environment files.
 2. Use obviously synthetic configuration in tests.
 3. Add a secret scan to `npm run check` and CI that fails on API keys, private keys and service-account JSON, with an explicit allowance for the demo values.
 4. Do not rewrite published Git history. The committed key stays in history, which is why rotation, not deletion from the current files, is the actual fix.
@@ -275,8 +275,8 @@ Rule going forward: nothing that grants access goes into Git, including service-
 
 ## 11. Next implementation inputs
 
-P1.11 email selection is deferred and [P1.12 shell QA](qa/p1-12/README.md) passed locally. P1.13–P1.15 await owner inputs. The [Phase 2 catalogue and staff publication gate](PHASE_2_TASKS.md#p214-local-gate) passed on local emulators. The first sales milestone is the complete on-site order → dashboard queue → staff follow-up journey.
+P1.11 email selection is deferred and [P1.12 shell QA](qa/p1-12/README.md) passed locally. P1.13 records the owner’s approved topology. P1.14–P1.15 await preview authorization and live verification. The [Phase 2 catalogue and staff publication gate](PHASE_2_TASKS.md#p214-local-gate) passed on local emulators. The first sales milestone is the complete on-site order → dashboard queue → staff follow-up journey.
 
-For real sales, obtain product photos/details/prices/stock; staff identities and business phone/WhatsApp contact; approved cash/collection/delivery/manual-quote terms; queue-review routine, overdue threshold and confirmed-hold/Sold transition policy; and customer-facing wording. Reserve-at-staff-confirmation is approved. Staging and production roles/origins and remaining Firebase placement must be explicit before cloud release. Sender-domain and gateway setup remain deferred.
+For real sales, obtain product photos/details/prices/stock; staff identities and business phone/WhatsApp contact; approved cash/collection/delivery/manual-quote terms; queue-review routine, overdue threshold and confirmed-hold/Sold transition policy; and customer-facing wording. Reserve-at-staff-confirmation is approved. Record the preview-channel and live origins before cloud release. Sender-domain and gateway setup remain deferred.
 
 Later enhancements: native event ticketing, custom rework requests, richer search, additional currencies/languages, loyalty, and automated courier labels. They should follow a reliable garment purchase and fulfilment system.

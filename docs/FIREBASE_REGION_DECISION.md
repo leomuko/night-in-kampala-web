@@ -1,41 +1,18 @@
-# Firebase locations: existing Firestore and remaining services — P1.13
+# Firebase topology decision — P1.13
 
-Status: **Firestore already selected and created by the owner; preserve it.** Read-only CLI inspection confirmed the default database in `eur3` (Europe multi-region), Native mode, Standard edition. Do not create a replacement database or reconsider its location implicitly. Functions/Storage placement and staging deployment remain separate later tasks.
+The owner approved this topology on **16 November 2026**. Preview and production use the same Firebase project, `night-in-kampala`.
 
-Project **night-in-kampala** and its web app are configured; see [FIREBASE_SETUP.md](FIREBASE_SETUP.md). The owner confirmed Firestore creation and CLI inspection verified `projects/night-in-kampala/databases/(default)` with `locationId: eur3`, `type: FIRESTORE_NATIVE`, `databaseEdition: STANDARD`. Staging/production role and other services' settings remain unconfirmed. No document contents were read or changed.
-
-Cloud Firestore documents that an instance's location cannot be changed after provisioning. A migration is a separate project, not a later configuration edit. Inspect existing project resources before assuming a new default database location remains free to choose. [Firestore location documentation](https://firebase.google.com/docs/firestore/locations).
-
-## Storage bucket check on 16 November 2026
-
-An authenticated, read-only Cloud Storage metadata request through the Firebase CLI confirmed `night-in-kampala.firebasestorage.app` in `US-EAST1` with location type `region` and default storage class `REGIONAL`. Firestore remains recorded in the Europe multi-region `eur3`. The bucket is outside Europe. The owner approved keeping the existing US-EAST1 bucket and resuming local Phase 2 development on 16 November 2026. Firestore and Storage therefore span Europe and the US. Staging placement and the Functions region remain open.
-
-The owner reported an empty bucket and gave conflicting descriptions of live client access. Live rules remain unverified. Confirm in the Firebase console that the live rules deny all client reads and writes until a reviewed deployment.
-
-## Remaining location work
-
-1. Retain the existing default Firestore database in `eur3` and confirm its intended role. Cloud staging and production must use distinct projects/origins; supply/select a separate staging project before synthetic cloud data is introduced. No new project/database has been created. Current code protects `night-in-kampala` from staging use while its intended production role is confirmed.
-2. Retain the owner-approved US-EAST1 Storage bucket. Assess the cross-region topology before staging. Review any existing Functions deployments when P1.13 resumes.
-3. Use Firebase's documented `eur3` → `europe-west1` mapping as the Functions proposal. Verify the intended Functions generation and Hosting rewrite support, and account for any existing Storage location. This is a service-proximity recommendation, not a measured Kampala latency result.
-4. Record the remaining concrete topology, costs/constraints and staging arrangement before provisioning or deployment. Obtain approval for any new resource placement; Firestore's existing owner selection needs no repeat approval.
-
-Firebase identifies `eur3` as Europe multi-region and maps it to `europe-west1` for the nearest supported Functions region. Do not pass `eur3` itself as a Functions region. [Firestore locations](https://firebase.google.com/docs/firestore/locations), [Functions mapping](https://firebase.google.com/docs/functions/locations), [Storage locations](https://cloud.google.com/storage/docs/locations), [Hosting integration constraints](https://firebase.google.com/docs/hosting/functions).
-
-## Record to complete at P1.13
-
-| Field | Current value |
+| Resource | Approved placement |
 | --- | --- |
-| Connected owner project | `night-in-kampala`; web app configured; Firestore metadata verified through authenticated CLI |
-| Staging / production role | Not yet confirmed |
-| Firestore database | `(default)`, Native mode, Standard edition; existing owner-created database |
-| Firestore location | `eur3` (Europe multi-region), confirmed; preserve it |
-| Functions region and generation | `europe-west1` proposed from the official mapping; not configured/deployed as a cloud resource |
-| Storage bucket | `night-in-kampala.firebasestorage.app`, confirmed in `US-EAST1` (regional), default storage class `REGIONAL` |
-| Hosting rewrite compatibility | Not verified for a selected topology |
-| Uganda / international latency evidence | Not collected |
-| Cost and location requirements | Not confirmed |
-| Owner location approval | Firestore selection already confirmed by owner; remaining placements need a concrete proposal |
+| Cloud Functions | `europe-west1` |
+| Default Firestore database | `eur3` (Europe multi-region, Native mode, Standard edition) |
+| Storage | Existing `night-in-kampala.firebasestorage.app` bucket in `US-EAST1`, regional, default class `REGIONAL` |
+| Hosting | A preview channel for review and the live channel for production |
 
-Acceptance for the remaining P1.13 work: retain verified Firestore settings, resolve supported Functions/Storage placement and staging role, then ensure deployment configuration matches the approved remaining topology. P1.14 staging still depends on that work. Local development can continue without creating or changing cloud resources.
+Earlier read-only CLI checks verified the Firestore and bucket metadata. The owner retained the bucket and selected the Functions region. This decision records placement and access boundaries. Cloud deployment, live security checks and real-device testing are pending.
 
-[DEPLOYMENT_PREPARATION.md](DEPLOYMENT_PREPARATION.md) now describes explicit build targets, approved profile validation and matched region/build predeploy hooks. Their local tests do not approve a topology, create resources or complete P1.13/P1.14. Real project roles, credentials/access, regions, billing and deployed behaviour still need verification.
+A Hosting preview channel shares Firestore, Storage, Authentication and project-wide callable Functions with the live site. Preview data remains in the project until cleanup. Deploying callable Functions, indexes or rules can affect all clients using the project. Clear reviewed test data before launch and avoid preview writes against live customer data afterward. [Firebase Hosting preview channels](https://firebase.google.com/docs/hosting/test-preview-deploy).
+
+The US bucket and European Firestore/database path can add latency and network charges to media reads and publication. Europe-west1 is the documented Functions proximity choice for Firestore eur3. Measure actual image delivery in P1.14. [Functions locations](https://firebase.google.com/docs/functions/locations), [Firestore locations](https://firebase.google.com/docs/firestore/locations), [Storage locations](https://cloud.google.com/storage/docs/locations).
+
+P1.14 still needs the owner’s permission for the first preview, confirmation that the live Storage test-mode rules are closed, and verification of the shared backend and Hosting rewrites. P1.15 requires the owner’s real-phone WhatsApp check. [Deployment preparation](DEPLOYMENT_PREPARATION.md).

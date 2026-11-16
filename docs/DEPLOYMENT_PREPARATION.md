@@ -1,34 +1,23 @@
 # Explicit release preparation before P1.14
 
-Status on 12 November 2026: preparation code is implemented and tested locally; no real cloud profile, resource, seed or deployment has been created. P1.13 and P1.14 are still open. The existing `night-in-kampala` Firestore database in `eur3` is retained. Its intended production role and a distinct staging project still require owner confirmation.
+The owner approved the single-project model on **16 November 2026**. Both profiles target `night-in-kampala`; Functions use `europe-west1`, Firestore stays in `eur3`, and the existing bucket stays in `US-EAST1`. The first preview release awaits the owner’s go-ahead.
 
-## Build targets
+## Approved release model
 
-| Command / mode | Behaviour |
-| --- | --- |
-| `npm run dev` | Demo emulators on loopback by default. |
-| `npm run build` | Optimised offline preview; initializes no Firebase app and refuses cloud service getters. No cloud env file is required. |
-| `npm run build:staging` | Requires explicit staging target/public web config in `.env.staging.local` or the process environment. The registered project is rejected as staging; Auth/Storage must match the chosen project. |
-| `npm run build:production` | Requires explicit production target/public web config in `.env.production.local` or the process environment; there is no registered-project fallback. |
+- The `preview` profile uses a temporary Hosting channel. The `production` profile uses the live channel and requires explicit typed confirmation.
+- Firestore, Storage, Authentication, rules and callable Functions are project-wide. Preview data remains until cleanup, and backend deploys can affect the live project. Clear reviewed test data before launch.
+- Media operations between the US bucket and European Functions can incur cross-region latency or network charges. Check image delivery and publication times during preview verification.
+- Ordinary development uses loopback emulators. The default build remains offline. Real build values belong in ignored local configuration; no real profile is committed.
 
-Cloud configuration requires `VITE_FIREBASE_TARGET` (`staging` or `production`) and JSON `VITE_FIREBASE_CONFIG` containing apiKey, projectId, authDomain, storageBucket, appId and messagingSenderId. Cloud Functions also require `VITE_FIREBASE_FUNCTIONS_REGION`. The current validation permits the standard project Firebase Auth domain and Storage bucket; a later custom Auth domain needs an explicit validation change. API keys/web app config are public client identification, not server credentials.
+[Firebase preview channels](https://firebase.google.com/docs/hosting/test-preview-deploy).
 
-Do not enable cloud access in ordinary preview builds. Development needs `VITE_USE_EMULATORS=false` plus the explicit target/config to opt into a cloud project. Neither changing a frontend flag nor using a Hosting preview channel isolates a shared Firestore database. Staging and production require distinct project IDs and public origins. All existing seed scripts remain demo-only; there is deliberately no automatic cloud seed command.
+## Gates
 
-## Concrete steps remaining
-
-1. Confirm which project is production and supply/select a distinct staging project. Inspect existing resources/permissions/billing and finish the supported Functions/Storage placement decision. No new resources are implied by this document.
-2. Copy `deployments.example.json` to ignored `deployments.local.json`. Fill both roles with their real project IDs, complete public web-app config, HTTPS origin and approved Functions region. Set `approved: true` only after the recorded project/location review. Keep `indexPublicPages: false` for staging and pre-launch production.
-3. Run `npm run prepare:deployment -- staging`. This only builds locally. It validates separation, web/server project agreement, explicit region/origin and, when called by Firebase CLI, the CLI's target project. It generates ignored `firebase.staging.generated.json` and `functions/generated/deployment.json`, and packages the matching built HTML.
-4. Inspect the generated target/project/origin/region and finish the release checks. Any later authorised release must use the generated config and explicit project together, for example `firebase deploy --config firebase.staging.generated.json --project THE_CONFIRMED_STAGING_ID --only functions,hosting`. This example has **not** been executed. The default `firebase.json` blocks cloud deploys; it remains the emulator configuration.
-5. Both generated Functions and Hosting predeploy hooks rerun the selected build before packaging. All four rewrites take their region from the same profile as the Function. `pinTag` ties the second-generation Function version to Hosting assets. Verify real deployed bootstrap hashes, CDN expiry and all four route families on staging; local packaging tests do not prove a cloud release works.
-6. Seed only synthetic staging content using a separately reviewed staging-only process that verifies the target and cannot choose production. Such a seeder is not implemented here. Never point the demo seeder at cloud endpoints. Perform the owner's real-phone WhatsApp preview check on a staging URL before P1.15 closes.
-
-The Function starts in an emulator only with the explicit demo/loopback settings. Cloud startup requires the prepared approved artifact and matching platform project identity, with no emulator endpoints. There is no default cloud region or canonical origin; the origin never comes from request headers. `localHealth` is not exported as a cloud endpoint. Function request/scale limits currently include 15 seconds and at most three instances; verify these with the real release/cost requirements.
+P1.13 records the approved topology. P1.14 requires the console checks, a reviewed local preparation, explicit owner authorization, and verification against the actual preview URL. P1.15 requires the owner to verify a WhatsApp product preview on a phone. Work on these gates has made no cloud changes.
 
 ## Indexing at launch
 
-Preview, staging and pre-launch production remain `noindex, nofollow`. For a reviewed production launch only, set that profile's `indexPublicPages: true` and prepare/release again. This controls the built root HTML, robots.txt and shared-link HTML together. Raw private-route responses keep an `X-Robots-Tag: noindex, nofollow` header; React maintains noindex on private/unknown routes during navigation; shared-link 404/503s stay noindex. Indexing is not an access-control mechanism. Keep staff/customer information protected independently.
+Preview and pre-launch production remain `noindex, nofollow`. For a reviewed production launch only, set that profile's `indexPublicPages: true` and prepare/release again. This controls the built root HTML, robots.txt and shared-link HTML together. Raw private-route responses keep an `X-Robots-Tag: noindex, nofollow` header; React maintains noindex on private/unknown routes during navigation; shared-link 404/503s stay noindex. Indexing is not an access-control mechanism. Keep staff/customer information protected independently.
 
 The generated configuration removes only the development-wide noindex header when indexing is enabled; private-route headers remain. Direct public/private URLs, robots.txt, error statuses, real catalogue content and launch sitemap/structured-data work still require release verification. The flag is deliberately off now because the site contains development placeholders.
 
