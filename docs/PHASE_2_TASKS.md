@@ -7,7 +7,7 @@ P1.12 passed local shell QA. P1.11 is deferred and P1.13–P1.15 await owner inp
 - Use the approved white theme, fixed navigation and [design tokens](DESIGN_FOUNDATIONS.md). Every generated photograph stays labelled and every illustrative piece stays unpurchasable.
 - Keep tasks and tests in focused commits. Run `npm run check` before reporting a task complete. The separate staging project, service locations and real-phone preview remain owner gates. Ordering and the order queue belong to Phase 3.
 
-P2.01 passed locally. The full check passed with 83 tests, including nine catalogue projection and access tests. Demo reseeding also preserved an edited category label. P2.02 passed locally with password sign-in, refreshed claim checks and route gating. To provision an identity while the emulators are running, use `npm run emulators:staff -- demo-night-in-kampala staff` (or `owner`). Use the returned local credentials at `/admin` on the Vite dev server. The next task is P2.03. [Catalogue data and permissions](CATALOGUE_DATA.md).
+**P2.01–P2.14 passed locally.** Use `npm run emulators:staff -- demo-night-in-kampala staff` (or `owner`) with the emulators running, then open `/admin` on the Vite dev server. [Catalogue data and permissions](CATALOGUE_DATA.md).
 
 ## Ordered build tasks
 
@@ -28,6 +28,17 @@ P2.01 passed locally. The full check passed with 83 tests, including nine catalo
 | P2.13 | Read latest published pieces on the homepage. | A newly published piece appears in the intended order and a withdrawn piece disappears. A clean emulator shows a useful empty state. Preserve responsive spacing and labelled illustrative fixtures. | P2.05–P2.08 |
 | P2.14 | Verify the full Phase 2 catalogue and staff publication journey. | With an emulator staff identity and a measured synthetic test piece, publish product photos and an event. On phone and desktop, a guest sees only published content, with correct detail, filters and previews. A withdrawn item is inaccessible through public reads. Run the full check suite and record results and outstanding real-content/Phase 3 inputs. | P2.01–P2.13 |
 
-## Inputs and review
+## P2.14 local gate
 
-Phase 2 uses synthetic emulator identities and fixtures. Real product photos, measurements, condition and prices are needed for launch content. The separate staging project, production-role confirmation, service regions and real brand share image are owner inputs. Phase 3 still needs the business WhatsApp number, overdue threshold and the Sold transition for cash on delivery.
+- `npm run check` passed the secret scan, lint, offline production build and 101 tests (54 app/SDK, 15 metadata, six deployment, nine rules, 16 HTTP and one secret-scan test).
+- Fresh headless Chrome profiles used the Vite app and the demo Auth, Firestore, Storage, Functions and Hosting emulators. An authorized staff identity created a category and a measured illustrative piece, uploaded two JPEGs larger than the browser's 2400 px limit, then published the photo gallery and an illustrative event without a date or venue. Draft URLs returned 404 before publication.
+- A separate guest profile verified the empty homepage, published homepage entry, URL filters, three desktop columns at 1440 px and two phone columns at 390 px, measurements in centimetres, desktop thumbnails and a simulated touch swipe between photos. The archive changed when staff marked the piece Sold and then Available. Ordering controls stayed disabled. The Events list displayed the published event and its unset date/venue copy.
+- Raw Hosting HTML carried the product's JPEG preview and the event title. Product withdrawal removed it from the homepage and guest detail reads, and the Hosting detail and image origin returned 404. Already cached immutable media can persist. No uncaught browser exceptions occurred in the successful pass.
+- The gate exposed a realtime Firestore connection timeout that the guest UI had shown as an empty event list. Storefront reads now use the server-only Firestore Lite client and report read failures visibly. The browser pass also verified the product editor and photo editor after separating their React keys. The product title uses the approved heading token to accommodate longer names.
+
+## Unverified and owner inputs
+
+- All fixtures and media used in the gate are illustrative. Supply real product photos, measurements, condition, prices, approved site and event content and a real brand share image. The shop search entry remains a placeholder. Phase 2 delivers category, size, availability and sort filters.
+- Device coverage is desktop Chrome and Chrome phone emulation. HEIC decode and fallback are covered by automated tests; a physical iPhone upload and real-phone WhatsApp preview remain unverified.
+- P1.13–P1.15 are still open. Supply a separate staging project, confirm the connected project's role and approve the Functions region. The existing US-EAST1 bucket was retained with owner approval. Confirm its live client rules deny all reads and writes until a reviewed deployment. P1.14 includes real composite-index, Storage-to-Firestore rules, cache and matched-artifact verification. See [the recorded locations](FIREBASE_REGION_DECISION.md) and [Phase 1 tasks](PHASE_1_TASKS.md).
+- Phase 3 needs the business WhatsApp number, overdue threshold and when cash-on-delivery stock becomes Sold. The work stops at this gate. All building and verification used local emulators. No cloud changes, deployment, push or Phase 3 work occurred.

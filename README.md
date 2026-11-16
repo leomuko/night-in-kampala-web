@@ -1,6 +1,6 @@
 # Night in Kampala
 
-A planned React JavaScript storefront and Firebase backend for reworked clothing, brand stories, and fashion events, serving Uganda and selected international markets.
+A React JavaScript storefront and Firebase backend for reworked clothing, brand stories, and fashion events, serving Uganda and selected international markets.
 
 ## Planning documents
 
@@ -21,17 +21,18 @@ A planned React JavaScript storefront and Firebase backend for reworked clothing
 
 - [Visual concepts](docs/design-concepts/README.md): round-1 mockups and the [round-2 image prompts](docs/design-concepts/PROMPTS-ROUND-2.md).
 
-Status: P1.01–P1.10 are implemented locally. Review fixes add resilient metadata/JPEG previews, media caching, offline default builds, explicit cloud/deployment configuration and production indexing controls. `npm run check` passes lint/build and 79 tests (40 app/SDK, 15 metadata, six deployment, 12 HTTP, five rules, one secret-scan test). Development defaults to demo emulators; built previews initialize no Firebase app. Analytics is off. Catalogue/orders/admin remain placeholders. P1.11 is deferred; [P1.12 shell QA](docs/qa/p1-12/README.md) passed locally. P1.13–P1.15 and real project roles/locations, staging/CDN/WhatsApp verification remain open. The repository contains the local review changes and awaits a separate staging project.
-
-The owner approved Phase 2 with amendments. P2.01 passed locally and establishes the catalogue data model and access rules. Staff sign-in, draft editing and publishing follow in order. The sales-first launch plan uses on-site order requests, dashboard alerts and manual payment and delivery arrangements.
+Phase 2 passed locally through P2.14. Staff can edit and publish catalogue pieces, drops, events, lookbooks and site pages. Shoppers can browse published content, filter the shop and view product photos and measurements. Ordering remains a Phase 3 task. P1.11 is deferred, and P1.13–P1.15 still require staging and owner inputs. See the [Phase 2 gate and remaining inputs](docs/PHASE_2_TASKS.md#p214-local-gate).
 
 ## Run locally
 
 ```sh
 npm ci
 npm run assets
-npm run dev
+npm run build
+npm run emulators
 ```
+
+In a separate terminal, run `npm run dev`. To try the staff dashboard, run `npm run emulators:staff -- demo-night-in-kampala staff` and use the returned local credentials at `/admin` on the Vite server. For a sample catalogue run `npm run emulators:seed` with the emulators running.
 
 Use Node 24.x. Firebase emulators additionally need Java 21+. See the local-development guide for emulator, test and asset commands. Images are generated development placeholders, visibly labelled and unavailable for purchase.
 
