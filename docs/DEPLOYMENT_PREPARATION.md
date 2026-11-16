@@ -73,7 +73,7 @@ Run the dry run again to verify that the deletion lists are empty. Review catego
 
 `npm run check` runs the secret scan, ESLint, application tests, metadata tests, deployment-boundary/build tests, the offline build, security-rule tests, Hosting HTTP tests and launch cleanup tests on isolated emulators. GitHub Actions runs that command on main-branch pushes and pull requests with Node 24 and Java 21, read-only repository permissions and no Firebase credentials. The updated workflow is in the local review commits. No deployment is part of CI.
 
-The single-project release preparation passed `npm run check` with **123 tests**. The run covered 65 app tests, 15 metadata tests, six deployment tests, ten rules tests, 24 emulator HTTP tests, two cleanup tests and one secret-scan test. Deployment tests build synthetic preview and production artifacts and inspect Function metadata locally. Cleanup tests use only the dedicated demo project. Cloud IAM, billing, ingress, CDN expiry and device behaviour still require the actual preview.
+The single-project release preparation passed `npm run check` with **127 tests**. The run covered 67 app tests, 15 metadata tests, six deployment tests, ten rules tests, 24 emulator HTTP tests, four cleanup and role-tool tests and one secret-scan test. Deployment tests build synthetic preview and production artifacts and inspect Function metadata locally. Cleanup tests use only the dedicated demo project. Cloud IAM, billing, ingress, CDN expiry and device behaviour still require the actual preview.
 
 ## References
 
@@ -92,3 +92,5 @@ node scripts/grant-staff-role.mjs --project night-in-kampala --email OWNER_EMAIL
 ```
 
 Type the displayed phrase at the prompt. For non-interactive operation, supply it through `--confirm`. Use `--role staff --test-account` for a disposable test staff account. Existing unrelated claims and a prior test marker are preserved. The script updates an existing login and uses the operator's application default credentials. Sign out and sign in again after changing the role. The owner's account creation, role assignment and password entry are owner steps. Local emulator tests cover the tooling.
+
+Part A passed locally on 16 November 2026 before cloud access. The cleanup regression retains unmarked unpublished work, the role tool uses existing accounts, and cloud ordering remains paused. The owner has authorized Part B preview preparation and deployment after this gate.
