@@ -15,9 +15,10 @@ test('a cloud preview without App Check offers browsing and keeps all order entr
   vi.stubEnv('VITE_FIREBASE_TARGET', 'preview');
   vi.stubEnv('VITE_FIREBASE_CONFIG', JSON.stringify(fixtureFirebaseConfig));
   vi.stubEnv('VITE_APP_CHECK_SITE_KEY', '');
+  vi.stubEnv('VITE_ORDER_TRUSTED_PROXY_HOPS', '1');
   expect(isOrderingOpen()).toBe(false);
   const send = vi.fn();
-  render(<MemoryRouter><CheckoutPage onOrder={send} /><ProductOrdering slug="piece" product={{}} /></MemoryRouter>);
+  const { rerender } = render(<MemoryRouter><CheckoutPage onOrder={send} /><ProductOrdering slug="piece" product={{}} /></MemoryRouter>);
   expect(screen.getByRole('heading', { name: 'Ordering opens soon' })).toBeInTheDocument();
   expect(screen.queryByRole('button', { name: 'Place order' })).toBeNull();
   expect(screen.getByRole('button', { name: 'Add to bag' })).toBeDisabled();
@@ -28,6 +29,12 @@ test('a cloud preview without App Check offers browsing and keeps all order entr
   expect(isOrderingOpen()).toBe(false);
   vi.stubEnv('VITE_APP_CHECK_SITE_KEY', 'fixture-site-key');
   expect(isOrderingOpen()).toBe(true);
+  vi.stubEnv('VITE_ORDER_TRUSTED_PROXY_HOPS', '');
+  expect(isOrderingOpen()).toBe(false);
+  rerender(<MemoryRouter><CheckoutPage onOrder={send} /><ProductOrdering slug="piece" product={{}} /></MemoryRouter>);
+  expect(screen.getByRole('heading', { name: 'Ordering opens soon' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Add to bag' })).toBeDisabled();
+  await expect(createOrder({})).rejects.toThrow('Ordering opens soon');
 });
 
 test('server rejects even attested requests until both site key and proxy hop are configured', () => {

@@ -15,6 +15,7 @@ const env = {
   ...process.env, VITE_USE_EMULATORS: 'false', VITE_FIREBASE_TARGET: target,
   VITE_FIREBASE_CONFIG: JSON.stringify(config.webConfig), VITE_FIREBASE_FUNCTIONS_REGION: config.region,
   VITE_APP_CHECK_SITE_KEY: config.order?.appCheckSiteKey ?? '',
+  VITE_ORDER_TRUSTED_PROXY_HOPS: String(config.order?.trustedProxyHops ?? ''),
   VITE_SITE_ORIGIN: config.origin, VITE_PUBLIC_INDEXING: config.indexPublicPages === true ? 'true' : 'false',
 };
 const build = spawnSync(process.execPath, ['node_modules/vite/bin/vite.js', 'build', '--mode', target], { cwd: root, env, stdio: 'inherit' });

@@ -1,6 +1,6 @@
 # Explicit release preparation before P1.14
 
-The owner approved the single-project model on **16 November 2026**. Both profiles target `night-in-kampala`; Functions use `europe-west1`, Firestore stays in `eur3`, and the existing bucket stays in `US-EAST1`. The owner authorized the first preview release after the Part A local gate passes. App Check registration is deferred until the preview URL exists.
+The owner approved the single-project model on **16 November 2026**. Both profiles target `night-in-kampala`; Functions use `europe-west1`, Firestore stays in `eur3`, and the existing bucket stays in `US-EAST1`. The owner authorized the first preview release after the Part A local gate passes. The owner registered the reCAPTCHA Enterprise key and will add the preview hostname before attestation testing.
 
 ## Approved release model
 
@@ -34,7 +34,7 @@ P1.13 records the approved topology. P1.14 requires the console checks, a review
 - [ ] Create a score-based reCAPTCHA Enterprise website key for the approved preview hostname and register the Firebase web app under App Check. Confirm the actual preview hostname, pass the public site key as `order.appCheckSiteKey`, and verify an attested order call on preview. Include the approved live domain before production. [App Check for web](https://firebase.google.com/docs/app-check/web/recaptcha-enterprise-provider).
 - [x] Owner confirmed `ORDER_IDENTITY_KEY` exists in Secret Manager for Functions, following [the order identity instructions](#order-identity-trusted-source-and-retention). Keep the generated value in Secret Manager.
 
-The first preview proceeds under the owner’s Part B authorization after the local gate. Keep `order.appCheckSiteKey` empty and `order.trustedProxyHops` null. Product and bag controls show “Ordering opens soon”, and the checkout route offers browsing without collecting contact details. Cloud order submission stays disabled. App Check for Firestore and Storage remains an owner decision. P1.14 also verifies the deployed composite indexes, the `orderSources.expiresAt` TTL policy, and the actual preview with the reviewed rules and Function settings.
+The first preview proceeds under the owner’s Part B authorization after the local gate. Set the owner-supplied public `order.appCheckSiteKey` in the ignored preview profile. Keep `order.trustedProxyHops` null until verified. Product and bag controls show “Ordering opens soon”, and the checkout route offers browsing without collecting contact details. Cloud order submission stays disabled. App Check for Firestore and Storage remains an owner decision. P1.14 also verifies the deployed composite indexes, the `orderSources.expiresAt` TTL policy, and the actual preview with the reviewed rules and Function settings.
 
 ## Indexing at launch
 
@@ -94,3 +94,5 @@ node scripts/grant-staff-role.mjs --project night-in-kampala --email OWNER_EMAIL
 Type the displayed phrase at the prompt. For non-interactive operation, supply it through `--confirm`. Use `--role staff --test-account` for a disposable test staff account. Existing unrelated claims and a prior test marker are preserved. The script updates an existing login and uses the operator's application default credentials. Sign out and sign in again after changing the role. The owner's account creation, role assignment and password entry are owner steps. Local emulator tests cover the tooling.
 
 Part A passed locally on 16 November 2026 before cloud access. The cleanup regression retains unmarked unpublished work, the role tool uses existing accounts, and cloud ordering remains paused. The owner has authorized Part B preview preparation and deployment after this gate.
+
+The permanent account `superadmin@nightinkampala.com` must be retained during launch cleanup. Grant it the owner role and keep it free of the `testAccount` claim. Its password is controlled by the owner. Only disposable staff logins receive the test claim.
