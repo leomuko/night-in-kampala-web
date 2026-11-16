@@ -170,6 +170,8 @@ test('photo processing and catalogue publication work through staff, Storage and
     assert.equal(publish.status, 200, JSON.stringify(publish.body.error));
     const publicRef = db.doc(`products/${slug}`);
     const firstPublic = (await publicRef.get()).data();
+    const newest = query(collection(guest, 'products'), where('status', '==', 'published'), orderBy('publishedAt', 'desc'), limit(4));
+    assert.equal((await getDocs(newest)).docs[0].id, slug);
     const home = 'http://127.0.0.1:5500';
     const image = await fetch(home + firstPublic.share.imageUrl);
     assert.equal(image.status, 200);
@@ -271,6 +273,7 @@ test('photo processing and catalogue publication work through staff, Storage and
     assert.match(withdrawn.headers.get('cache-control'), /no-store/);
     assert.equal((await fetch(`${home}/products/${slug}`)).status, 404);
     await assert.rejects(getDoc(webDoc(guest, 'products', slug)), { code: 'permission-denied' });
+    assert.ok(!(await getDocs(newest)).docs.some(doc => doc.id === slug));
     assert.match(await (await fetch(dropPath)).text(), /\/share\/campaign\.jpg/);
   } finally {
     await bucket.deleteFiles({ prefix: `product-drafts/${slug}/` });

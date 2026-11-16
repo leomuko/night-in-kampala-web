@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
-import GarmentCard from '../../components/GarmentCard.jsx';
 import Icon from '../../components/Icon.jsx';
-import { previewProducts } from '../../data/previewProducts.js';
+import LatestPieces from './LatestPieces.jsx';
 
 export default function HomePage() {
   return <>
@@ -11,7 +10,7 @@ export default function HomePage() {
     </section>
     <section className="container page-section" aria-labelledby="latest-title">
       <div className="section-heading"><h2 id="latest-title">THE LATEST PIECES</h2><Link to="/shop" className="text-link">View all</Link></div>
-      <div className="product-grid">{previewProducts.map(product => <GarmentCard key={product.slug} product={product} />)}</div>
+      <LatestPieces />
     </section>
     <section className="container page-section process-teaser" aria-labelledby="process-title"><h2 id="process-title">FROM FOUND<br />TO REWORKED</h2><div className="stack"><p className="editorial">Secondhand clothing, given a new life through repair, original prints and design.</p><Link className="text-link arrow-link" to="/about">See our process <Icon name="arrow" /></Link></div></section>
     <section className="container page-section event-teaser" aria-labelledby="event-title"><div><p className="eyebrow">Beyond the clothes</p><h2 id="event-title">KAMPALA / NAIROBI</h2><p className="editorial">Our fashion events bring the community together.</p></div><Link className="text-link arrow-link" to="/events">Explore events <Icon name="arrow" /></Link></section>

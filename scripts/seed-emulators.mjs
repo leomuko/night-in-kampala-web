@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { initializeApp, deleteApp } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
+import { getFirestore, Timestamp } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
 import { previewProducts } from '../src/data/previewProducts.js';
 
@@ -19,10 +19,14 @@ await db.runTransaction(async transaction => {
   }
 });
 const batch = db.batch();
-for (const [slug, data] of Object.entries(fixture.products)) batch.set(db.doc(`products/${slug}`), data);
+const fixtureEpoch = Timestamp.fromMillis(0);
+for (const [slug, data] of Object.entries(fixture.products)) batch.set(db.doc(`products/${slug}`), {
+  ...data, publishedAt: fixtureEpoch,
+});
 // Match the existing homepage links; these remain synthetic and unpurchasable.
 for (const item of previewProducts) batch.set(db.doc(`products/${item.slug}`), {
-  name: item.name, priceUGX: item.price, status: 'published',
+  name: item.name, priceUGX: item.price, status: 'published', publishedAt: fixtureEpoch,
+  photos: [{ id: item.image, alt: item.alt, smallUrl: `/assets/${item.image}-320.webp`, mediumUrl: `/assets/${item.image}-640.webp`, largeUrl: `/assets/${item.image}-960.webp` }],
   availability: 'illustrative', isRealCatalogueStock: false, purchasable: false,
   share: {
     description: 'AI-generated development placeholder. Illustrative clothing; unavailable for purchase.',

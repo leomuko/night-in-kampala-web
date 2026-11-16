@@ -1,14 +1,24 @@
-import { describe, test, expect } from 'vitest';
+import { describe, test, expect, vi } from 'vitest';
 import { render, screen, within, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import App from './App.jsx';
 
+vi.mock('../features/catalogue/catalogueData.js', async original => {
+  const { previewProducts } = await import('../data/previewProducts.js');
+  return {
+    ...(await original()), readCategories: async () => [],
+    readPublicPage: async () => ({ rows: [], cursor: null }),
+    readProductPage: async (_filters, _cursor, size) => ({ rows: size === 3 ? previewProducts : [], cursor: null }),
+  };
+});
+
 function visit(path = '/') { return render(<MemoryRouter initialEntries={[path]}><App /></MemoryRouter>); }
 
 describe('store foundations', () => {
-  test('preview clothing is visibly labelled and cannot be purchased', () => {
+  test('preview clothing is visibly labelled and cannot be purchased', async () => {
     visit();
+    await screen.findByText('Reworked graphic tee');
     expect(screen.getAllByText('AI-generated placeholder')).toHaveLength(4);
     expect(screen.queryByRole('button', { name: /add to bag/i })).not.toBeInTheDocument();
     expect(screen.getAllByText('UGX 160,000')).toHaveLength(1);

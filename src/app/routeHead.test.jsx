@@ -8,6 +8,7 @@ import { readPublicDocument } from '../features/catalogue/catalogueData.js';
 
 vi.mock('../features/catalogue/catalogueData.js', async original => ({
   ...(await original()), readPublicDocument: vi.fn(() => new Promise(() => {})),
+  readProductPage: async () => ({ rows: [], cursor: null }), readCategories: async () => [],
 }));
 
 const selector = 'title, meta[name="description"], meta[name="robots"], meta[name^="nik:"], meta[property^="og:"], link[rel="canonical"]';
@@ -40,7 +41,7 @@ test('server 404s display the useful not-found screen and navigation still works
   expect(screen.getByRole('heading', { name: 'PAGE NOT FOUND' })).toBeInTheDocument();
   await userEvent.click(screen.getByRole('link', { name: 'Back to home' }));
   expect(document.title).toBe('Reworked in Kampala — Night in Kampala');
-  expect(screen.getAllByText('AI-generated placeholder')).toHaveLength(4);
+  expect(await screen.findByText('The first pieces will appear here when they’re published.')).toBeInTheDocument();
 });
 test('server failures display a retry explanation without pretending the page is missing', () => {
   seed(503);
