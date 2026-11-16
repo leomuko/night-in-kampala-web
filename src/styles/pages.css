@@ -41,3 +41,29 @@
 @media (min-width: 1024px) {
   .shop-filters { grid-template-columns: repeat(4, minmax(0, 1fr)) auto; gap: var(--space-4); }
 }
+
+.product-layout { display: grid; gap: var(--grid-gap); }
+.product-layout nav { grid-column: 1 / -1; font-size: var(--text-small); }
+.product-layout > div { min-width: 0; }
+.product-heading { display: grid; justify-items: start; gap: var(--space-2); }
+.product-information { align-items: stretch; }
+.product-ordering { display: grid; gap: var(--space-2); }
+.product-measurements h2 { font: var(--weight-semibold) var(--text-body)/var(--leading-body) var(--font-ui); }
+.product-measurements dl { margin: var(--space-2) 0 0; }
+.product-measurements dl > div { display: flex; justify-content: space-between; gap: var(--space-4); padding-block: var(--space-1); border-bottom: var(--border-width) solid var(--color-hairline); }
+.product-measurements dd { margin: 0; }
+.gallery-track { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; background: var(--color-fog); }
+.gallery-track > img { flex: 0 0 100%; min-width: 0; width: 100%; aspect-ratio: 1; object-fit: contain; scroll-snap-align: start; }
+.gallery-dots { display: flex; justify-content: center; margin-top: var(--space-2); }
+.gallery-dots button { display: grid; place-items: center; width: var(--icon-hit-area); height: var(--icon-hit-area); border: 0; background: var(--color-paper); }
+.gallery-dots span { width: var(--space-2); aspect-ratio: 1; border: var(--border-width) solid var(--color-ink); border-radius: 50%; }
+.gallery-dots [aria-pressed="true"] span { background: var(--color-ink); }
+.gallery-thumbnails { display: none; }
+@media (min-width: 1024px) {
+  .product-layout { grid-template-columns: minmax(0, 6fr) minmax(0, 4fr); column-gap: var(--hero-gap); }
+  .gallery-dots { display: none; }
+  .gallery-thumbnails { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-3); margin-top: var(--space-3); }
+  .gallery-thumbnails button { padding: var(--space-1); border: var(--border-width) solid var(--color-hairline); background: var(--color-fog); }
+  .gallery-thumbnails button[aria-pressed="true"] { border-color: var(--color-ink); }
+  .gallery-thumbnails img { width: 100%; aspect-ratio: 1; object-fit: contain; }
+}

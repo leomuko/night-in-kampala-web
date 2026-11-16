@@ -42,3 +42,18 @@ export async function readCategories() {
   const { db, sdk } = firestore;
   return (await sdk.getDoc(sdk.doc(db, 'catalogueSettings', 'categories'))).data()?.items ?? [];
 }
+
+export async function readPublicDocument(collection, slug) {
+  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug) || slug.length > 120) return null;
+  const firestore = await publicFirestore();
+  if (!firestore) return null;
+  const { db, sdk } = firestore;
+  try {
+    const snapshot = await sdk.getDoc(sdk.doc(db, collection, slug));
+    const document = snapshot.data();
+    return document?.status === 'published' ? { ...document, slug: snapshot.id } : null;
+  } catch (error) {
+    if (error.code === 'permission-denied') return null;
+    throw error;
+  }
+}
