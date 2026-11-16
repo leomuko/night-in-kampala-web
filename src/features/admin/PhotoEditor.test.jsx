@@ -5,6 +5,7 @@ import { getFirebaseRuntime } from '../../services/firebaseApp.js';
 import { preparePhoto } from './preparePhoto.js';
 import { callStaff } from './catalogueAdmin.js';
 import PhotoEditor from './PhotoEditor.jsx';
+import { uploadBytesResumable } from 'firebase/storage';
 
 const fixture = vi.hoisted(() => ({ error: null }));
 vi.mock('../../services/firebaseApp.js', () => ({ getFirebaseRuntime: vi.fn(() => ({ target: 'preview' })) }));
@@ -14,10 +15,10 @@ vi.mock('./preparePhoto.js', () => ({ preparePhoto: vi.fn(async () => new Blob([
 vi.mock('./catalogueAdmin.js', () => ({ callStaff: vi.fn(async () => ({ revision: 2, photos: [{ id: 'fixture', kind: 'illustrative' }] })), staffError: error => error.message }));
 vi.mock('firebase/storage', () => ({
   ref: (_storage, path) => path,
-  uploadBytesResumable: () => ({ on: (_event, progress, failure, complete) => {
+  uploadBytesResumable: vi.fn(() => ({ on: (_event, progress, failure, complete) => {
     if (fixture.error) failure(fixture.error);
     else { progress({ bytesTransferred: 1, totalBytes: 1 }); complete(); }
-  } }),
+  } })),
 }));
 afterEach(() => { vi.unstubAllGlobals(); fixture.error = null; vi.clearAllMocks(); });
 const draft = { slug: 'test-piece', revision: 1, photos: [], isTestData: true };
@@ -30,6 +31,8 @@ test.each(['JPEG', 'WEBP'])('preview %s samples use the normal preparation and t
   await userEvent.click(screen.getByRole('button', { name: `Use test ${format}` }));
   expect(await screen.findByText('Photo saved.')).toBeInTheDocument();
   expect(preparePhoto.mock.calls[0][0].type).toBe(format === 'JPEG' ? 'image/jpeg' : 'image/webp');
+  expect(uploadBytesResumable).toHaveBeenCalledWith(expect.stringContaining('product-drafts/test-piece/test-owner/'),
+    expect.any(Blob), { contentType: 'image/jpeg', customMetadata: {} });
   expect(callStaff).toHaveBeenCalledWith('cataloguePhotoAdd', expect.objectContaining({ slug: 'test-piece',
     revision: 1, kind: 'illustrative', extension: 'jpg', alt: `TEST illustrative ${format.toLowerCase()} upload` }));
   expect(save).toHaveBeenCalled();
