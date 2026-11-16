@@ -7,6 +7,11 @@ export function validateCloudDeployment(config) {
   if (config.indexPublicPages !== undefined && typeof config.indexPublicPages !== 'boolean') throw new Error('indexPublicPages must be an explicit boolean.');
   if (config.indexPublicPages && config.target !== 'production') throw new Error('Preview cannot enable public indexing.');
   if (config.region !== FUNCTIONS_REGION) throw new Error('The approved Functions region is europe-west1.');
+  if (config.previousEntryScripts !== undefined && (!Array.isArray(config.previousEntryScripts)
+    || config.previousEntryScripts.length > 20 || config.previousEntryScripts.some(path =>
+      typeof path !== 'string' || !/^\/assets\/index-[A-Za-z0-9_-]+\.js$/.test(path)))) {
+    throw new Error('Previous entry scripts must be local hashed app asset paths.');
+  }
   if (config.order !== undefined) {
     const order = config.order;
     if (!order || order.identitySecret !== 'ORDER_IDENTITY_KEY'

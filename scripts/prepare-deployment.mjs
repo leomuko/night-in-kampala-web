@@ -31,6 +31,16 @@ firebase.functions.forEach(item => { item.predeploy = hook('backend'); });
 firebase.firestore.predeploy = hook('backend');
 firebase.storage.predeploy = hook('backend');
 firebase.hosting.predeploy = hook('hosting');
+// A Hosting-only configuration change can leave shared-link Functions referring
+// to the preceding app filename. Redirect that entry to this build's module.
+const html = await readFile(new URL('../dist/index.html', import.meta.url), 'utf8');
+const entry = html.match(/<script\b[^>]*\bsrc="(\/assets\/index-[A-Za-z0-9_-]+\.js)"/)?.[1];
+if (!entry) throw new Error('Could not identify the built app entry script.');
+const previousEntries = [...new Set(config.previousEntryScripts ?? [])].filter(path => path !== entry);
+firebase.hosting.redirects = [
+  ...(firebase.hosting.redirects ?? []),
+  ...previousEntries.map(source => ({ source, destination: entry, type: 302 })),
+];
 if (config.indexPublicPages) firebase.hosting.headers = firebase.hosting.headers.filter(item => item.source !== '**');
 firebase.hosting.rewrites.forEach(item => {
   if (item.function) item.function = { ...item.function, region: config.region, ...(target === 'production' ? { pinTag: true } : {}) };

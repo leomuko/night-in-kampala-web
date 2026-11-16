@@ -15,7 +15,7 @@ test('predeploy builds matching browser/Function artifacts and imports the confi
     const profile = target => {
       const projectId = 'night-in-kampala';
       const preview = target === 'preview';
-      return { approved: true, projectId,
+      return { approved: true, projectId, previousEntryScripts: ['/assets/index-previous.js'],
         order: { identitySecret: 'ORDER_IDENTITY_KEY', trustedProxyHops: 2, appCheckSiteKey: 'fixture-site-key' },
         region: 'europe-west1', origin: preview ? 'https://night-in-kampala--review-fixture.web.app' : 'https://production.example.test', ...(preview ? { channel: 'review' } : {}), webConfig: { projectId, apiKey: 'fixture-key', appId: 'fixture-app-id', messagingSenderId: 'fixture-sender', authDomain: `${projectId}.firebaseapp.com`, storageBucket: `${projectId}.firebasestorage.app` } };
     };
@@ -27,6 +27,12 @@ test('predeploy builds matching browser/Function artifacts and imports the confi
     const manifest = JSON.parse(await readFile(path.join(root, 'firebase.preview.generated.json'), 'utf8'));
     assert.ok(manifest.functions[0].predeploy[0].endsWith(' preview --hook backend'));
     assert.ok(manifest.hosting.predeploy[0].endsWith(' preview --hook hosting'));
+    const entryRedirect = manifest.hosting.redirects.find(row => row.source === '/assets/index-previous.js');
+    assert.equal(entryRedirect.type, 302);
+    const builtIndex = await readFile(path.join(root, 'dist/index.html'), 'utf8');
+    assert.ok(builtIndex.includes(`src="${entryRedirect.destination}"`));
+    const redirectedModule = await readFile(path.join(root, 'dist', entryRedirect.destination), 'utf8');
+    assert.ok(redirectedModule.includes('fixture-key'));
     const media = manifest.hosting.rewrites.find(item => item.source === '/media/products/**');
     assert.equal(media.function.functionId, 'catalogueMedia');
     for (const rewrite of manifest.hosting.rewrites.filter(item => item.function)) {
