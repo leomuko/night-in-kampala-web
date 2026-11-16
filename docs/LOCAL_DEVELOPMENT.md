@@ -31,7 +31,7 @@ npm run test:metadata
 npm run test:hosting
 ```
 
-The runner uses loopback listeners and project-local caches and disables cloud metadata-server discovery. The main suite uses `demo-night-in-kampala`. Stop it before running `npm run test:rules` or `npm run check`, which start Firestore and Storage in the isolated `demo-night-in-kampala-rules` project for the cross-service permission tests. `.firebaserc` records the owner's project under the `connected` alias. The local health endpoint uses the emulator's `us-central1` region.
+The runner uses loopback listeners and project-local caches and disables cloud metadata-server discovery. The main suite uses `demo-night-in-kampala`. Stop it before running `npm run test:rules` or `npm run check`, which start Firestore and Storage in the isolated `demo-night-in-kampala-rules` project for the cross-service permission tests. `.firebaserc` records the owner's project under the `connected` alias. The local health endpoint uses the emulator's `europe-west1` region.
 
 | Local service | Address |
 | --- | --- |

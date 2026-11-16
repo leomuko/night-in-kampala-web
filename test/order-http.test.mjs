@@ -11,7 +11,7 @@ const project = 'demo-night-in-kampala';
 if (process.env.GCLOUD_PROJECT !== project || process.env.FIRESTORE_EMULATOR_HOST !== '127.0.0.1:8080') {
   throw new Error('Order tests require the demo project and loopback Firestore.');
 }
-const base = `http://127.0.0.1:5001/${project}/us-central1`;
+const base = `http://127.0.0.1:5001/${project}/europe-west1`;
 const phones = ['0772 123 456', '0772 123 457', '0772 123 458', '0772 123 459'];
 
 async function callable(name, data, token) {

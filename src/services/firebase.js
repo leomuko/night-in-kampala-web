@@ -1,3 +1,4 @@
+import { FUNCTIONS_REGION } from '../../functions/firebase-project.js';
 import { getFirebaseApp, getFirebaseRuntime } from './firebaseApp.js';
 import { connectLocalFirebase } from './localFirebase.js';
 
@@ -24,7 +25,7 @@ export async function getFirebaseFunctions() {
   if (getFirebaseRuntime().mode === 'preview') throw new Error('Offline preview: cloud Functions are disabled.');
   if (getFirebaseRuntime().mode === 'emulator') return (await connectLocalFirebase()).functions;
   const region = import.meta.env.VITE_FIREBASE_FUNCTIONS_REGION;
-  if (!region || !/^[a-z]+-[a-z]+\d+$/.test(region)) {
+  if (region !== FUNCTIONS_REGION) {
     throw new Error('Configure the approved VITE_FIREBASE_FUNCTIONS_REGION before using cloud Functions.');
   }
   const { getFunctions } = await import('firebase/functions');

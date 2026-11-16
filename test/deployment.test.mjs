@@ -25,6 +25,7 @@ test('missing explicit profile, typed approval and mismatched CLI projects stop 
   const data = profiles(); data.preview.approved = false;
   assert.throws(() => selectDeployment(data, 'preview'), /approved/);
   assert.throws(() => selectDeployment(profiles(), 'preview', 'nik-fixture-other'), /CLI project/);
+  assert.throws(() => selectDeployment({ preview: { ...profile('preview'), region: 'europe-west2' } }, 'preview'), /europe-west1/);
   assert.throws(() => selectDeployment(profiles(), 'production', projectId), /Type/);
   assert.throws(() => selectDeployment(profiles(), 'production', projectId, 'yes'), /Type/);
 });
@@ -52,6 +53,6 @@ test('cloud Functions reject missing artifact, wrong runtime project and local e
 });
 test('local Functions keep their explicit demo-only boundary independently of cloud profiles', () => {
   const env = { FUNCTIONS_EMULATOR: 'true', GCLOUD_PROJECT: 'demo-night-in-kampala', FIRESTORE_EMULATOR_HOST: '127.0.0.1:8080' };
-  assert.equal(resolveFunctionRuntime(env).region, 'us-central1');
+  assert.equal(resolveFunctionRuntime(env).region, 'europe-west1');
   assert.throws(() => resolveFunctionRuntime({ ...env, GCLOUD_PROJECT: 'night-in-kampala' }), /demo project/);
 });

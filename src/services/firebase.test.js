@@ -44,7 +44,8 @@ test('development clients use all local endpoints exactly once on concurrent cal
   expect(sdk.connectAuthEmulator).toHaveBeenCalledExactlyOnceWith(first.auth, 'http://127.0.0.1:9099', { disableWarnings: true });
   expect(sdk.connectFirestoreEmulator).toHaveBeenCalledExactlyOnceWith(first.db, '127.0.0.1', 8080);
   expect(sdk.connectStorageEmulator).toHaveBeenCalledExactlyOnceWith(first.storage, '127.0.0.1', 9199);
-  expect(sdk.connectFunctionsEmulator).toHaveBeenCalledTimes(1);
+  expect(sdk.getFunctions).toHaveBeenCalledExactlyOnceWith(first.app, 'europe-west1');
+  expect(sdk.connectFunctionsEmulator).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ region: 'europe-west1' }), '127.0.0.1', 5001);
 });
 
 test('cloud Functions refuses to silently choose a region', async () => {
@@ -61,9 +62,11 @@ test('cloud Functions receives only the explicitly configured region', async () 
   vi.stubEnv('VITE_USE_EMULATORS', 'false');
   vi.stubEnv('VITE_FIREBASE_TARGET', 'production');
   vi.stubEnv('VITE_FIREBASE_CONFIG', JSON.stringify(fixtureFirebaseConfig));
-  vi.stubEnv('VITE_FIREBASE_FUNCTIONS_REGION', 'europe-west1'); // Test input, not the deployment decision.
+  vi.stubEnv('VITE_FIREBASE_FUNCTIONS_REGION', 'europe-west1');
   const { getFirebaseFunctions } = await import('./firebase.js');
   expect((await getFirebaseFunctions()).region).toBe('europe-west1');
+  vi.stubEnv('VITE_FIREBASE_FUNCTIONS_REGION', 'europe-west2');
+  await expect(getFirebaseFunctions()).rejects.toThrow(/approved VITE_FIREBASE_FUNCTIONS_REGION/);
 });
 test('offline previews cannot initialise cloud data or Functions clients', async () => {
   vi.stubEnv('DEV', false);

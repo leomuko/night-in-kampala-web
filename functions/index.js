@@ -55,7 +55,7 @@ export const renderSharedLink = onRequest({ region: runtime.region, timeoutSecon
     response.status(503).set('Cache-Control', 'no-store').type('text').send('Page temporarily unavailable.');
   }
 });
-export const localHealth = runtime.emulator ? onRequest((_request, response) => {
+export const localHealth = runtime.emulator ? onRequest({ region: runtime.region }, (_request, response) => {
   response.set('Cache-Control', 'no-store').json({ local: true, project: 'demo-night-in-kampala' });
 }) : undefined;
 

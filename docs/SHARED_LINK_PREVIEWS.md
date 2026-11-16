@@ -36,7 +36,7 @@ The three existing homepage product links are seeded from `src/data/previewProdu
 
 ## Origin and environment boundaries
 
-Emulator startup requires `FUNCTIONS_EMULATOR=true`, `GCLOUD_PROJECT=demo-night-in-kampala` and `FIRESTORE_EMULATOR_HOST=127.0.0.1:8080`. Its trusted origin is `http://127.0.0.1:5500`; `us-central1` remains an emulator convention. Cloud startup now requires an approved generated deployment artifact and matching platform project identity. Incoming Host/forwarded-host headers never choose canonical URLs.
+Emulator startup requires `FUNCTIONS_EMULATOR=true`, `GCLOUD_PROJECT=demo-night-in-kampala` and `FIRESTORE_EMULATOR_HOST=127.0.0.1:8080`. Its trusted origin is `http://127.0.0.1:5500`; `europe-west1` is the shared application and emulator region. Cloud startup now requires an approved generated deployment artifact and matching platform project identity. Incoming Host/forwarded-host headers never choose canonical URLs.
 
 Before P1.14, finish P1.13 and confirm distinct cloud project roles, origins and remaining placements. The existing Firestore stays in `eur3`; `europe-west1` remains the Functions candidate subject to review. [Deployment preparation](DEPLOYMENT_PREPARATION.md) describes the implemented profile validator, matched build/region generation and predeploy hooks. P1.14 still needs real resources/access, release verification and a separately reviewed staging seed process; it is not just running a deploy command.
 

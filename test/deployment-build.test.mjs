@@ -35,11 +35,22 @@ test('predeploy builds matching browser/Function artifacts and imports the confi
     const runtime = JSON.parse(await readFile(path.join(root, 'functions/generated/deployment.json'), 'utf8'));
     assert.equal(runtime.projectId, 'night-in-kampala');
     assert.equal(runtime.origin, 'https://night-in-kampala--review-fixture.web.app');
-    const imported = spawnSync(process.execPath, ['--input-type=module', '-e', 'const m = await import("./functions/index.js"); console.log(JSON.stringify({region:m.renderSharedLink.__endpoint.region,localHealth:m.localHealth===undefined}));'], { cwd: root, env, encoding: 'utf8' });
-    assert.equal(imported.status, 0, imported.stderr);
-    const endpoint = JSON.parse(imported.stdout.trim());
-    assert.deepEqual(endpoint.region, ['europe-west1']);
-    assert.equal(endpoint.localHealth, true);
+    const regionProbe = 'const m = await import("./functions/index.js"); console.log(JSON.stringify(Object.fromEntries(Object.entries(m).filter(([, value]) => value?.__endpoint).map(([name, value]) => [name, value.__endpoint.region]))));';
+    const endpoints = childEnv => {
+      const imported = spawnSync(process.execPath, ['--input-type=module', '-e', regionProbe], { cwd: root, env: childEnv, encoding: 'utf8' });
+      assert.equal(imported.status, 0, imported.stderr);
+      return JSON.parse(imported.stdout.trim());
+    };
+    const cloud = endpoints(env);
+    const local = endpoints({ ...env, FUNCTIONS_EMULATOR: 'true', GCLOUD_PROJECT: 'demo-night-in-kampala', FIRESTORE_EMULATOR_HOST: '127.0.0.1:8080' });
+    assert.ok(Object.keys(cloud).length > 10);
+    assert.deepEqual(Object.keys(local).sort(), [...Object.keys(cloud), 'localHealth'].sort());
+    for (const region of [...Object.values(cloud), ...Object.values(local)]) assert.deepEqual(region, ['europe-west1']);
+    const emulatorManifest = JSON.parse(await readFile(path.join(root, 'firebase.json'), 'utf8'));
+    for (const { function: rewrite } of emulatorManifest.hosting.rewrites.filter(item => item.function)) {
+      assert.deepEqual(local[rewrite.functionId], [rewrite.region]);
+      assert.equal(rewrite.region, 'europe-west1');
+    }
     assert.match(await readFile(path.join(root, 'dist/robots.txt'), 'utf8'), /Disallow: \//);
     const profiles = { preview: profile('preview'), production: { ...profile('production'), indexPublicPages: true } };
     await writeFile(path.join(root, 'deployments.local.json'), JSON.stringify(profiles));

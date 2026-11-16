@@ -1,3 +1,4 @@
+import { FUNCTIONS_REGION } from './firebase-project.js';
 import { configuredOrigin } from './shared-links.js';
 
 export function validateCloudDeployment(config) {
@@ -5,14 +6,14 @@ export function validateCloudDeployment(config) {
   if (config.projectId !== 'night-in-kampala') throw new Error('Cloud releases must target night-in-kampala.');
   if (config.indexPublicPages !== undefined && typeof config.indexPublicPages !== 'boolean') throw new Error('indexPublicPages must be an explicit boolean.');
   if (config.indexPublicPages && config.target !== 'production') throw new Error('Preview cannot enable public indexing.');
-  if (typeof config.region !== 'string' || !/^[a-z]+-[a-z]+\d+$/.test(config.region)) throw new Error('An approved Functions region is required.');
+  if (config.region !== FUNCTIONS_REGION) throw new Error('The approved Functions region is europe-west1.');
   return { ...config, origin: configuredOrigin(config.origin), emulator: false };
 }
 
 export function resolveFunctionRuntime(env, deployment) {
   if (env.FUNCTIONS_EMULATOR === 'true') {
     if (env.GCLOUD_PROJECT !== 'demo-night-in-kampala' || env.FIRESTORE_EMULATOR_HOST !== '127.0.0.1:8080') throw new Error('Emulators require the demo project and loopback Firestore.');
-    return { emulator: true, projectId: 'demo-night-in-kampala', origin: 'http://127.0.0.1:5500', region: 'us-central1' };
+    return { emulator: true, projectId: 'demo-night-in-kampala', origin: 'http://127.0.0.1:5500', region: FUNCTIONS_REGION };
   }
   const config = validateCloudDeployment(deployment);
   if (env.FIRESTORE_EMULATOR_HOST || env.FIREBASE_AUTH_EMULATOR_HOST || env.FIREBASE_STORAGE_EMULATOR_HOST) throw new Error('Cloud deployment cannot use emulator endpoints.');

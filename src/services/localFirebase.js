@@ -1,3 +1,4 @@
+import { FUNCTIONS_REGION } from '../../functions/firebase-project.js';
 import { demoFirebaseConfig } from './firebaseConfig.js';
 import { getFirebaseApp } from './firebaseApp.js';
 
@@ -17,7 +18,7 @@ export async function connectLocalFirebase() {
         import('firebase/auth'), import('firebase/firestore'), import('firebase/storage'), import('firebase/functions'),
       ]);
       const app = getFirebaseApp();
-      const services = { app, auth: auth.getAuth(app), db: firestore.getFirestore(app), storage: storage.getStorage(app), functions: functions.getFunctions(app) };
+      const services = { app, auth: auth.getAuth(app), db: firestore.getFirestore(app), storage: storage.getStorage(app), functions: functions.getFunctions(app, FUNCTIONS_REGION) };
       auth.connectAuthEmulator(services.auth, 'http://127.0.0.1:9099', { disableWarnings: true });
       firestore.connectFirestoreEmulator(services.db, '127.0.0.1', 8080);
       storage.connectStorageEmulator(services.storage, '127.0.0.1', 9199);

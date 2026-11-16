@@ -17,7 +17,7 @@ if (process.env.GCLOUD_PROJECT !== project || process.env.FIREBASE_AUTH_EMULATOR
 }
 
 const authApi = 'http://127.0.0.1:9099/identitytoolkit.googleapis.com/v1/accounts';
-const endpoint = `http://127.0.0.1:5001/${project}/us-central1/staffAccess`;
+const endpoint = `http://127.0.0.1:5001/${project}/europe-west1/staffAccess`;
 async function post(url, data, token) {
   const headers = { 'Content-Type': 'application/json' };
   if (token) headers.Authorization = `Bearer ${token}`;
