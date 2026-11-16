@@ -284,3 +284,13 @@ Main product table on left two-thirds of content, readable rows with tiny origin
 On right one-third show an inline product edit panel headed "New piece" with clear form hierarchy: tall large garment-upload dropzone with image icon and "Upload garment photos"; form labels "Product name", "Price (UGX)", "Size", "Condition"; stock toggle selected "One of one"; collapsible sections "Measurements", "Rework details", "Care instructions"; bottom buttons "Save draft", black "Publish". Keep labels concise and believable, comfortable spacing, no illegible paragraph text.
 A slim neutral note strip beneath table "Keep event and in-person sales reflected in inventory." Keep UI coherent. Do not invent real orders, customer names, addresses, analytics claims or actual business data. No overlapping controls or fantastical charts.
 ```
+
+
+## Phase 3 order and queue boards
+
+These white-theme concepts await owner approval. The sample prices, order references, customer details and garment thumbnails are illustrative.
+
+- [12 · Mobile order form](12-order-form.png)
+- [13 · Mobile order received and submission retry](13-order-received.png)
+- [14 · Desktop staff order queue](14-staff-orders.png)
+- [Exact image prompts](PROMPTS-PHASE-3.md) and [Phase 3 tasks](../PHASE_3_TASKS.md)
