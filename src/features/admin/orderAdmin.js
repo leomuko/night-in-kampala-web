@@ -17,9 +17,11 @@ export function queueRows(snapshot) {
   return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
 }
 
-export async function readOrder(id) {
+export async function watchOrder(id, update, fail) {
   const { db, sdk } = await staffFirestore();
-  return (await sdk.getDocFromServer(sdk.doc(db, 'orders', id))).data() ?? null;
+  return sdk.onSnapshot(sdk.doc(db, 'orders', id), { includeMetadataChanges: true }, snapshot => {
+    if (!snapshot.metadata.fromCache) update(snapshot.data() ?? null);
+  }, fail);
 }
 
 export function isOverdue(order, hours = defaultOrderSettings.overdueHours, now = Date.now()) {

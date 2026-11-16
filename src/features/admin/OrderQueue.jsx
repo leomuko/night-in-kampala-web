@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { Button, ErrorState, Field, LoadingState, Select } from '../../components/UI.jsx';
 import { formatPrice } from '../../data/previewProducts.js';
 import { callStaff, staffError } from './catalogueAdmin.js';
-import { groupOrders, isOverdue, readOrder } from './orderAdmin.js';
+import { groupOrders, isOverdue, watchOrder } from './orderAdmin.js';
 
 const tabs = { new: 'New', contacted: 'Contacted', confirmed: 'Confirmed', completed: 'Completed' };
 const terminal = ['completed', 'declined', 'cancelled', 'spam'];
@@ -19,19 +19,28 @@ function OrderDetails({ id }) {
   const [reason, setReason] = useState('');
   useEffect(() => {
     let active = true;
-    readOrder(id).then(order => {
+    let stop;
+    let seen = false;
+    let previousState;
+    const failed = () => { if (active) setState({ failed: true }); };
+    watchOrder(id, order => {
       if (!active) return;
       setState({ order });
-      if (order?.state === 'spam') {
+      if (order?.state === 'spam' && previousState !== order.state) {
         callStaff('orderDesk', { id, action: 'phone-status' }).then(value => {
           if (active) setBlocked(value.blocked);
         }).catch(() => { if (active) setError('Could not check the phone block.'); });
       }
-      if (order?.unread) {
+      previousState = order?.state;
+      if (order?.unread && !seen) {
+        seen = true;
         callStaff('orderDesk', { id, action: 'seen' }).catch(() => { if (active) setError('Could not mark this order as read.'); });
       }
-    }).catch(() => { if (active) setState({ failed: true }); });
-    return () => { active = false; };
+    }, failed).then(unsubscribe => {
+      if (active) stop = unsubscribe;
+      else unsubscribe();
+    }).catch(failed);
+    return () => { active = false; stop?.(); };
   }, [id, retry]);
 
   async function action(name, fields = {}) {
@@ -41,7 +50,6 @@ function OrderDetails({ id }) {
       const result = await callStaff('orderDesk', { id, action: name, ...fields });
       if (name === 'unblock') setBlocked(false);
       setNotice(result.competing ? 'Review and follow up on competing requests for this piece.' : 'Order updated.');
-      setRetry(value => value + 1);
     } catch (failure) { setError(staffError(failure)); }
     finally { setBusy(false); }
   }

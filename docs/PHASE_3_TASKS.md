@@ -1,6 +1,6 @@
 # Phase 3 tasks
 
-**Approved.** The owner approved boards 12–14 and tasks P3.01–P3.12 with the amendments below. A1–A4 are implemented locally. P1.13–P1.15 remain open. Use local emulators throughout development, keep the secret scan in `npm run check`, and commit each task with its tests. Report passing checks and any unverified behaviour after each task. Staging, deployment and push require their own authorization.
+**Approved.** The owner approved boards 12–14 and tasks P3.01–P3.12 with the amendments below. P3.01–P3.12 passed locally. A1–A4 are implemented locally. P1.13–P1.15 remain open. Use local emulators throughout development, keep the secret scan in `npm run check`, and commit each task with its tests. Report passing checks and any unverified behaviour after each task. Staging, deployment and push require their own authorization.
 
 The launch flow follows [manual-order requirements](MANUAL_ORDER_REQUIREMENTS.md), [the sales-first plan](SALES_FIRST_LAUNCH.md), [design entry checks](PRE_PHASE_2_3_DESIGN_CHECKS.md) and [the catalogue contract](CATALOGUE_DATA.md). The owner has selected a manual Sold action. Payment, fulfilment and availability are separate.
 
@@ -51,9 +51,17 @@ The full local check passed 104 tests. A separate Chrome smoke test used the Vit
 
 Document order states `new / contacted / confirmed / declined / cancelled / spam / completed`; payment states `unpaid / paid`; and fulfilment states `unfulfilled / ready_for_collection / dispatched / delivered / returned`. The open-request limit counts new, contacted and confirmed. Make terminal transitions and per-item outcomes explicit, including which staff actions update request accounting or release a reservation. For multi-piece operations, gather all reads and stock/size changes before transaction writes. Test shared size counts when several items contribute the same label. Record refunds or adjustments separately from the stock record.
 
+## P3.12 local gate
+
+- `npm run check` passed lint, the secret scan, the build and 121 tests. This includes 65 app tests, 15 metadata tests, six deployment-config tests, ten rules tests, 24 emulator HTTP tests and one secret-scan test.
+- Fresh Chrome profiles used the Vite app and demo emulators. A guest submitted at 390 px and at 1440 px using synthetic catalogue records. A separate owner session received each order without refreshing. Opening the first order cleared unread independently of Mark contacted. Staff confirmed stock and recorded cash, then saw the Paid · still Reserved flag. Staff recorded collection and delivery, explicitly marked the piece Sold and completed the order.
+- The desktop scenario confirmed and cancelled the second order. The guest could request the released piece again and saw the latest safe receipt after returning home. The business number was blank and the WhatsApp link stayed hidden. A component test verifies a configured handoff without opening an actual chat.
+- Emulator HTTP and rules tests covered retries, source and phone limits, competing claims, multi-item release, spam/block/unblock, in-person sale idempotency, and private access. Storefront availability, safe size projections and the existing withdrawal/media origin rules remained covered.
+- The details panel now follows the saved order live, so a remote state change replaces stale action buttons. The queue uses server metadata to distinguish an empty connected queue from an initial empty cache.
+
 ## Owner inputs and next gate
 
 - Review the provisional collection, delivery and manual-payment wording in Settings before launch.
 - Save the business WhatsApp number in the owner’s Settings screen when ready. Dashboard alerts and the saved reference work without it. Confirm how staff will check the queue for orders without a WhatsApp message and any timed hold policy.
-- Supply a separate staging project and approve the Functions region. Confirm closed live bucket rules and review the old browser key's restrictions in the console. The live index, Storage rule, image delivery and WhatsApp phone checks remain staging work. P1.13–P1.15 remain open.
+- Supply a separate staging project and approve the Functions region. Confirm closed live bucket rules and review the old browser key's restrictions in the console. Real App Check, trusted connection source, identity secret configuration, live indexes and rules, image delivery and physical-device WhatsApp checks remain staging work. P1.13–P1.15 remain open.
 - Supply real product photographs, measurements, conditions and prices, and a real brand share image for launch.

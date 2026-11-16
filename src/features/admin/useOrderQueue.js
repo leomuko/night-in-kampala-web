@@ -16,7 +16,7 @@ export default function useOrderQueue(session) {
     const stops = [];
     staffFirestore().then(({ db, sdk }) => {
       if (!active) return;
-      stops.push(sdk.onSnapshot(queueQuery(db, sdk), snapshot => {
+      stops.push(sdk.onSnapshot(queueQuery(db, sdk), { includeMetadataChanges: true }, snapshot => {
         if (!active) return;
         setLive({ rows: queueRows(snapshot), loading: snapshot.metadata.fromCache && snapshot.empty,
           cursor: snapshot.size === queuePageSize ? snapshot.docs.at(-1) : null, session });

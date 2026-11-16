@@ -20,7 +20,7 @@ The owner's exact cash arrangement remains to be supplied: collection, approved 
 
 Owner-confirmed policy: **reserve at staff confirmation**. New requests set the safe public Requested label without blocking further valid requests. Staff see competing requests grouped by piece, oldest first. A server transaction permits at most one confirmed allocation and changes it to Reserved. Sold remains a separate trusted transition. Decline/cancel/spam returns it to Available only when no active requests or allocation remain.
 
-Staff can cancel or release through an audited operation. Authorized staff explicitly mark pieces Sold. Recording payment leaves the piece Reserved. Pending requests past an owner-configured threshold are flagged overdue and remain in the queue. The proposed 24-hour default and any timed confirmed hold await owner review.
+Staff can cancel or release through an audited operation. Authorized staff explicitly mark pieces Sold. Recording payment leaves the piece Reserved. Pending requests past an owner-configured threshold are flagged overdue and remain in the queue. The owner approved an editable 24-hour default. Any timed confirmed hold awaits owner review.
 
 ## State and access requirements
 

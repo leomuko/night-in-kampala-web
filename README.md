@@ -22,7 +22,7 @@ A React JavaScript storefront and Firebase backend for reworked clothing, brand 
 
 - [Visual concepts](docs/design-concepts/README.md): round-1 mockups and the [round-2 image prompts](docs/design-concepts/PROMPTS-ROUND-2.md).
 
-Phase 2 passed locally through P2.14. Staff can edit and publish catalogue pieces, drops, events, lookbooks and site pages. Shoppers can browse published content, filter the shop and view product photos and measurements. Ordering remains a Phase 3 task. P1.11 is deferred, and P1.13–P1.15 still require staging and owner inputs. See the [Phase 2 gate and remaining inputs](docs/PHASE_2_TASKS.md#p214-local-gate).
+Phases 2 and 3 passed locally. Staff can publish the catalogue and manage requests through a live queue, from contact and reservation to manual payment, explicit Sold and fulfilment. Shoppers can request eligible pieces without an account. P1.11 is deferred, and P1.13–P1.15 still require staging and owner inputs. See the [Phase 3 gate and launch inputs](docs/PHASE_3_TASKS.md#p312-local-gate).
 
 ## Run locally
 

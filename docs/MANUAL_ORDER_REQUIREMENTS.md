@@ -1,6 +1,6 @@
 # Manual-order requirements before Phase 3
 
-Owner requirements recorded 12 November 2026 following the code/plan review. These are launch acceptance criteria, not implemented features. Build them with the real order workflow after catalogue/admin foundations; do not add a fake order-success screen to the current placeholders.
+Owner requirements recorded 12 November 2026 following the code/plan review. These requirements were verified locally in the Phase 3 gate. Build them with the real order workflow after catalogue/admin foundations; do not add a fake order-success screen to the current placeholders.
 
 ## 1. Saved order, WhatsApp handoff and customer record
 
@@ -27,7 +27,7 @@ Save the order, unread queue state, private active-request accounting and public
 
 Group competing requests by piece, oldest first. Confirming one uses a transaction that allocates it at most once and prompts staff to decline/contact the others. For multi-item orders, handle the affected piece explicitly; do not silently cancel unrelated items or change a customer's agreed total. The "in order received" promise needs staff handling of earlier requests before later confirmation; any exception must be recorded and communicated.
 
-Show an overdue flag when a pending request exceeds an owner-configured threshold. **Do not auto-cancel it.** The proposed 24-hour overdue default awaits owner confirmation. A timed confirmed hold requires an owner decision. Recording payment leaves the piece Reserved until authorized staff explicitly use Mark as sold.
+Show an overdue flag when a pending request exceeds an owner-configured threshold. **Do not auto-cancel it.** The approved overdue default is 24 hours and is editable in owner Settings. A timed confirmed hold requires an owner decision. Recording payment leaves the piece Reserved until authorized staff explicitly use Mark as sold.
 
 Acceptance: first request changes Available to Requested atomically; subsequent valid requests remain allowed; concurrent staff confirmations yield at most one allocation; decline/cancel/spam recomputes the correct state; a Reserved/Sold piece cannot be reset by clearing an unrelated request; overdue only flags work for staff.
 
@@ -47,4 +47,4 @@ Acceptance: simultaneous calls cannot exceed either limit or create duplicate ph
 
 ## Implementation entry checks
 
-Update the order-received/mobile product/admin-queue designs for the above states before Phase 3. The Phase 3 task breakdown must include persistence, state/counter transactions, limits, App Check, staff spam controls and their behaviour tests. Business WhatsApp number, staff queue-review routine, confirmation of the overdue threshold, any timed confirmed-hold policy and cash/collection/delivery terms remain concrete inputs to resolve before real ordering.
+Update the order-received/mobile product/admin-queue designs for the above states before Phase 3. The Phase 3 task breakdown must include persistence, state/counter transactions, limits, App Check, staff spam controls and their behaviour tests. Business WhatsApp number, staff queue-review routine, any timed confirmed-hold policy and cash/collection/delivery terms remain concrete inputs to resolve before real ordering.
