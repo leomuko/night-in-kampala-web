@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
+import { getAuth } from 'firebase-admin/auth';
 import { test } from 'node:test';
 import { initializeApp, deleteApp } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
@@ -26,6 +27,7 @@ async function orderFixture(run) {
   const app = initializeApp({ projectId: project }, `orders-${randomUUID()}`);
   const db = getFirestore(app);
   const fixtures = [];
+  const staffUsers = [];
   const identifiers = new Set();
   const phoneKeys = new Set();
   const prefix = `order-test-${randomUUID().slice(0, 8)}`;
@@ -57,9 +59,23 @@ async function orderFixture(run) {
     phoneKeys.add(privateOrderKey(project, 'phone', '+256' + phone.replaceAll(' ', '').slice(1)));
     return data;
   }
+  async function staff(role = 'staff') {
+    if (process.env.FIREBASE_AUTH_EMULATOR_HOST !== '127.0.0.1:9099') throw new Error('Auth emulator required.');
+    const email = `test-${randomUUID()}@example.test`;
+    const password = randomUUID();
+    const auth = getAuth(app);
+    const account = await auth.createUser({ email, password });
+    staffUsers.push(account.uid);
+    if (role) await auth.setCustomUserClaims(account.uid, { [role]: true });
+    const response = await fetch('http://127.0.0.1:9099/identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=demo-key', {
+      method: 'POST', body: JSON.stringify({ email, password, returnSecureToken: true }), headers: { 'Content-Type': 'application/json' },
+    });
+    assert.equal(response.status, 200);
+    return (await response.json()).idToken;
+  }
   try {
     await sourceRef.delete();
-    await run({ db, piece, payload, identity, settingsRef });
+    await run({ db, piece, payload, identity, settingsRef, staff });
   } finally {
     await Promise.all([
       ...fixtures.map(doc => doc.delete()),
@@ -67,6 +83,11 @@ async function orderFixture(run) {
       ...[...phoneKeys].flatMap(id => [db.doc(`orderPhones/${id}`).delete(), db.doc(`orderPhoneBlocks/${id}`).delete()]),
       previousSource.exists ? sourceRef.set(previousSource.data()) : sourceRef.delete(),
     ]);
+    for (const uid of staffUsers) {
+      const audit = await db.collection('auditLogs').where('actorUid', '==', uid).get();
+      await Promise.all(audit.docs.map(row => row.ref.delete()));
+      await getAuth(app).deleteUser(uid);
+    }
     await deleteApp(app);
   }
 }
@@ -107,5 +128,27 @@ test('order creation validates form proof, stock, trusted prices and concurrent 
     const overSource = await submit(payload([items[4]], phones[3]));
     assert.match(overSource.body.error.message, /connection/);
     assert.equal((await db.doc(`products/${items[4].slug}`).get()).data().availability, 'available');
+  });
+});
+
+test('staff can mark orders seen and contacted independently, only once per action', async () => {
+  await orderFixture(async ({ db, piece, payload, identity, staff }) => {
+    const first = payload([await piece(0)]);
+    assert.equal((await callable('orderCreate', first)).status, 200);
+    const id = identity(first);
+    const queue = db.doc(`orderQueue/${id}`);
+    const guest = await staff(null);
+    const worker = await staff();
+    assert.equal((await callable('orderDesk', { id, action: 'seen' })).status, 401);
+    assert.equal((await callable('orderDesk', { id, action: 'seen' }, guest)).status, 403);
+    assert.equal((await callable('orderDesk', { id, action: 'seen' }, worker)).status, 200);
+    const seen = (await queue.get()).data();
+    assert.deepEqual([seen.unread, seen.state, seen.contact], [false, 'new', undefined]);
+    for (let attempt = 0; attempt < 2; attempt++) {
+      assert.equal((await callable('orderDesk', { id, action: 'contact' }, worker)).status, 200);
+    }
+    assert.equal((await queue.get()).data().state, 'contacted');
+    assert.equal((await db.doc(`orders/${id}`).get()).data().unread, false);
+    assert.equal((await db.collection('auditLogs').where('orderId', '==', id).get()).size, 1);
   });
 });

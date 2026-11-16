@@ -2,15 +2,18 @@ import { useState } from 'react';
 import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { Link } from 'react-router-dom';
 import { Button, ErrorState, Field, LoadingState } from '../../components/UI.jsx';
+import OrderQueue from './OrderQueue.jsx';
+import useOrderQueue from './useOrderQueue.js';
 import OrderSettings from './OrderSettings.jsx';
 import ContentEditor from './ContentEditor.jsx';
 import StaffCatalogue from './StaffCatalogue.jsx';
 import { useStaffSession } from './useStaffSession.js';
 
-const staffSections = { products: 'Products', collections: 'Drops', events: 'Events', lookbooks: 'Lookbooks', pages: 'Site pages' };
+const staffSections = { products: 'Products', orders: 'Orders', collections: 'Drops', events: 'Events', lookbooks: 'Lookbooks', pages: 'Site pages' };
 
 export default function AdminShell() {
   const { status, auth, user, role } = useStaffSession();
+  const queue = useOrderQueue(status === 'ready' && role ? user.uid : null);
   const [section, setSection] = useState('products');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -34,7 +37,7 @@ export default function AdminShell() {
     <aside className="admin-sidebar">
       <Link to="/" className="wordmark">NIGHT IN KAMPALA</Link>
       <nav aria-label="Staff sections">
-        {Object.entries(role === 'owner' ? { ...staffSections, settings: 'Settings' } : staffSections).map(([id, label]) => <Button key={id} variant="secondary" aria-pressed={section === id} onClick={() => setSection(id)}>{label}</Button>)}
+        {Object.entries(role === 'owner' ? { ...staffSections, settings: 'Settings' } : staffSections).map(([id, label]) => <Button key={id} variant="secondary" aria-pressed={section === id} onClick={() => setSection(id)}>{label}{id === 'orders' && queue.unread > 0 && <span className="admin-unread" aria-live="polite"> {queue.unread} unread</span>}</Button>)}
       </nav>
     </aside>
     <div className="admin-dashboard-main">
@@ -43,7 +46,8 @@ export default function AdminShell() {
         <div className="staff-actions"><Link className="button button--secondary" to="/">View store</Link>{actions}</div>
       </div>
       {error && <ErrorState>{error}</ErrorState>}
-      {section === 'settings' && role === 'owner' ? <OrderSettings key={user.uid} />
+      {section === 'orders' ? <OrderQueue queue={queue} />
+        : section === 'settings' && role === 'owner' ? <OrderSettings key={user.uid} />
         : section === 'products' || section === 'settings' ? <StaffCatalogue key={user.uid} user={user} role={role} />
         : <ContentEditor key={`${user.uid}-${section}`} collection={section} role={role} heading={`${staffSections[section]} drafts`} />}
     </div>

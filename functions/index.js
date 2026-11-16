@@ -14,6 +14,7 @@ import { catalogueMediaHandler } from './serve-catalogue-media.js';
 import { saveEditorialDraft, publishEditorial } from './editorial.js';
 import { approvePublication } from './publication-approval.js';
 import { orderSource, submitOrder } from './order-submit.js';
+import { updateOrderDesk } from './order-desk.js';
 import { saveOrderSettings } from './order-settings.js';
 import { staffCallable } from './staff-access.js';
 import { resolveFunctionRuntime } from './runtime-config.js';
@@ -78,3 +79,4 @@ export const orderCreate = onCall({
   const key = runtime.emulator ? runtime.projectId : orderIdentityKey.value();
   return submitOrder(db, request.data, source, key);
 });
+export const orderDesk = staffCallable(runtime, (data, actor) => updateOrderDesk(db, data, actor));
