@@ -22,6 +22,7 @@
     "test:hosting": "node scripts/emulators.mjs metadata",
     "assets": "node scripts/prepare-assets.mjs",
     "emulators": "node scripts/emulators.mjs start",
+    "emulators:staff": "node scripts/provision-demo-staff.mjs",
     "emulators:seed": "node scripts/seed-emulators.mjs",
     "test:rules": "node scripts/emulators.mjs test"
   },

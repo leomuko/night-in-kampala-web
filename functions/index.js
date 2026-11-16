@@ -4,6 +4,7 @@ import { getFirestore } from 'firebase-admin/firestore';
 import { readFile } from 'node:fs/promises';
 import { readFileSync } from 'node:fs';
 import { createSharedLinkHandler } from './shared-links.js';
+import { staffCallable } from './staff-access.js';
 import { resolveFunctionRuntime } from './runtime-config.js';
 
 // Cloud startup requires a prepared, approved artifact and a matching project.
@@ -35,3 +36,5 @@ export const renderSharedLink = onRequest({ region: runtime.region, timeoutSecon
 export const localHealth = runtime.emulator ? onRequest((_request, response) => {
   response.set('Cache-Control', 'no-store').json({ local: true, project: 'demo-night-in-kampala' });
 }) : undefined;
+
+export const staffAccess = staffCallable(runtime, (_data, actor) => ({ role: actor.role }));

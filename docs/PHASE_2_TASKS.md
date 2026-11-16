@@ -7,7 +7,7 @@ P1.12 passed local shell QA. P1.11 is deferred and P1.13–P1.15 await owner inp
 - Use the approved white theme, fixed navigation and [design tokens](DESIGN_FOUNDATIONS.md). Every generated photograph stays labelled and every illustrative piece stays unpurchasable.
 - Keep tasks and tests in focused commits. Run `npm run check` before reporting a task complete. The separate staging project, service locations and real-phone preview remain owner gates. Ordering and the order queue belong to Phase 3.
 
-P2.01 passed locally. The full check passed with 83 tests, including nine catalogue projection and access tests. Demo reseeding also preserved an edited category label. The next task is P2.02 staff sign-in. [Catalogue data and permissions](CATALOGUE_DATA.md).
+P2.01 passed locally. The full check passed with 83 tests, including nine catalogue projection and access tests. Demo reseeding also preserved an edited category label. P2.02 passed locally with password sign-in, refreshed claim checks and route gating. To provision an identity while the emulators are running, use `npm run emulators:staff -- demo-night-in-kampala staff` (or `owner`). Use the returned local credentials at `/admin` on the Vite dev server. The next task is P2.03. [Catalogue data and permissions](CATALOGUE_DATA.md).
 
 ## Ordered build tasks
 

@@ -31,15 +31,15 @@ if (mode !== 'start') {
   let running = false;
   try {
     const services = await (await fetch('http://127.0.0.1:4400/emulators', { signal: AbortSignal.timeout(1000) })).json();
-    const required = mode === 'metadata' ? ['firestore', 'functions', 'hosting'] : ['firestore', 'storage'];
+    const required = mode === 'metadata' ? ['auth', 'firestore', 'storage', 'functions', 'hosting'] : ['firestore', 'storage'];
     running = required.every(service => services[service]);
   } catch { /* Start an isolated emulator run if no hub is serving. */ }
-  const file = mode === 'metadata' ? 'test/shared-links-http.test.mjs' : 'test/rules.test.mjs';
-  const only = mode === 'metadata' ? 'firestore,functions,hosting' : 'firestore,storage';
+  const files = mode === 'metadata' ? ['test/shared-links-http.test.mjs', 'test/staff-http.test.mjs'] : ['test/rules.test.mjs'];
+  const only = mode === 'metadata' ? 'auth,firestore,storage,functions,hosting' : 'firestore,storage';
   if (running && mode === 'test') {
     throw new Error('Stop the running emulators before rule tests. Storage cross-service rules need the isolated rules project.');
   }
-  args = running ? ['--test', file] : [path.join(root, 'node_modules/firebase-tools/lib/bin/firebase.js'), 'emulators:exec', '--project', projectId, '--only', only, `node --test ${file}`];
+  args = running ? ['--test', ...files] : [path.join(root, 'node_modules/firebase-tools/lib/bin/firebase.js'), 'emulators:exec', '--project', projectId, '--only', only, `node --test ${files.join(' ')}`];
 } else {
   args = [path.join(root, 'node_modules/firebase-tools/lib/bin/firebase.js'), 'emulators:start', '--project', projectId, '--only', 'auth,firestore,storage,functions,hosting'];
 }

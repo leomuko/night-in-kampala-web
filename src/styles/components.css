@@ -64,3 +64,5 @@
   .footer-grid { grid-template-columns: 2fr 1fr 1fr 1fr; }
   .footer-grid > div:first-child { grid-column: auto; }
 }
+
+.staff-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); }
