@@ -5,7 +5,7 @@ P1.12 passed local shell QA. P1.11 is deferred and P1.13–P1.15 await owner inp
 - [D2.01 shop grid](design-concepts/10-shop-grid.png) and [D2.02 mobile product detail](design-concepts/11-product-mobile.png) are approved layout references. The acceptance checks below govern the amended details.
 - [Board 06](design-concepts/06-product-detail.png) supplies the desktop product layout. Use read-only size and show only the current availability state on both layouts.
 - Use the approved white theme, fixed navigation and [design tokens](DESIGN_FOUNDATIONS.md). Every generated photograph stays labelled and every illustrative piece stays unpurchasable.
-- Keep tasks and tests in focused commits. Run `npm run check` before reporting a task complete. The separate staging project, service locations and real-phone preview remain owner gates. Ordering and the order queue belong to Phase 3.
+- Keep tasks and tests in focused commits. Run `npm run check` before reporting a task complete. The first hosted preview and real-phone share check remain owner gates. Ordering and the order queue belong to Phase 3.
 
 **P2.01–P2.14 passed locally.** Use `npm run emulators:staff -- demo-night-in-kampala staff` (or `owner`) with the emulators running, then open `/admin` on the Vite dev server. [Catalogue data and permissions](CATALOGUE_DATA.md).
 
@@ -40,5 +40,5 @@ P1.12 passed local shell QA. P1.11 is deferred and P1.13–P1.15 await owner inp
 
 - All fixtures and media used in the gate are illustrative. Supply real product photos, measurements, condition, prices, approved site and event content and a real brand share image. The shop search entry remains a placeholder. Phase 2 delivers category, size, availability and sort filters.
 - Device coverage is desktop Chrome and Chrome phone emulation. HEIC decode and fallback are covered by automated tests; a physical iPhone upload and real-phone WhatsApp preview remain unverified.
-- P1.13–P1.15 are still open. Supply a separate staging project, confirm the connected project's role and approve the Functions region. The existing US-EAST1 bucket was retained with owner approval. Confirm its live client rules deny all reads and writes until a reviewed deployment. P1.14 includes real composite-index, Storage-to-Firestore rules, cache and matched-artifact verification. See [the recorded locations](FIREBASE_REGION_DECISION.md) and [Phase 1 tasks](PHASE_1_TASKS.md).
+- P1.13 records the approved shared project and service locations. P1.14–P1.15 still require the owner’s console checklist, preview authorization and a WhatsApp share check on a phone. P1.14 includes deployed composite indexes, Storage-to-Firestore rules, caching and artifact verification. [Recorded locations](FIREBASE_REGION_DECISION.md), [Phase 1 tasks](PHASE_1_TASKS.md).
 - Phase 3 needs the business WhatsApp number, overdue threshold and when cash-on-delivery stock becomes Sold. The work stops at this gate. All building and verification used local emulators. No cloud changes, deployment, push or Phase 3 work occurred.

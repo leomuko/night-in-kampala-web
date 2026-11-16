@@ -17,7 +17,7 @@ The owner registered a web app for project **night-in-kampala**. The pinned `fir
 | Default local Vite development | `demo-night-in-kampala` on loopback; no real project data |
 | Development with `VITE_USE_EMULATORS=false` only | Offline preview; this flag alone no longer opts into the real project |
 | Default `npm run build` | Optimised offline preview, no Firebase app or cloud clients |
-| Explicit staging/production build | Requires `VITE_FIREBASE_TARGET` and complete `VITE_FIREBASE_CONFIG`, with no registered-project fallback; staging rejects `night-in-kampala` and mismatched Auth/Storage settings |
+| Explicit preview/production build | Approved deployment profiles supply `VITE_FIREBASE_TARGET` and complete `VITE_FIREBASE_CONFIG` for the shared `night-in-kampala` project |
 | Production build with emulator flag true | Configuration error; emulator builds cannot accidentally become a deployed storefront |
 | Emulator mode on a non-loopback hostname | Rejected |
 
@@ -28,7 +28,7 @@ cp .env.example .env.development.local
 npm run dev
 ```
 
-Leave `VITE_USE_EMULATORS` unset for default local development. To deliberately use cloud locally, set it false and supply the explicit target/full public config. Target-specific cloud build overrides belong in `.env.staging.local` / `.env.production.local`; approved release preparation instead supplies matching browser/server configuration from `deployments.local.json`. See [DEPLOYMENT_PREPARATION.md](DEPLOYMENT_PREPARATION.md). No cloud profiles have been filled or deployed. The seed scripts remain demo-only regardless of frontend flags.
+Leave `VITE_USE_EMULATORS` unset for default local development. Release preparation supplies matching browser and server configuration from ignored `deployments.local.json`. The prepared profiles use `preview` for the Hosting channel and `production` for live. The seed scripts remain demo-only. [Deployment preparation](DEPLOYMENT_PREPARATION.md).
 
 ## Optional Analytics
 
@@ -38,8 +38,8 @@ Enabling it requires all of: a production browser context, cloud app mode, `VITE
 
 ## Verified and not yet verified
 
-The initial SDK setup passed 32 app tests. The current check command covers the secret scan, lint, builds, browser SDK tests and deployment boundary tests. Real Firebase core tests verify identity/reuse; mocks verify data/Analytics boundaries without live data calls. Isolated synthetic cloud-build tests verify matching artifacts without deploying. The five emulator rule tests still pass; public access rules have not been loosened.
+The initial SDK setup passed 32 app tests. The current check command covers the secret scan, lint, builds, browser SDK tests and deployment boundary tests. Real Firebase core tests verify identity/reuse; mocks verify data/Analytics boundaries without live data calls. Isolated synthetic cloud-build tests verify matching artifacts without deploying. The full local suite includes ten emulator rule tests.
 
-After the owner confirmed database creation, read-only CLI inspection verified the existing `(default)` Firestore database in **eur3**, Native mode, Standard edition. It is retained as-is. The web config itself does not reveal sign-in providers, billing, deployed rules or Storage placement; those settings have not been inspected or changed. [FIREBASE_REGION_DECISION.md](FIREBASE_REGION_DECISION.md) now records the confirmed Firestore location and the remaining Functions/Storage work. No cloud resources were created by this agent, and no document contents, Analytics collection, deployment or Git push were involved.
+After the owner confirmed database creation, read-only CLI inspection verified the existing `(default)` Firestore database in **eur3**, Native mode, Standard edition. It is retained as-is. The web config itself does not reveal sign-in providers, billing, deployed rules or Storage placement; those settings have not been inspected or changed. [FIREBASE_REGION_DECISION.md](FIREBASE_REGION_DECISION.md) now records the confirmed Firestore and Storage locations and the approved Functions region. No cloud resources were created by this agent, and no document contents, Analytics collection, deployment or Git push were involved.
 
-Subsequent P1.09–P1.10 work is now implemented locally: see [shared-link previews](SHARED_LINK_PREVIEWS.md) for raw-HTML rendering, Hosting rewrites, the cache contract and additional tests. The owner has deferred P1.11 email selection and gateway integration; [P1.12 shell QA](qa/p1-12/README.md) passed locally. Staging and placement await owner inputs. [Sales-first launch](SALES_FIRST_LAUNCH.md) prioritises on-site orders, dashboard alerts and staff follow-up for cash/manual payment. SDK installation and local previews do not close the staging/WhatsApp acceptance gates or implement that order workflow.
+Subsequent P1.09–P1.10 work is now implemented locally: see [shared-link previews](SHARED_LINK_PREVIEWS.md) for raw-HTML rendering, Hosting rewrites, the cache contract and additional tests. The owner has deferred P1.11 email selection and gateway integration; [P1.12 shell QA](qa/p1-12/README.md) passed locally. The [Phase 3 gate](PHASE_3_TASKS.md#p312-local-gate) exercised on-site orders, dashboard alerts and staff follow-up locally. The hosted preview still requires owner authorization, and the WhatsApp preview needs a check on a phone.
