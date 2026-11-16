@@ -46,7 +46,6 @@ export default function ProductPage() {
       </section>}
       <div className="product-ordering">
         <Button disabled>Add to bag</Button>
-        <Button disabled variant="secondary">Order on WhatsApp</Button>
         <p className="helper">{illustrative ? 'Illustrative piece. Ordering is unavailable.' : 'Ordering will open with the first collection.'}</p>
       </div>
       <div className="product-accordions">

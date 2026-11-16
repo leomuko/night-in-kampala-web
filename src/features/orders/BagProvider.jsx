@@ -18,6 +18,7 @@ export default function BagProvider({ children }) {
 
   return <BagContext.Provider value={{
     items, put,
+    removeSubmitted: submitted => setItems(previous => previous.filter(item => !submitted.includes(item))),
     remove: slug => setItems(previous => previous.filter(item => item.slug !== slug)),
     acknowledge: review => setItems(previous => previous.map(item => {
       const row = review.find(candidate => candidate.entry === item);

@@ -22,7 +22,7 @@ test('requested detail exposes one state, measurements and operable gallery cont
   expect(screen.getByText(/Another request is welcome/)).toBeInTheDocument();
   expect(screen.getByText('81')).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Add to bag' })).toBeDisabled();
-  expect(screen.getByRole('button', { name: 'Order on WhatsApp' })).toBeDisabled();
+  expect(screen.queryByRole('button', { name: 'Order on WhatsApp' })).toBeNull();
   const track = screen.getByAltText('Front view').parentElement;
   const scrollTo = vi.fn();
   Object.defineProperties(track, { clientWidth: { value: 300 }, scrollTo: { value: scrollTo } });

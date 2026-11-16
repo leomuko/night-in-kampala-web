@@ -143,3 +143,6 @@
 .order-form { align-items: stretch; }
 .order-method { border: 0; padding: 0; margin: 0; gap: var(--space-2); }
 .order-method legend { margin-bottom: var(--space-2); font-weight: var(--weight-semibold); }
+.order-form-frame, .order-submit-error { width: 100%; }
+.order-submit-error { border: var(--border-width) solid var(--color-hairline); padding: var(--space-4); }
+.recent-order { min-height: 0; }

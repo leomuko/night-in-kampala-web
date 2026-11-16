@@ -8,11 +8,13 @@ import { createOrder } from './orderClient.js';
 import { countries } from './countries.js';
 import { canContinue, subtotal } from './bagData.js';
 import { useBag } from './bagContext.js';
+import OrderReceipt from './OrderReceipt.jsx';
+import { saveRecentOrder } from './receiptData.js';
 import OrderItems from './OrderItems.jsx';
 import useBagReview from './useBagReview.js';
 
 export default function CheckoutPage({ onOrder = createOrder }) {
-  const { items } = useBag();
+  const { items, removeSubmitted } = useBag();
   const { rows, failed, loading, retry } = useBagReview(items);
   const [country, setCountry] = useState('UG');
   const [method, setMethod] = useState('delivery');
@@ -21,29 +23,39 @@ export default function CheckoutPage({ onOrder = createOrder }) {
   const [error, setError] = useState('');
   const [receipt, setReceipt] = useState(null);
   const submission = useRef(null);
+  const lastRequest = useRef(null);
   useEffect(() => {
     let current = true;
     readOrderPolicy().then(result => { if (current && result?.copy) setPolicy(result.copy); }).catch(() => {});
     return () => { current = false; };
   }, []);
 
-  async function submit(event) {
-    event.preventDefault();
-    if (!onOrder || busy || !canContinue(rows ?? [])) return;
-    const details = Object.fromEntries(new FormData(event.currentTarget));
+  async function send(request) {
+    if (busy) return;
+    lastRequest.current = request;
     setBusy(true);
     setError('');
     try {
-      submission.current ??= crypto.randomUUID();
-      setReceipt(await onOrder({ details, items, submissionId: submission.current }));
-    }
-    catch (failure) { setError(failure.message || 'We couldn’t confirm your submission. Try again.'); }
-    finally { setBusy(false); }
+      const result = await onOrder(request);
+      setReceipt(result);
+      saveRecentOrder(result);
+      removeSubmitted(request.items);
+    } catch (failure) {
+      const details = ['functions/invalid-argument', 'functions/failed-precondition', 'functions/resource-exhausted', 'functions/already-exists'].includes(failure?.code)
+        ? failure.message : 'Your details are still here. Try again.';
+      setError(details);
+    } finally { setBusy(false); }
   }
 
-  if (receipt) return <section className="container page-section order-page stack">
-    <h1>Order request saved</h1><p>Order reference {receipt.reference}</p>
-  </section>;
+  function submit(event) {
+    event.preventDefault();
+    if (!canContinue(rows ?? [])) return;
+    submission.current ??= crypto.randomUUID();
+    const details = Object.fromEntries(new FormData(event.currentTarget));
+    void send({ details, items, submissionId: submission.current });
+  }
+
+  if (receipt) return <OrderReceipt receipt={receipt} />;
 
   return <section className="container page-section order-page stack">
     <h1>Place an order</h1>
@@ -52,7 +64,13 @@ export default function CheckoutPage({ onOrder = createOrder }) {
     {items.length > 0 && loading && <LoadingState>Checking your pieces…</LoadingState>}
     {failed && <ErrorState onRetry={retry}>Could not check the bag. Your selections are still here.</ErrorState>}
     {!!rows?.length && !canContinue(rows) && <ErrorState>Review the changes in your bag before placing an order.</ErrorState>}
-    {!!items.length && <form className="order-form stack" onSubmit={submit}>
+    {error && <section className="order-submit-error stack" aria-labelledby="order-error">
+      <h2 id="order-error">We couldn’t confirm your submission</h2>
+      <p role="alert">{error}</p>
+      <Button disabled={busy} onClick={() => send(lastRequest.current)}>Try again</Button>
+      <Button variant="secondary" onClick={() => setError('')}>Back to order form</Button>
+    </section>}
+    {!!items.length && <div className="order-form-frame" hidden={Boolean(error)}><form className="order-form stack" onSubmit={submit}>
       <Field name="name" label="Full name" autoComplete="name" maxLength={120} required />
       <Field name="phone" label="Phone or WhatsApp number" type="tel" autoComplete="tel" maxLength={48} required />
       <Field name="email" label="Email (optional)" type="email" autoComplete="email" maxLength={254} />
@@ -78,8 +96,7 @@ export default function CheckoutPage({ onOrder = createOrder }) {
       </>}
       <p>{policy[method]}</p>
       <p>{policy.payment}</p>
-      {error && <ErrorState>{error}</ErrorState>}
-      <Button type="submit" disabled={!onOrder || busy || !canContinue(rows ?? [])}>{busy ? 'Submitting…' : 'Place order'}</Button>
-    </form>}
+      <Button type="submit" disabled={busy || !canContinue(rows ?? [])}>{busy ? 'Submitting…' : 'Place order'}</Button>
+    </form></div>}
   </section>;
 }

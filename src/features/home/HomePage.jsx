@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import Icon from '../../components/Icon.jsx';
+import { RecentOrder } from '../orders/OrderReceipt.jsx';
 import LatestPieces from './LatestPieces.jsx';
 
 export default function HomePage() {
@@ -8,6 +9,7 @@ export default function HomePage() {
       <div className="hero-copy"><h1 id="hero-title">A SECOND LIFE.</h1><p className="editorial">Reworked in Kampala.</p><Link className="button" to="/collections">Shop the drop</Link></div>
       <figure className="hero-media"><img src="/assets/campaign-960.webp" srcSet="/assets/campaign-480.webp 480w, /assets/campaign-960.webp 960w, /assets/campaign-1440.webp 1440w" sizes="(min-width: 1440px) 720px, (min-width: 1024px) 55vw, 100vw" alt="AI-generated campaign placeholder: a model wearing reworked olive workwear in a daylight courtyard" width="1536" height="1024" fetchPriority="high" /><figcaption className="placeholder-label">AI-generated placeholder</figcaption></figure>
     </section>
+    <RecentOrder />
     <section className="container page-section" aria-labelledby="latest-title">
       <div className="section-heading"><h2 id="latest-title">THE LATEST PIECES</h2><Link to="/shop" className="text-link">View all</Link></div>
       <LatestPieces />
