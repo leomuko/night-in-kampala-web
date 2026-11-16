@@ -16,7 +16,7 @@ function quantity(product) {
   return product.variants?.reduce((total, variant) => total + variant.quantity, 0);
 }
 
-export default function ProductTable({ rows, onEdit, onAdd, onSell, selling }) {
+export default function ProductTable({ rows, onEdit, onAdd, onSell, onManual, selling }) {
   const [tab, setTab] = useState('all');
   const [search, setSearch] = useState('');
   const match = search.trim().toLowerCase();
@@ -45,8 +45,10 @@ export default function ProductTable({ rows, onEdit, onAdd, onSell, selling }) {
           <td>{product.sizeLabel || '—'}</td><td>{product.priceUGX ? formatPrice(product.priceUGX) : '—'}</td>
           <td>{quantity(product) ?? '—'}</td><td>
             {status(product)}
-            {onSell && product.publicationStatus === 'published' && (product.publishedAvailability === 'available' || product.reservationCount === 1)
+            {onSell && product.publicationStatus === 'published' && product.reservationCount === 1
               && <Button className="staff-sell" variant="secondary" disabled={selling === product.slug} onClick={() => onSell(product.slug)}>Mark as sold</Button>}
+            {onManual && product.publicationStatus === 'published' && product.publishedRealStock === true
+              && product.availableUnits > 0 && <Button className="staff-sell" variant="secondary" onClick={() => onManual(product.slug)}>Record manual sale</Button>}
           </td>
         </tr>)}</tbody>
       </table>

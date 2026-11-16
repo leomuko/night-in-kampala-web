@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Button, ErrorState, LoadingState } from '../../components/UI.jsx';
+import ManualSale from './ManualSale.jsx';
 import CategoryEditor from './CategoryEditor.jsx';
 import ApprovalControl from './ApprovalControl.jsx';
 import PublicationControls from './PublicationControls.jsx';
@@ -11,6 +12,7 @@ import { callStaff, readEditorData, staffError } from './catalogueAdmin.js';
 export default function StaffCatalogue({ user, role }) {
   const [state, setState] = useState({ status: 'loading' });
   const [selection, setSelection] = useState(null);
+  const [manual, setManual] = useState(null);
   const [selling, setSelling] = useState(null);
   const [saleError, setSaleError] = useState('');
   const selectionId = useRef(0);
@@ -30,7 +32,7 @@ export default function StaffCatalogue({ user, role }) {
       const existing = previous.rows.find(row => row.slug === next.slug);
       if (existing?.revision > next.revision) return previous;
       const saved = existing ? {
-        ...next, publicationStatus: existing.publicationStatus, publishedAvailability: existing.publishedAvailability,
+        ...next, publicationStatus: existing.publicationStatus, publishedAvailability: existing.publishedAvailability, publishedRealStock: next.publishedRealStock ?? existing.publishedRealStock,
         availableUnits: existing.availableUnits,
       } : next;
       return { ...previous, rows: [saved, ...previous.rows.filter(row => row.slug !== next.slug)] };
@@ -40,6 +42,7 @@ export default function StaffCatalogue({ user, role }) {
   function updatePublication(slug, result) {
     setState(previous => ({ ...previous, rows: previous.rows.map(row => row.slug === slug ? {
       ...row, publicationStatus: result.status, publishedAvailability: result.availability,
+      publishedRealStock: result.publishedRealStock ?? row.publishedRealStock,
       availableUnits: result.availableUnits ?? row.availableUnits, reservationCount: result.reservationCount ?? row.reservationCount,
     } : row) }));
   }
@@ -56,7 +59,7 @@ export default function StaffCatalogue({ user, role }) {
   return <div className="staff-catalogue stack">
     {saleError && <ErrorState>{saleError}</ErrorState>}
     <div className={selection ? 'staff-product-workspace staff-product-workspace--editing' : 'staff-product-workspace'}>
-      <ProductTable rows={state.rows} onEdit={open} onAdd={() => open('')} onSell={markSold} selling={selling} />
+      <ProductTable rows={state.rows} onEdit={open} onAdd={() => open('')} onSell={markSold} onManual={setManual} selling={selling} />
       {selection && <div className="staff-product-editor stack">
         <Button variant="secondary" onClick={() => setSelection(null)}>Close editor</Button>
         <DraftEditor key={`draft-${selection.key}`} draft={draft} categories={state.categories} onSave={saveDraft} />
@@ -65,6 +68,8 @@ export default function StaffCatalogue({ user, role }) {
         {draft.slug && role === 'owner' && <ApprovalControl key={draft.slug} collection="products" draft={draft} onSave={saveDraft} />}
       </div>}
     </div>
+    {manual && <ManualSale key={manual} slug={manual} onClose={() => setManual(null)}
+      onSave={result => { updatePublication(manual, result); setManual(null); }} />}
     <CategoryEditor items={state.categories} onSave={categories => setState(previous => ({ ...previous, categories }))} />
   </div>;
 }

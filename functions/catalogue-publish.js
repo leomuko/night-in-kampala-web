@@ -63,7 +63,7 @@ export async function publishCatalogueProduct(db, bucket, data, actor) {
     throw new HttpsError('already-exists', 'This product slug belongs to an existing product. Choose another slug.');
   }
   if (live?.status === 'published' && live.draftRevision === data.revision) {
-    return { status: live.status, availability: live.availability };
+    return { status: live.status, availability: live.availability, publishedRealStock: live.isRealCatalogueStock === true };
   }
   const draft = validateDraft(draftSnapshot.data(), categoriesSnapshot.data()?.items ?? [], live);
   const existingMedia = sameMedia(draft, live);
@@ -85,7 +85,7 @@ export async function publishCatalogueProduct(db, bucket, data, actor) {
     assertDraftRevision(currentDraft, data.revision);
     const previous = currentProduct.data();
     if (previous?.status === 'published' && previous.draftRevision === data.revision) {
-      return { status: previous.status, availability: previous.availability };
+      return { status: previous.status, availability: previous.availability, publishedRealStock: previous.isRealCatalogueStock === true };
     }
     if (previous?.mediaRevision !== live?.mediaRevision || previous?.status !== live?.status) {
       throw new HttpsError('aborted', 'Publication changed. Reopen the draft and try again.');
@@ -110,10 +110,10 @@ export async function publishCatalogueProduct(db, bucket, data, actor) {
     };
     const requestableSizes = await updateSizeFacets(tx, db, previous, publicProduct, nextInventory);
     tx.set(productPath, { ...publicProduct, requestableSizes, purchasable: canRequestProduct(publicProduct) });
-    tx.update(draftPath, { publicationStatus: 'published', publishedAvailability: availability, availableUnits: nextInventory.availableUnits });
+    tx.update(draftPath, { publicationStatus: 'published', publishedAvailability: availability, publishedRealStock: isRealCatalogueStock, availableUnits: nextInventory.availableUnits });
     tx.set(inventoryPath, nextInventory);
     tx.create(auditPath, { action: live ? 'republish' : 'publish', actorUid: actor.uid, productId: slug, at: FieldValue.serverTimestamp() });
-    return { status: 'published', availability, availableUnits: sold ? 0 : units };
+    return { status: 'published', availability, publishedRealStock: isRealCatalogueStock, availableUnits: nextInventory.availableUnits };
   });
 }
 

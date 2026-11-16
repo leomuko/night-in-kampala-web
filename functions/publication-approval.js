@@ -29,7 +29,8 @@ export async function approvePublication(db, data, actor) {
     const liveApproved = product ? live?.isRealCatalogueStock === true : live?.illustrative === false;
     const updatesLive = live?.status === 'published' && Number.isInteger(live.draftRevision)
       && (approved ? live.draftRevision === draft.revision && !liveApproved : liveApproved);
-    if (draft.approvedRevision === approvedRevision && !updatesLive) return { approvedRevision };
+    const result = { approvedRevision, ...(product ? { publishedRealStock: updatesLive ? approved : liveApproved } : {}) };
+    if (draft.approvedRevision === approvedRevision && !updatesLive) return result;
     let projection = { illustrative: !approved };
     if (product && updatesLive) {
       const stock = (await tx.get(db.doc(`inventory/${slug}`))).data();
@@ -38,13 +39,13 @@ export async function approvePublication(db, data, actor) {
       const requestableSizes = await updateSizeFacets(tx, db, live, next, stock);
       projection = { isRealCatalogueStock: approved, purchasable: canRequestProduct(next), requestableSizes };
     }
-    tx.update(draftRef, { approvedRevision });
+    tx.update(draftRef, { approvedRevision, ...(product && updatesLive ? { publishedRealStock: approved } : {}) });
     if (updatesLive) tx.update(publicRef, projection);
     tx.create(auditRef, {
       action: approved ? 'approve-publication' : 'revoke-publication-approval',
       collection, slug, revision: draft.revision, actorUid: actor.uid, at: FieldValue.serverTimestamp(),
       ...(product ? { productId: slug } : {}),
     });
-    return { approvedRevision };
+    return result;
   });
 }

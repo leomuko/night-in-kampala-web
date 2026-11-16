@@ -14,6 +14,7 @@ import { catalogueMediaHandler } from './serve-catalogue-media.js';
 import { saveEditorialDraft, publishEditorial } from './editorial.js';
 import { approvePublication } from './publication-approval.js';
 import { orderSource, submitOrder } from './order-submit.js';
+import { recordManualSale } from './manual-sale.js';
 import { markCatalogueSold, settleOrder } from './order-settlement.js';
 import { changeOrderStock } from './order-stock.js';
 import { updateOrderDesk } from './order-desk.js';
@@ -87,3 +88,4 @@ export const orderDesk = staffCallable(runtime, (data, actor) => {
   return updateOrderDesk(db, data, actor);
 });
 export const catalogueMarkSold = staffCallable(runtime, (data, actor) => markCatalogueSold(db, data, actor));
+export const manualSaleRecord = staffCallable(runtime, (data, actor) => recordManualSale(db, data, actor));

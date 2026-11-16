@@ -28,6 +28,7 @@ async function orderFixture(run) {
   const db = getFirestore(app);
   const fixtures = [];
   const pieceSlugs = [];
+  const cleanup = ref => fixtures.push(ref);
   const sizeRef = db.doc('catalogueSizes/waist-33');
   const sizeCount = db.doc('catalogueSizeCounts/waist-33');
   const savedFacets = await db.getAll(sizeRef, sizeCount);
@@ -82,7 +83,7 @@ async function orderFixture(run) {
   }
   try {
     await sourceRef.delete();
-    await run({ db, piece, payload, identity, settingsRef, staff });
+    await run({ db, piece, payload, identity, settingsRef, staff, cleanup });
   } finally {
     await Promise.all([
       ...fixtures.map(doc => doc.delete()),
@@ -221,5 +222,27 @@ test('payment stays separate from stock and the product action can mark a reserv
     const audit = await db.collection('auditLogs').where('orderId', '==', id).get();
     assert.equal(audit.docs.filter(row => row.data().action === 'order-payment').length, 1);
     assert.equal(audit.docs.filter(row => row.data().action === 'order-stock-sell').length, 1);
+  });
+});
+
+test('manual sales preserve reservations and retry without selling stock twice', async () => {
+  await orderFixture(async ({ db, piece, payload, identity, staff, cleanup }) => {
+    const [available, reserved] = await Promise.all([piece(0), piece(1)]);
+    const worker = await staff();
+    const request = payload([reserved]);
+    assert.equal((await callable('orderCreate', request)).status, 200);
+    assert.equal((await callable('orderDesk', { id: identity(request), action: 'confirm', slug: reserved.slug }, worker)).status, 200);
+    const sell = data => callable('manualSaleRecord', data, worker);
+    const saleId = randomUUID();
+    cleanup(db.doc(`manualSales/${saleId}`));
+    const sale = { slug: available.slug, size: available.size, quantity: 1, saleId, channel: 'in_person' };
+    assert.equal((await sell({ ...sale, slug: reserved.slug })).body.error.status, 'FAILED_PRECONDITION');
+    assert.equal((await sell(sale)).status, 200);
+    assert.equal((await sell(sale)).status, 200);
+    assert.equal((await sell({ ...sale, channel: 'whatsapp' })).status, 409);
+    assert.equal((await db.doc(`products/${available.slug}`).get()).data().availability, 'sold');
+    assert.equal((await db.doc(`inventory/${reserved.slug}`).get()).data().reservedUnits, 1);
+    assert.equal((await db.doc(`manualSales/${saleId}`).get()).data().channel, 'in_person');
+    assert.equal((await db.collection('auditLogs').where('saleId', '==', saleId).get()).size, 1);
   });
 });
