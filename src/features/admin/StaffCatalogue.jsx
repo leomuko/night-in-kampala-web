@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Button, ErrorState, LoadingState } from '../../components/UI.jsx';
 import CategoryEditor from './CategoryEditor.jsx';
+import PhotoEditor from './PhotoEditor.jsx';
 import DraftEditor from './DraftEditor.jsx';
 import { readEditorData } from './catalogueAdmin.js';
 
-export default function StaffCatalogue() {
+export default function StaffCatalogue({ user }) {
   const [state, setState] = useState({ status: 'loading' });
   const [selection, setSelection] = useState({ key: 0, slug: '' });
   useEffect(() => {
@@ -35,6 +36,7 @@ export default function StaffCatalogue() {
       </ul>
     </section>
     <DraftEditor key={selection.key} draft={draft} categories={state.categories} onSave={saveDraft} />
+    {draft.slug && <PhotoEditor key={selection.key} draft={draft} user={user} onSave={saveDraft} />}
     <CategoryEditor items={state.categories} onSave={categories => setState(previous => ({ ...previous, categories }))} />
   </div>;
 }

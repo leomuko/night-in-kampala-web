@@ -36,7 +36,7 @@ export default function AdminShell() {
         <Button variant="secondary" disabled={busy} onClick={() => run(() => user.getIdToken(true), 'Could not refresh access.')}>Refresh access</Button>
         <Button variant="secondary" disabled={busy} onClick={() => run(() => signOut(auth), 'Could not sign out.')}>Sign out</Button>
       </div>
-      {role && <StaffCatalogue key={user.uid} />}
+      {role && <StaffCatalogue key={user.uid} user={user} />}
     </>}
     <Link className="text-link" to="/">Return to store</Link>
   </section>;

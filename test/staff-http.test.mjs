@@ -4,6 +4,11 @@ import { test } from 'node:test';
 import { initializeApp, deleteApp } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
+import { getStorage } from 'firebase-admin/storage';
+import { initializeApp as initializeWebApp, deleteApp as deleteWebApp } from 'firebase/app';
+import { connectAuthEmulator, getAuth as getWebAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { connectStorageEmulator, getStorage as getWebStorage, ref, uploadBytes } from 'firebase/storage';
+import sharp from 'sharp';
 
 const project = 'demo-night-in-kampala';
 if (process.env.GCLOUD_PROJECT !== project || process.env.FIREBASE_AUTH_EMULATOR_HOST !== '127.0.0.1:9099') {
@@ -100,6 +105,55 @@ test('staff reopen saved drafts, concurrent edits are rejected and category IDs 
     if (previousCategories.exists) await categoryPath.set(previousCategories.data());
     else await categoryPath.delete();
     await auth.deleteUser(uid);
+    await deleteApp(app);
+  }
+});
+
+test('photo uploads are validated, processed into private renditions and reordered through staff calls', async () => {
+  const app = initializeApp({ projectId: project }, 'catalogue-photo-test');
+  const db = getFirestore(app);
+  const bucket = getStorage(app).bucket(`${project}.appspot.com`);
+  const webApp = initializeWebApp({ apiKey: 'demo-key', projectId: project, storageBucket: bucket.name }, 'photo-uploads');
+  const auth = getWebAuth(webApp);
+  connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
+  const storage = getWebStorage(webApp);
+  connectStorageEmulator(storage, '127.0.0.1', 9199);
+  const provision = spawnSync(process.execPath, ['scripts/provision-demo-staff.mjs', project, 'staff'], { encoding: 'utf8' });
+  assert.equal(provision.status, 0);
+  const { uid, email, password } = JSON.parse(provision.stdout);
+  const { user } = await signInWithEmailAndPassword(auth, email, password);
+  const token = await user.getIdToken();
+  const call = (name, data) => post(endpoint.replace(/staffAccess$/, name), { data }, token);
+  const slug = 'photo-integration-test';
+  const path = db.doc(`productDrafts/${slug}`);
+  const jpeg = await sharp({ create: { width: 1400, height: 800, channels: 3, background: 'gray' } }).jpeg().toBuffer();
+  async function upload(id, bytes) {
+    await uploadBytes(ref(storage, `product-drafts/${slug}/${uid}/${id}.jpg`), bytes, { contentType: 'image/jpeg' });
+  }
+  try {
+    await path.set({ revision: 1 });
+    await upload('invalid', new Uint8Array([1, 2, 3]));
+    assert.equal((await call('cataloguePhotoAdd', { slug, id: 'invalid', revision: 1, extension: 'jpg', alt: 'Invalid' })).status, 400);
+    for (const [index, id] of ['front', 'back'].entries()) {
+      await upload(id, jpeg);
+      const photo = await call('cataloguePhotoAdd', { slug, id, revision: index + 1, extension: 'jpg', alt: id });
+      assert.equal(photo.status, 200, JSON.stringify(photo.body.error));
+      assert.equal(photo.body.result.revision, index + 2);
+    }
+    const [share] = await bucket.file(`product-processed/${slug}/${uid}/front/share.jpg`).download();
+    const meta = await sharp(share).metadata();
+    assert.deepEqual([meta.format, meta.width, meta.height], ['jpeg', 1200, 630]);
+    const [thumbnail] = await bucket.file(`product-processed/${slug}/${uid}/front/320.webp`).download();
+    assert.equal((await sharp(thumbnail).metadata()).width, 320);
+    const photos = [{ id: 'back', alt: 'Back view' }, { id: 'front', alt: 'Front view' }];
+    assert.equal((await call('cataloguePhotosSave', { slug, revision: 3, photos })).status, 200);
+    assert.deepEqual((await path.get()).data().photos.map(({ id, alt }) => ({ id, alt })), photos);
+  } finally {
+    await bucket.deleteFiles({ prefix: `product-drafts/${slug}/` });
+    await bucket.deleteFiles({ prefix: `product-processed/${slug}/` });
+    await path.delete();
+    await getAuth(app).deleteUser(uid);
+    await deleteWebApp(webApp);
     await deleteApp(app);
   }
 });

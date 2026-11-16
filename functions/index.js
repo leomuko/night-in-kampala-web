@@ -5,6 +5,8 @@ import { readFile } from 'node:fs/promises';
 import { readFileSync } from 'node:fs';
 import { createSharedLinkHandler } from './shared-links.js';
 import { saveCategory, saveProductDraft } from './catalogue-drafts.js';
+import { catalogueBucket } from './catalogue-bucket.js';
+import { addDraftPhoto, updateDraftPhotos } from './catalogue-media.js';
 import { staffCallable } from './staff-access.js';
 import { resolveFunctionRuntime } from './runtime-config.js';
 
@@ -12,7 +14,8 @@ import { resolveFunctionRuntime } from './runtime-config.js';
 // No default cloud origin, region or project is inferred from request headers.
 const deployment = process.env.FUNCTIONS_EMULATOR === 'true' ? undefined : JSON.parse(readFileSync(new URL('./generated/deployment.json', import.meta.url), 'utf8'));
 const runtime = resolveFunctionRuntime(process.env, deployment);
-const db = getFirestore(initializeApp({ projectId: runtime.projectId }));
+const app = initializeApp({ projectId: runtime.projectId });
+const db = getFirestore(app);
 let handler;
 async function loadHandler() {
   return createSharedLinkHandler({
@@ -41,3 +44,5 @@ export const localHealth = runtime.emulator ? onRequest((_request, response) => 
 export const staffAccess = staffCallable(runtime, (_data, actor) => ({ role: actor.role }));
 export const catalogueDraftSave = staffCallable(runtime, (data, actor) => saveProductDraft(db, data, actor));
 export const catalogueCategorySave = staffCallable(runtime, data => saveCategory(db, data));
+export const cataloguePhotoAdd = staffCallable(runtime, (data, actor) => addDraftPhoto(db, catalogueBucket(app, runtime), data, actor));
+export const cataloguePhotosSave = staffCallable(runtime, (data, actor) => updateDraftPhotos(db, data, actor));

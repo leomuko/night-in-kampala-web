@@ -16,9 +16,9 @@ const env = {
 const build = spawnSync(process.execPath, ['node_modules/vite/bin/vite.js', 'build', '--mode', target], { cwd: root, env, stdio: 'inherit' });
 if (build.error || build.status !== 0) throw new Error('Cloud build failed; deployment preparation stopped.');
 await import('./prepare-preview-template.mjs');
-const { webConfig: _webConfig, ...runtime } = config;
+const { webConfig, ...runtime } = config;
 await mkdir(new URL('../functions/generated/', import.meta.url), { recursive: true });
-await writeFile(new URL('../functions/generated/deployment.json', import.meta.url), JSON.stringify(runtime, null, 2) + '\n');
+await writeFile(new URL('../functions/generated/deployment.json', import.meta.url), JSON.stringify({ ...runtime, storageBucket: webConfig.storageBucket }, null, 2) + '\n');
 const firebase = JSON.parse(await readFile(new URL('../firebase.json', import.meta.url), 'utf8'));
 delete firebase.emulators;
 const predeploy = ['node "$PROJECT_DIR/scripts/prepare-deployment.mjs" ' + target];
