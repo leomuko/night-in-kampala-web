@@ -81,3 +81,14 @@ The single-project release preparation passed `npm run check` with **123 tests**
 - [Functions environment configuration](https://firebase.google.com/docs/functions/config-env).
 - [Google robots meta/X-Robots-Tag guidance](https://developers.google.com/search/docs/crawling-indexing/robots-meta-tag).
 - Official CI actions: [checkout](https://github.com/actions/checkout), [setup-node](https://github.com/actions/setup-node), [setup-java](https://github.com/actions/setup-java).
+
+## Owner and staff access
+
+The owner creates their account in Firebase Console → Authentication → Users → Add user and keeps the password. On a machine with authorized application default credentials, run the script with the existing account's email and the explicit project. It defaults to a dry run and prints the account UID and confirmation phrase.
+
+```sh
+node scripts/grant-staff-role.mjs --project night-in-kampala --email OWNER_EMAIL --role owner
+node scripts/grant-staff-role.mjs --project night-in-kampala --email OWNER_EMAIL --role owner --execute
+```
+
+Type the displayed phrase at the prompt. For non-interactive operation, supply it through `--confirm`. Use `--role staff --test-account` for a disposable test staff account. Existing unrelated claims and a prior test marker are preserved. The script updates an existing login and uses the operator's application default credentials. Sign out and sign in again after changing the role. The owner's account creation, role assignment and password entry are owner steps. Local emulator tests cover the tooling.
