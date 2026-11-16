@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Button, ErrorState, Field } from '../../components/UI.jsx';
+import { Button, ErrorState, Field, Select } from '../../components/UI.jsx';
 import { getFirebaseServices } from '../../services/firebase.js';
 import { callStaff, staffError } from './catalogueAdmin.js';
 import { preparePhoto } from './preparePhoto.js';
@@ -51,7 +51,7 @@ export default function PhotoEditor({ draft, user, onSave }) {
       const jpeg = await preparePhoto(file);
       stage = 'upload';
       const id = crypto.randomUUID();
-      const data = { id, alt: fields.get('alt').trim(), extension: 'jpg' };
+      const data = { id, alt: fields.get('alt').trim(), extension: 'jpg', kind: fields.get('kind') };
       const [{ ref, uploadBytesResumable }, { storage }] = await Promise.all([import('firebase/storage'), getFirebaseServices()]);
       const task = uploadBytesResumable(ref(storage, `product-drafts/${draft.slug}/${user.uid}/${id}.jpg`), jpeg, { contentType: 'image/jpeg' });
       await new Promise((resolve, reject) => task.on('state_changed', snapshot => {
@@ -97,6 +97,7 @@ export default function PhotoEditor({ draft, user, onSave }) {
     <h2>Draft photos</h2>
     {photos.map((photo, index) => <div className="stack staff-form" key={photo.id}>
       <PhotoPreview photo={photo} />
+      <p className="helper">{photo.kind === 'photograph' ? 'Photograph of the piece' : 'Illustrative image'}</p>
       <Field label={`Photo ${index + 1} alt text`} value={photo.alt} maxLength={200} disabled={busy} onChange={event => {
         const alt = event.target.value;
         setPhotos(previous => previous.map(item => item.id === photo.id ? { ...item, alt } : item));
@@ -112,6 +113,10 @@ export default function PhotoEditor({ draft, user, onSave }) {
       <Field label="Photo" name="photo" type="file" accept="image/*,.heic,.heif" required disabled={busy || dirty || !!pending || photos.length >= 8}
         hint="Up to eight photos. The browser compresses each to 2 MiB and 2400 px on the longest side." />
       <Field label="New photo alt text" name="alt" maxLength={200} required disabled={busy || dirty || !!pending || photos.length >= 8} />
+      <Select label="Image source" name="kind" disabled={busy || dirty || !!pending || photos.length >= 8}>
+        <option value="illustrative">Illustrative or generated image</option>
+        <option value="photograph">Photograph of the actual piece</option>
+      </Select>
       <Button type="submit" disabled={busy || dirty || !!pending || photos.length >= 8}>Upload photo</Button>
     </form>
     {progress !== null && <progress aria-label="Upload progress" max="100" value={progress}>{progress}%</progress>}

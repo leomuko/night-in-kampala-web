@@ -31,6 +31,8 @@ export async function addDraftPhoto(db, bucket, data, actor) {
   const id = catalogueId(data?.id);
   const alt = boundedText(data?.alt, 200, 'Photo alt text');
   if (!alt || !['jpg', 'webp'].includes(data.extension)) throw new HttpsError('invalid-argument', 'Provide photo alt text and a supported file.');
+  const kind = data.kind ?? 'illustrative';
+  if (!['illustrative', 'photograph'].includes(kind)) throw new HttpsError('invalid-argument', 'Choose the image source.');
   const path = db.doc(`productDrafts/${slug}`);
   const initial = await path.get();
   if (!initial.exists) throw new HttpsError('not-found', 'Save a draft before uploading photos.');
@@ -45,6 +47,16 @@ export async function addDraftPhoto(db, bucket, data, actor) {
   if (Number(metadata.size) > maxBytes) throw new HttpsError('invalid-argument', 'A photo must be at most 2 MiB.');
   const [bytes] = await upload.download();
   const entries = await renderPhoto(bytes);
+  // Removing a photo from a draft never makes its uploaded source reclassifiable.
+  const photoSource = db.doc(`productPhotoSources/${slug}/photos/${actor.uid}--${id}`);
+  await db.runTransaction(async tx => {
+    const existing = await tx.get(photoSource);
+    if (!existing.exists) {
+      tx.create(photoSource, { kind, extension: data.extension });
+    } else if (existing.data().kind !== kind || existing.data().extension !== data.extension) {
+      throw new HttpsError('failed-precondition', 'This upload already has a saved image source.');
+    }
+  });
   const processedPath = `product-processed/${slug}/${actor.uid}/${id}`;
   await Promise.all(entries.map(([name, buffer]) =>
     bucket.file(`${processedPath}/${name}`).save(buffer, {
@@ -59,7 +71,7 @@ export async function addDraftPhoto(db, bucket, data, actor) {
       return { photos: previous, revision: current.data().revision };
     }
     assertDraftRevision(current, data.revision);
-    const photos = [...previous, { id, alt, sourcePath, processedPath, uploadedBy: actor.uid }];
+    const photos = [...previous, { id, alt, kind, sourcePath, processedPath, uploadedBy: actor.uid }];
     const revision = data.revision + 1;
     tx.update(path, { photos, revision, updatedAt: FieldValue.serverTimestamp(), updatedBy: actor.uid });
     return { photos, revision };

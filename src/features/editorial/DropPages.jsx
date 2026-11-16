@@ -16,7 +16,7 @@ async function readDrop(collection, slug) {
   const pieces = (await Promise.all((drop.productIds ?? []).map(id => readPublicDocument('products', id)))).filter(Boolean);
   const cover = pieces.find(product => product.slug === drop.coverProductId);
   return {
-    ...drop, pieces, cover: cover?.photos?.[0],
+    ...drop, pieces, cover: cover?.photos?.[0], illustrativeCover: cover?.isRealCatalogueStock !== true,
     share: cover ? { ...drop.share, imageUrl: cover.share?.imageUrl, imageAlt: cover.share?.imageAlt } : drop.share,
   };
 }
@@ -35,7 +35,7 @@ export function DropPage() {
     {drop.illustrative && <p className="placeholder-label">Illustrative content</p>}
     {drop.body && <p className="editorial-body">{drop.body}</p>}
     {drop.cover && <figure className="editorial-cover"><img src={drop.cover.largeUrl} alt={drop.cover.alt} />
-      {drop.illustrative && <figcaption className="placeholder-label">AI-generated placeholder</figcaption>}
+      {drop.illustrativeCover && <figcaption className="placeholder-label">AI-generated placeholder</figcaption>}
     </figure>}
     {drop.pieces.length > 0 ? <div className="product-grid">{drop.pieces.map(product => <GarmentCard key={product.slug} product={product} />)}</div>
       : <p>No pieces are currently listed for this drop.</p>}

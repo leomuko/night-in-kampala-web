@@ -10,7 +10,7 @@ async function readWithCover(collection, slug) {
   if (!page?.coverProductId) return page;
   const product = await readPublicDocument('products', page.coverProductId);
   return product ? {
-    ...page, cover: product.photos?.[0],
+    ...page, cover: product.photos?.[0], illustrativeCover: product.isRealCatalogueStock !== true,
     share: { ...page.share, imageUrl: product.share?.imageUrl, imageAlt: product.share?.imageAlt },
   } : page;
 }
@@ -20,7 +20,7 @@ function PageBody({ page }) {
     {page.illustrative && <p className="placeholder-label">Illustrative content</p>}
     {page.cover && <figure className="editorial-cover">
       <img src={page.cover.largeUrl} alt={page.cover.alt} />
-      {page.illustrative && <figcaption className="placeholder-label">AI-generated placeholder</figcaption>}
+      {page.illustrativeCover && <figcaption className="placeholder-label">AI-generated placeholder</figcaption>}
     </figure>}
     {page.body && <p className="editorial-body">{page.body}</p>}
     {!!page.links?.length && <ul className="editorial-links">{page.links.map(({ label, href }, index) =>

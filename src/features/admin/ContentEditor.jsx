@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Button, ErrorState, Field, LoadingState, Select } from '../../components/UI.jsx';
+import ApprovalControl from './ApprovalControl.jsx';
 import { callStaff, readContentDrafts, staffError } from './catalogueAdmin.js';
 
 function DropFields({ draft }) {
@@ -68,7 +69,7 @@ function DraftForm({ collection, draft, save }) {
   async function submit(event) {
     event.preventDefault();
     const fields = new FormData(event.currentTarget);
-    const publish = event.nativeEvent.submitter?.value === 'publish';
+
     const slug = fields.get('slug').trim();
     const links = (fields.get('links') ?? '').split('\n').filter(line => line.trim()).map(line => {
       const [label, href] = line.split('|');
@@ -84,11 +85,21 @@ function DraftForm({ collection, draft, save }) {
       });
       save({ ...draft, ...saved });
       setStatus('Draft saved.');
-      if (publish) {
-        await callStaff('editorialPublish', { collection, slug, revision: saved.revision });
-        save({ ...saved, publishedRevision: saved.revision });
-        setStatus('Published.');
-      }
+    } catch (failure) {
+      setError(staffError(failure));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function publish() {
+    setBusy(true);
+    setError('');
+    setStatus('');
+    try {
+      await callStaff('editorialPublish', { collection, slug: draft.slug, revision: draft.revision });
+      save({ ...draft, publishedRevision: draft.revision });
+      setStatus('Published.');
     } catch (failure) {
       setError(staffError(failure));
     } finally {
@@ -104,14 +115,14 @@ function DraftForm({ collection, draft, save }) {
     {draft.publishedRevision && <p className="helper">Published revision {draft.publishedRevision}</p>}
     <div className="staff-actions">
       <Button type="submit" disabled={busy} value="save">Save draft</Button>
-      <Button type="submit" disabled={busy} variant="secondary" value="publish">Save and publish</Button>
+      {draft.slug && <Button disabled={busy} variant="secondary" onClick={publish}>Publish saved draft</Button>}
     </div>
     {status && <p role="status">{status}</p>}
     {error && <ErrorState>{error}</ErrorState>}
   </form>;
 }
 
-export default function ContentEditor({ collection, heading }) {
+export default function ContentEditor({ collection, heading, role }) {
   const [state, setState] = useState({ loading: true });
   const [selection, setSelection] = useState({ key: 0, slug: '' });
   useEffect(() => {
@@ -136,5 +147,6 @@ export default function ContentEditor({ collection, heading }) {
       <button className="text-button" type="button" onClick={() => select(row.slug)}>{row.title || row.slug}</button>
     </li>)}</ul>
     <DraftForm key={selection.key} draft={draft} collection={collection} save={save} />
+    {draft.slug && role === 'owner' && <ApprovalControl key={draft.slug} collection={collection} draft={draft} onSave={save} />}
   </section>;
 }

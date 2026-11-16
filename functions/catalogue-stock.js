@@ -1,5 +1,6 @@
 import { FieldValue } from 'firebase-admin/firestore';
 import { HttpsError } from 'firebase-functions/v2/https';
+import { canRequestProduct } from './catalogue-eligibility.js';
 import { catalogueId } from './catalogue-drafts.js';
 
 export function assertStockCanChange(inventory, availability) {
@@ -9,9 +10,9 @@ export function assertStockCanChange(inventory, availability) {
 }
 
 // Use one transaction for the private count, storefront state and audit trail.
-export function writeStock(tx, { inventoryPath, productPath, auditPath, inventory, from, to, actor, action }) {
+export function writeStock(tx, { inventoryPath, productPath, auditPath, inventory, product, from, to, actor, action }) {
   tx.set(inventoryPath, inventory);
-  tx.update(productPath, { availability: to });
+  tx.update(productPath, { availability: to, purchasable: canRequestProduct({ ...product, availability: to }) });
   tx.create(auditPath, { action, actorUid: actor.uid, productId: productPath.id, from, to, at: FieldValue.serverTimestamp() });
 }
 
@@ -39,7 +40,7 @@ export async function changeCatalogueAvailability(db, data, actor) {
     const relistVariants = target === 'sold' ? inventory.variants : (inventory.relistVariants ?? []);
     const variants = target === 'sold' ? inventory.variants.map(variant => ({ ...variant, quantity: 0 })) : relistVariants;
     writeStock(tx, {
-      inventoryPath, productPath, auditPath, from, to: target, actor, action: 'change-availability',
+      inventoryPath, productPath, auditPath, product: product.data(), from, to: target, actor, action: 'change-availability',
       inventory: { ...inventory, availableUnits, relistUnits, variants, relistVariants },
     });
     return { availability: target, status: 'published' };

@@ -104,7 +104,7 @@ export async function publishEditorial(db, data, actor) {
     const description = draft.body.slice(0, 500);
     tx.set(publicPath, {
       title: draft.title, body: draft.body, ...fields,
-      status: 'published', illustrative: true, draftRevision: draft.revision,
+      status: 'published', illustrative: draft.approvedRevision !== draft.revision, draftRevision: draft.revision,
       share: { description },
     });
     tx.update(path, { publishedRevision: draft.revision });

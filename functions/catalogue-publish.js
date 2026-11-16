@@ -4,6 +4,7 @@ import { HttpsError } from 'firebase-functions/v2/https';
 import { assertDraftRevision, catalogueId } from './catalogue-drafts.js';
 import { buildPublicProduct } from './catalogue-projection.js';
 import { assertStockCanChange } from './catalogue-stock.js';
+import { canRequestProduct, hasPhotographedStock } from './catalogue-eligibility.js';
 import { renditionWidths } from './catalogue-media.js';
 
 function sizeKey(label) {
@@ -103,7 +104,10 @@ export async function publishCatalogueProduct(db, bucket, data, actor) {
     // Preserve manually sold stock on edits. Restoring it is a separate audited action.
     const sold = previous?.availability === 'sold' || units === 0;
     const availability = sold ? 'sold' : 'available';
-    tx.set(productPath, { ...projection, availability, draftRevision: data.revision });
+    const saved = currentDraft.data();
+    const isRealCatalogueStock = saved.approvedRevision === data.revision && hasPhotographedStock(saved);
+    const publicProduct = { ...projection, availability, draftRevision: data.revision, isRealCatalogueStock };
+    tx.set(productPath, { ...publicProduct, purchasable: canRequestProduct(publicProduct) });
     tx.update(draftPath, { publicationStatus: 'published' });
     tx.set(inventoryPath, {
       stockType: draft.stockType, availableUnits: sold ? 0 : units, relistUnits: units,
@@ -125,7 +129,7 @@ export async function withdrawCatalogueProduct(db, data, actor) {
     if (!product || !Number.isInteger(product.draftRevision)) throw new HttpsError('not-found', 'Publish the product before changing visibility.');
     assertStockCanChange(stock.data() ?? {}, product.availability);
     if (product.status !== status) {
-      tx.update(productPath, { status });
+      tx.update(productPath, { status, purchasable: false });
       tx.update(db.doc(`productDrafts/${slug}`), { publicationStatus: status });
       tx.create(db.collection('auditLogs').doc(), { action: status === 'archived' ? 'archive' : 'unpublish', actorUid: actor.uid, productId: slug, at: FieldValue.serverTimestamp() });
     }

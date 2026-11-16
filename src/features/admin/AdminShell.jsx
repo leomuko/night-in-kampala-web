@@ -44,8 +44,8 @@ export default function AdminShell() {
         <div className="staff-actions" role="group" aria-label="Staff sections">
           {Object.entries(staffSections).map(([id, label]) => <Button key={id} variant="secondary" aria-pressed={section === id} onClick={() => setSection(id)}>{label}</Button>)}
         </div>
-        {section === 'products' ? <StaffCatalogue key={user.uid} user={user} />
-          : <ContentEditor key={`${user.uid}-${section}`} collection={section} heading={`${staffSections[section]} drafts`} />}
+        {section === 'products' ? <StaffCatalogue key={user.uid} user={user} role={role} />
+          : <ContentEditor key={`${user.uid}-${section}`} collection={section} role={role} heading={`${staffSections[section]} drafts`} />}
       </>}
     </>}
     <Link className="text-link" to="/">Return to store</Link>

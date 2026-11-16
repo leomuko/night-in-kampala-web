@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Button, ErrorState, LoadingState } from '../../components/UI.jsx';
 import CategoryEditor from './CategoryEditor.jsx';
+import ApprovalControl from './ApprovalControl.jsx';
 import PublicationControls from './PublicationControls.jsx';
 import PhotoEditor from './PhotoEditor.jsx';
 import DraftEditor from './DraftEditor.jsx';
 import { readEditorData } from './catalogueAdmin.js';
 
-export default function StaffCatalogue({ user }) {
+export default function StaffCatalogue({ user, role }) {
   const [state, setState] = useState({ status: 'loading' });
   const [selection, setSelection] = useState({ key: 0, slug: '' });
   useEffect(() => {
@@ -39,6 +40,7 @@ export default function StaffCatalogue({ user }) {
     <DraftEditor key={`draft-${selection.key}`} draft={draft} categories={state.categories} onSave={saveDraft} />
     {draft.slug && <PhotoEditor key={`photos-${selection.key}`} draft={draft} user={user} onSave={saveDraft} />}
     {draft.slug && <PublicationControls key={draft.slug} draft={draft} />}
+    {draft.slug && role === 'owner' && <ApprovalControl key={draft.slug} collection="products" draft={draft} onSave={saveDraft} />}
     <CategoryEditor items={state.categories} onSave={categories => setState(previous => ({ ...previous, categories }))} />
   </div>;
 }

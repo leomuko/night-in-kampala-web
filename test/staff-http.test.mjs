@@ -110,6 +110,71 @@ test('staff reopen saved drafts, concurrent edits are rejected and category IDs 
   }
 });
 
+test('owner approval is revision-bound, audited and cannot promote illustrative uploads', async () => {
+  const app = initializeApp({ projectId: project }, 'approval-test');
+  const db = getFirestore(app);
+  const slug = 'approval-test-piece';
+  const draft = db.doc(`productDrafts/${slug}`);
+  const live = db.doc(`products/${slug}`);
+  const eventDraft = db.doc('contentDrafts/events--approval-test-event');
+  const event = db.doc('events/approval-test-event');
+  const users = [];
+
+  async function token(role) {
+    const provision = spawnSync(process.execPath, ['scripts/provision-demo-staff.mjs', project, role], { encoding: 'utf8' });
+    assert.equal(provision.status, 0);
+    const { uid, email, password } = JSON.parse(provision.stdout);
+    users.push(uid);
+    const login = await post(`${authApi}:signInWithPassword?key=demo-key`, { email, password, returnSecureToken: true });
+    assert.equal(login.status, 200);
+    return login.body.idToken;
+  }
+  const approve = (auth, collection, target, revision, approved = true) =>
+    post(endpoint.replace(/staffAccess$/, 'publicationApproval'), { data: { collection, slug: target, revision, approved } }, auth);
+
+  try {
+    const staff = await token('staff');
+    const owner = await token('owner');
+    await draft.set({ revision: 1, photos: [{ id: 'front', kind: 'illustrative' }] });
+    await live.set({ status: 'published', draftRevision: 1, availability: 'available', isRealCatalogueStock: false, purchasable: false });
+    assert.equal((await approve(staff, 'products', slug, 1)).status, 403);
+    assert.equal((await approve(owner, 'products', slug, 1)).body.error?.status, 'FAILED_PRECONDITION');
+    assert.equal((await live.get()).data().purchasable, false);
+    // Seed separately classified inputs to exercise the trusted stock decision.
+    await draft.set({ revision: 2, photos: [{ id: 'replacement', kind: 'photograph' }] });
+    await live.update({ draftRevision: 2 });
+    assert.equal((await approve(owner, 'products', slug, 1)).body.error?.status, 'ABORTED');
+    assert.equal((await approve(owner, 'products', slug, 2)).status, 200);
+    assert.equal((await live.get()).data().purchasable, true);
+    assert.equal((await live.get()).data().approvedRevision, undefined);
+    await draft.update({ revision: 3 });
+    assert.equal((await approve(owner, 'products', slug, 3, false)).status, 200);
+    assert.equal((await live.get()).data().purchasable, false);
+
+    await eventDraft.set({ revision: 1, title: 'Illustrative event', body: '', city: 'Illustrative city', date: '', venue: '', season: 'upcoming' });
+    assert.equal((await approve(staff, 'events', event.id, 1)).status, 403);
+    assert.equal((await approve(owner, 'events', event.id, 1)).status, 200);
+    const publish = (auth, revision) => post(endpoint.replace(/staffAccess$/, 'editorialPublish'), {
+      data: { collection: 'events', slug: event.id, revision },
+    }, auth);
+    assert.equal((await publish(staff, 1)).status, 200);
+    assert.equal((await event.get()).data().illustrative, false);
+    await eventDraft.update({ revision: 2 });
+    assert.equal((await publish(staff, 2)).status, 200);
+    assert.equal((await event.get()).data().illustrative, true);
+
+    const audit = await db.collection('auditLogs').where('slug', 'in', [slug, event.id]).get();
+    assert.equal(audit.docs.filter(doc => ['approve-publication', 'revoke-publication-approval'].includes(doc.data().action)).length, 3);
+    assert.ok(audit.docs.filter(doc => doc.data().action === 'approve-publication').every(doc => doc.data().actorUid === users[1]));
+  } finally {
+    await Promise.all([draft, live, eventDraft, event].map(doc => doc.delete()));
+    const audit = await db.collection('auditLogs').where('slug', 'in', [slug, event.id]).get();
+    await Promise.all(audit.docs.map(doc => doc.ref.delete()));
+    await Promise.all(users.map(uid => getAuth(app).deleteUser(uid)));
+    await deleteApp(app);
+  }
+});
+
 test('photo processing and catalogue publication work through staff, Storage and Hosting', async () => {
   const app = initializeApp({ projectId: project }, 'catalogue-photo-test');
   const db = getFirestore(app);
@@ -278,6 +343,8 @@ test('photo processing and catalogue publication work through staff, Storage and
   } finally {
     await bucket.deleteFiles({ prefix: `product-drafts/${slug}/` });
     await bucket.deleteFiles({ prefix: `product-processed/${slug}/` });
+    const sources = await db.collection(`productPhotoSources/${slug}/photos`).get();
+    await Promise.all(sources.docs.map(doc => doc.ref.delete()));
     await path.delete();
     await db.doc('contentDrafts/collections--photo-test-drop').delete();
     await db.doc('collections/photo-test-drop').delete();
