@@ -49,16 +49,12 @@ describe('store foundations', () => {
     expect(screen.getByRole('main')).toHaveFocus();
   });
 
-  test('search encodes input and routes without claiming results exist', async () => {
-    const user = userEvent.setup();
-    visit();
-    await user.click(screen.getByRole('button', { name: 'Open search' }));
-    const dialog = screen.getByRole('dialog', { name: 'Search' });
-    await user.type(within(dialog).getByRole('searchbox'), '  denim & tees  ');
-    await user.click(within(dialog).getByRole('button', { name: 'Search', exact: true }));
+  test('storefront search is hidden and a legacy search URL opens the shop normally', () => {
+    visit('/shop?q=denim%20%26%20tees');
     expect(screen.getByRole('heading', { level: 1, name: 'Shop' })).toBeInTheDocument();
-    expect(screen.getByText('denim & tees', { exact: true })).toBeInTheDocument();
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Open search' })).toBeNull();
+    expect(screen.queryByRole('searchbox')).toBeNull();
+    expect(screen.queryByText(/is being prepared/)).toBeNull();
   });
 
   test('region preference does not imply currency conversion', async () => {

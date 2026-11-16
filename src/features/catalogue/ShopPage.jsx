@@ -68,7 +68,6 @@ export default function ShopPage() {
 
   return <section className="container page-section catalogue-page stack">
     <div className="section-heading"><h1>Shop</h1><Link className="text-link" to="/archive">Sold archive</Link></div>
-    {query.get('q') && <p>Search for <strong>{query.get('q')}</strong> is being prepared. Browse the catalogue below.</p>}
     <ShopFilters filters={{ category, size, availability, sort }} categories={categories} sizes={sizes} onChange={updateFilter} />
     {categoryError && <ErrorState>Could not load category options.</ErrorState>}
     {sizeError && <ErrorState onRetry={() => { setSizeError(false); setSizeAttempt(value => value + 1); }}>Could not load the sizes in stock.</ErrorState>}
