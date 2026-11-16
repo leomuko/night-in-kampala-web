@@ -8,7 +8,7 @@ import { readPublicDocument } from '../features/catalogue/catalogueData.js';
 
 vi.mock('../features/catalogue/catalogueData.js', async original => ({
   ...(await original()), readPublicDocument: vi.fn(() => new Promise(() => {})),
-  readProductPage: async () => ({ rows: [], cursor: null }), readCategories: async () => [],
+  readProductPage: async () => ({ rows: [], cursor: null }), readRequestableSizes: async () => [], readCategories: async () => [],
 }));
 
 const selector = 'title, meta[name="description"], meta[name="robots"], meta[name^="nik:"], meta[property^="og:"], link[rel="canonical"]';

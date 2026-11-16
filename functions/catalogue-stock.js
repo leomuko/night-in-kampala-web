@@ -1,5 +1,6 @@
 import { FieldValue } from 'firebase-admin/firestore';
 import { HttpsError } from 'firebase-functions/v2/https';
+import { updateSizeFacets } from './catalogue-sizes.js';
 import { canRequestProduct } from './catalogue-eligibility.js';
 import { catalogueId } from './catalogue-drafts.js';
 
@@ -10,12 +11,14 @@ export function assertStockCanChange(inventory, availability) {
 }
 
 // Use one transaction for the private count, storefront state and audit trail.
-export function writeStock(tx, { inventoryPath, productPath, auditPath, inventory, product, from, to, actor, action }) {
+export async function writeStock(tx, { inventoryPath, productPath, auditPath, inventory, product, from, to, actor, action }) {
+  const next = { ...product, availability: to };
+  const requestableSizes = await updateSizeFacets(tx, productPath.firestore, product, next, inventory);
   tx.set(inventoryPath, inventory);
   tx.set(productPath.firestore.doc(`productDrafts/${productPath.id}`), {
     publishedAvailability: to, availableUnits: inventory.availableUnits,
   }, { merge: true });
-  tx.update(productPath, { availability: to, purchasable: canRequestProduct({ ...product, availability: to }) });
+  tx.update(productPath, { availability: to, requestableSizes, purchasable: canRequestProduct(next) });
   tx.create(auditPath, { action, actorUid: actor.uid, productId: productPath.id, from, to, at: FieldValue.serverTimestamp() });
 }
 
@@ -42,7 +45,7 @@ export async function changeCatalogueAvailability(db, data, actor) {
     const relistUnits = target === 'sold' ? inventory.availableUnits : inventory.relistUnits;
     const relistVariants = target === 'sold' ? inventory.variants : (inventory.relistVariants ?? []);
     const variants = target === 'sold' ? inventory.variants.map(variant => ({ ...variant, quantity: 0 })) : relistVariants;
-    writeStock(tx, {
+    await writeStock(tx, {
       inventoryPath, productPath, auditPath, product: product.data(), from, to: target, actor, action: 'change-availability',
       inventory: { ...inventory, availableUnits, relistUnits, variants, relistVariants },
     });

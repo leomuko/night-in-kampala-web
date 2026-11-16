@@ -50,6 +50,22 @@ export async function readCategories() {
   return (await sdk.getDoc(sdk.doc(db, 'catalogueSettings', 'categories'))).data()?.items ?? [];
 }
 
+export async function readRequestableSizes() {
+  const firestore = await publicFirestore();
+  if (!firestore) return [];
+  const { db, sdk } = firestore;
+  const sizes = [];
+  let cursor;
+  do {
+    const constraints = [sdk.orderBy('label'), sdk.limit(24)];
+    if (cursor) constraints.push(sdk.startAfter(cursor));
+    const result = await sdk.getDocs(sdk.query(sdk.collection(db, 'catalogueSizes'), ...constraints));
+    sizes.push(...result.docs.map(doc => ({ id: doc.id, label: doc.data().label })));
+    cursor = result.size === 24 ? result.docs.at(-1) : undefined;
+  } while (cursor);
+  return sizes;
+}
+
 export async function readPublicDocument(collection, slug) {
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug) || slug.length > 120) return null;
   const firestore = await publicFirestore();

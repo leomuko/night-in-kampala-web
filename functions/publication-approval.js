@@ -2,6 +2,7 @@ import { FieldValue } from 'firebase-admin/firestore';
 import { HttpsError } from 'firebase-functions/v2/https';
 import { assertDraftRevision, catalogueId } from './catalogue-drafts.js';
 import { canRequestProduct, hasPhotographedStock } from './catalogue-eligibility.js';
+import { updateSizeFacets } from './catalogue-sizes.js';
 import { assertStockCanChange } from './catalogue-stock.js';
 
 export async function approvePublication(db, data, actor) {
@@ -29,16 +30,16 @@ export async function approvePublication(db, data, actor) {
     const updatesLive = live?.status === 'published' && Number.isInteger(live.draftRevision)
       && (approved ? live.draftRevision === draft.revision && !liveApproved : liveApproved);
     if (draft.approvedRevision === approvedRevision && !updatesLive) return { approvedRevision };
+    let projection = { illustrative: !approved };
     if (product && updatesLive) {
       const stock = (await tx.get(db.doc(`inventory/${slug}`))).data();
       assertStockCanChange(stock ?? {}, live.availability);
+      const next = { ...live, isRealCatalogueStock: approved };
+      const requestableSizes = await updateSizeFacets(tx, db, live, next, stock);
+      projection = { isRealCatalogueStock: approved, purchasable: canRequestProduct(next), requestableSizes };
     }
     tx.update(draftRef, { approvedRevision });
-    if (updatesLive) {
-      tx.update(publicRef, product
-        ? { isRealCatalogueStock: approved, purchasable: canRequestProduct({ ...live, isRealCatalogueStock: approved }) }
-        : { illustrative: !approved });
-    }
+    if (updatesLive) tx.update(publicRef, projection);
     tx.create(auditRef, {
       action: approved ? 'approve-publication' : 'revoke-publication-approval',
       collection, slug, revision: draft.revision, actorUid: actor.uid, at: FieldValue.serverTimestamp(),

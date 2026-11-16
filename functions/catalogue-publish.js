@@ -5,11 +5,8 @@ import { assertDraftRevision, catalogueId } from './catalogue-drafts.js';
 import { buildPublicProduct } from './catalogue-projection.js';
 import { assertStockCanChange } from './catalogue-stock.js';
 import { canRequestProduct, hasPhotographedStock } from './catalogue-eligibility.js';
+import { sizeKey, updateSizeFacets } from './catalogue-sizes.js';
 import { renditionWidths } from './catalogue-media.js';
-
-function sizeKey(label) {
-  return label.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-}
 
 function validateDraft(draft, categories, live) {
   if (!Array.isArray(draft.photos) || draft.photos.length < 1 || draft.photos.length > 8 || !draft.measurements?.length) {
@@ -107,12 +104,14 @@ export async function publishCatalogueProduct(db, bucket, data, actor) {
     const saved = currentDraft.data();
     const isRealCatalogueStock = saved.approvedRevision === data.revision && hasPhotographedStock(saved);
     const publicProduct = { ...projection, availability, draftRevision: data.revision, isRealCatalogueStock };
-    tx.set(productPath, { ...publicProduct, purchasable: canRequestProduct(publicProduct) });
-    tx.update(draftPath, { publicationStatus: 'published', publishedAvailability: availability, availableUnits: sold ? 0 : units });
-    tx.set(inventoryPath, {
+    const nextInventory = {
       stockType: draft.stockType, availableUnits: sold ? 0 : units, relistUnits: units,
       variants: sold ? variants.map(variant => ({ ...variant, quantity: 0 })) : variants, relistVariants: variants,
-    });
+    };
+    const requestableSizes = await updateSizeFacets(tx, db, previous, publicProduct, nextInventory);
+    tx.set(productPath, { ...publicProduct, requestableSizes, purchasable: canRequestProduct(publicProduct) });
+    tx.update(draftPath, { publicationStatus: 'published', publishedAvailability: availability, availableUnits: nextInventory.availableUnits });
+    tx.set(inventoryPath, nextInventory);
     tx.create(auditPath, { action: live ? 'republish' : 'publish', actorUid: actor.uid, productId: slug, at: FieldValue.serverTimestamp() });
     return { status: 'published', availability, availableUnits: sold ? 0 : units };
   });
@@ -129,7 +128,8 @@ export async function withdrawCatalogueProduct(db, data, actor) {
     if (!product || !Number.isInteger(product.draftRevision)) throw new HttpsError('not-found', 'Publish the product before changing visibility.');
     assertStockCanChange(stock.data() ?? {}, product.availability);
     if (product.status !== status) {
-      tx.update(productPath, { status, purchasable: false });
+      const requestableSizes = await updateSizeFacets(tx, db, product, { ...product, status }, stock.data());
+      tx.update(productPath, { status, requestableSizes, purchasable: false });
       tx.update(db.doc(`productDrafts/${slug}`), { publicationStatus: status });
       tx.create(db.collection('auditLogs').doc(), { action: status === 'archived' ? 'archive' : 'unpublish', actorUid: actor.uid, productId: slug, at: FieldValue.serverTimestamp() });
     }

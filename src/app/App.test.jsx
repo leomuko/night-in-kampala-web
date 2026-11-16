@@ -7,7 +7,7 @@ import App from './App.jsx';
 vi.mock('../features/catalogue/catalogueData.js', async original => {
   const { previewProducts } = await import('../data/previewProducts.js');
   return {
-    ...(await original()), readCategories: async () => [],
+    ...(await original()), readRequestableSizes: async () => [], readCategories: async () => [],
     readPublicPage: async () => ({ rows: [], cursor: null }),
     readProductPage: async (_filters, _cursor, size) => ({ rows: size === 3 ? previewProducts : [], cursor: null }),
   };

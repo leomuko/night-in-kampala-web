@@ -123,6 +123,9 @@ test('owner approval is revision-bound, audited and cannot promote illustrative 
   const slug = 'approval-test-piece';
   const draft = db.doc(`productDrafts/${slug}`);
   const live = db.doc(`products/${slug}`);
+  const inventory = db.doc(`inventory/${slug}`);
+  const sizeFacet = db.doc('catalogueSizes/waist-32');
+  const sizeCount = db.doc('catalogueSizeCounts/waist-32');
   const eventDraft = db.doc('contentDrafts/events--approval-test-event');
   const event = db.doc('events/approval-test-event');
   const users = [];
@@ -149,14 +152,23 @@ test('owner approval is revision-bound, audited and cannot promote illustrative 
     assert.equal((await live.get()).data().purchasable, false);
     // Seed separately classified inputs to exercise the trusted stock decision.
     await draft.set({ revision: 2, photos: [{ id: 'replacement', kind: 'photograph' }] });
-    await live.update({ draftRevision: 2 });
+    await live.update({ draftRevision: 2, stockType: 'one-of-one', sizeLabel: 'Waist 32' });
+    await inventory.set({ stockType: 'one-of-one', availableUnits: 1, relistUnits: 1, variants: [] });
     assert.equal((await approve(owner, 'products', slug, 1)).body.error?.status, 'ABORTED');
     assert.equal((await approve(owner, 'products', slug, 2)).status, 200);
     assert.equal((await live.get()).data().purchasable, true);
     assert.equal((await live.get()).data().approvedRevision, undefined);
+    assert.deepEqual((await sizeFacet.get()).data(), { label: 'Waist 32' });
+
+    const change = availability => post(endpoint.replace(/staffAccess$/, 'catalogueAvailability'), { data: { slug, availability } }, staff);
+    assert.equal((await change('sold')).status, 200);
+    assert.equal((await sizeFacet.get()).exists, false);
+    assert.equal((await change('available')).status, 200);
+    assert.equal((await sizeFacet.get()).exists, true);
     await draft.update({ revision: 3 });
     assert.equal((await approve(owner, 'products', slug, 3, false)).status, 200);
     assert.equal((await live.get()).data().purchasable, false);
+    assert.equal((await sizeFacet.get()).exists, false);
 
     await eventDraft.set({ revision: 1, title: 'Illustrative event', body: '', city: 'Illustrative city', date: '', venue: '', season: 'upcoming' });
     assert.equal((await approve(staff, 'events', event.id, 1)).status, 403);
@@ -174,7 +186,7 @@ test('owner approval is revision-bound, audited and cannot promote illustrative 
     assert.equal(audit.docs.filter(doc => ['approve-publication', 'revoke-publication-approval'].includes(doc.data().action)).length, 3);
     assert.ok(audit.docs.filter(doc => doc.data().action === 'approve-publication').every(doc => doc.data().actorUid === users[1]));
   } finally {
-    await Promise.all([draft, live, eventDraft, event].map(doc => doc.delete()));
+    await Promise.all([draft, live, inventory, sizeFacet, sizeCount, eventDraft, event].map(doc => doc.delete()));
     const audit = await db.collection('auditLogs').where('slug', 'in', [slug, event.id]).get();
     await Promise.all(audit.docs.map(doc => doc.ref.delete()));
     await Promise.all(users.map(uid => getAuth(app).deleteUser(uid)));

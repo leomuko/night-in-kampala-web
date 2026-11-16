@@ -81,6 +81,8 @@ before(async () => {
       setDoc(doc(db, 'auditLogs/first'), { operation: 'publish', actorUid: 'staff' }),
       setDoc(doc(db, 'users/customer'), { staff: true, owner: true }),
       setDoc(doc(db, 'catalogueSettings/categories'), categories),
+      setDoc(doc(db, 'catalogueSizes/waist-32'), { label: 'Waist 32' }),
+      setDoc(doc(db, 'catalogueSizeCounts/waist-32'), { count: 1 }),
       setDoc(doc(db, 'catalogueSettings/internal'), { private: true }),
       ...['collections', 'events', 'lookbooks', 'pages'].flatMap(kind => [
         setDoc(doc(db, kind, 'published'), { status: 'published' }),
@@ -168,6 +170,12 @@ test('categories and existing published content are public, with other settings 
   assert.ok(result.data().illustrative);
   assert.ok(result.data().items.every(item => item.active && item.id && item.label));
   await assertFails(getDocs(collection(db, 'catalogueSettings')));
+  const sizes = collection(db, 'catalogueSizes');
+  await assertFails(getDocs(sizes));
+  await assertFails(getDocs(query(sizes, limit(25))));
+  assert.deepEqual((await assertSucceeds(getDocs(query(sizes, limit(24))))).docs.map(row => row.data()), [{ label: 'Waist 32' }]);
+  await assertFails(getDoc(doc(db, 'catalogueSizeCounts/waist-32')));
+  await assertFails(updateDoc(doc(roles.staff.firestore(), 'catalogueSizes/waist-32'), { label: 'Forged size' }));
   await assertFails(getDoc(doc(db, 'catalogueSettings/internal')));
   await assertFails(getDoc(doc(db, 'contentDrafts/collections--published')));
   await assertSucceeds(getDoc(doc(roles.staff.firestore(), 'contentDrafts/collections--published')));

@@ -34,12 +34,11 @@
 .catalogue-page > .button { align-self: flex-start; }
 .shop-filters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); align-items: end; }
 .shop-filters .field { min-width: 0; }
-.shop-filters .button { justify-self: start; }
 @media (max-width: 359px) {
   .catalogue-page .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (min-width: 1024px) {
-  .shop-filters { grid-template-columns: repeat(4, minmax(0, 1fr)) auto; gap: var(--space-4); }
+  .shop-filters { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-4); }
 }
 
 .product-layout { display: grid; gap: var(--grid-gap); }

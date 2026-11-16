@@ -21,6 +21,10 @@ service cloud.firestore {
     match /auditLogs/{entry} {
       allow read: if isOwner();
     }
+    match /catalogueSizes/{id} {
+      allow get: if true;
+      allow list: if request.query.limit <= 24;
+    }
     match /catalogueSettings/categories {
       allow get: if true;
     }
