@@ -1,0 +1,23 @@
+{
+  "checkedAt": "2026-11-16T19:48:10.919Z",
+  "ttl": {
+    "name": "projects/night-in-kampala/databases/(default)/collectionGroups/orderSources/fields/expiresAt",
+    "configuration": {
+      "state": "ACTIVE"
+    }
+  },
+  "artifact": {
+    "name": "projects/night-in-kampala/locations/europe-west1/repositories/gcf-artifacts",
+    "cleanupPolicies": {
+      "firebase-functions-cleanup": {
+        "id": "firebase-functions-cleanup",
+        "action": "DELETE",
+        "condition": {
+          "tagState": "ANY",
+          "olderThan": "86400s"
+        }
+      }
+    },
+    "dryRun": false
+  }
+}
