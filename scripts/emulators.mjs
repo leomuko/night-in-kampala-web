@@ -4,8 +4,8 @@ import path from 'node:path';
 
 const root = process.cwd();
 const mode = process.argv[2];
-if (!['start', 'test', 'metadata'].includes(mode)) throw new Error('Use start, test or metadata.');
-const projectId = mode === 'test' ? 'demo-night-in-kampala-rules' : 'demo-night-in-kampala';
+if (!['start', 'test', 'metadata', 'cleanup'].includes(mode)) throw new Error('Use start, test, metadata or cleanup.');
+const projectId = { test: 'demo-night-in-kampala-rules', cleanup: 'demo-night-in-kampala-cleanup' }[mode] ?? 'demo-night-in-kampala';
 const cache = path.join(root, '.cache/firebase');
 mkdirSync(cache, { recursive: true });
 const env = {
@@ -28,17 +28,19 @@ if (java.status !== 0 || !javaMajor || javaMajor < 21) throw new Error('Java 21 
 let command = process.execPath;
 let args;
 if (mode !== 'start') {
-  let running = false;
+  let services;
   try {
-    const services = await (await fetch('http://127.0.0.1:4400/emulators', { signal: AbortSignal.timeout(1000) })).json();
-    const required = mode === 'metadata' ? ['auth', 'firestore', 'storage', 'functions', 'hosting'] : ['firestore', 'storage'];
-    running = required.every(service => services[service]);
+    services = await (await fetch('http://127.0.0.1:4400/emulators', { signal: AbortSignal.timeout(1000) })).json();
   } catch { /* Start an isolated emulator run if no hub is serving. */ }
-  const files = mode === 'metadata' ? ['test/shared-links-http.test.mjs', 'test/staff-http.test.mjs', 'test/order-http.test.mjs'] : ['test/rules.test.mjs'];
-  const only = mode === 'metadata' ? 'auth,firestore,storage,functions,hosting' : 'firestore,storage';
-  if (running && mode === 'test') {
-    throw new Error('Stop the running emulators before rule tests. Storage cross-service rules need the isolated rules project.');
-  }
+  const suites = {
+    metadata: { files: ['test/shared-links-http.test.mjs', 'test/staff-http.test.mjs', 'test/order-http.test.mjs'], emulators: ['auth', 'firestore', 'storage', 'functions', 'hosting'] },
+    test: { files: ['test/rules.test.mjs'], emulators: ['firestore', 'storage'] },
+    cleanup: { files: ['test/launch-cleanup.test.mjs'], emulators: ['auth', 'firestore', 'storage'] },
+  };
+  if (services && mode !== 'metadata') throw new Error('Stop the running emulators before this test. It needs an isolated demo project.');
+  const { files, emulators } = suites[mode];
+  const running = services && emulators.every(service => services[service]);
+  const only = emulators.join(',');
   args = running ? ['--test', ...files] : [path.join(root, 'node_modules/firebase-tools/lib/bin/firebase.js'), 'emulators:exec', '--project', projectId, '--only', only, `node --test ${files.join(' ')}`];
 } else {
   args = [path.join(root, 'node_modules/firebase-tools/lib/bin/firebase.js'), 'emulators:start', '--project', projectId, '--only', 'auth,firestore,storage,functions,hosting'];

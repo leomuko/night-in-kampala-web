@@ -39,6 +39,24 @@ The generated configuration removes only the development-wide noindex header whe
 - The default hourly allowance is **50** per verified source. Mobile carriers and shared Wi-Fi can place many shoppers behind one address. The owner can edit the limit in Settings. An already-saved override remains in effect.
 - Add a Firestore TTL policy on collection group `orderSources`, field `expiresAt`. Verify the policy and its timestamp type during preview. TTL deletion can lag, so the server enforces the rolling hour regardless. [Firestore TTL](https://cloud.google.com/firestore/native/docs/ttl).
 
+## Launch cleanup
+
+Before launch, close preview access and pause staff edits and test order submissions to the shared backend. Keep the permanent owner account and intended settings. Review the test accounts and keep genuine launch stock out of the test catalogue. See [prelaunch data markers](CATALOGUE_DATA.md#prelaunch-data-in-the-shared-project).
+
+The following commands are for the separately authorized launch window. The first produces a read-only inventory. Review the Firestore paths, Auth UIDs, Storage object names and any blockers in the ignored report at `.cache/launch-cleanup-night-in-kampala.json`.
+
+```sh
+node scripts/launch-cleanup.mjs --project night-in-kampala
+```
+
+After reviewing that inventory, execute cleanup with the typed phrase. Execution rechecks the candidates and stops if it finds links to retained stock, shared size or phone counters, or other reported blockers. It uses the operator’s authorized application default credentials. Keep the write pause in place. Firestore, Auth and Storage are cleaned separately, so after an interrupted execution run a new dry run before retrying.
+
+```sh
+node scripts/launch-cleanup.mjs --project night-in-kampala --execute --confirm "DELETE TEST DATA FOR night-in-kampala"
+```
+
+Run the dry run again to verify that the report is empty. Review categories and order settings, then rotate `ORDER_IDENTITY_KEY` before the production release. If genuine orders still exist, review the old key dependencies before rotating it.
+
 ## Automatic checks and evidence
 
 `npm run check` runs the secret scan, ESLint, application tests, metadata tests, deployment-boundary/build tests, the offline build, security-rule tests and Hosting HTTP tests. GitHub Actions runs that command on main-branch pushes and pull requests with Node 24 and Java 21, read-only repository permissions and no Firebase credentials. The updated workflow is in the local review commits. No deployment is part of CI.
