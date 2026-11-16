@@ -4,6 +4,7 @@ import { getFirestore } from 'firebase-admin/firestore';
 import { readFile } from 'node:fs/promises';
 import { readFileSync } from 'node:fs';
 import { createSharedLinkHandler } from './shared-links.js';
+import { saveCategory, saveProductDraft } from './catalogue-drafts.js';
 import { staffCallable } from './staff-access.js';
 import { resolveFunctionRuntime } from './runtime-config.js';
 
@@ -38,3 +39,5 @@ export const localHealth = runtime.emulator ? onRequest((_request, response) => 
 }) : undefined;
 
 export const staffAccess = staffCallable(runtime, (_data, actor) => ({ role: actor.role }));
+export const catalogueDraftSave = staffCallable(runtime, (data, actor) => saveProductDraft(db, data, actor));
+export const catalogueCategorySave = staffCallable(runtime, data => saveCategory(db, data));

@@ -66,3 +66,9 @@
 }
 
 .staff-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+
+.staff-catalogue, .staff-form, .staff-panel { width: 100%; }
+.staff-panel { max-width: var(--prose-width); }
+.staff-panel + .staff-panel { border-top: var(--border-width) solid var(--color-hairline); padding-top: var(--space-6); }
+.staff-list { margin: 0; padding-inline-start: var(--space-6); }
+.field textarea { width: 100%; min-height: var(--control-height); padding: var(--space-3) var(--space-4); border: var(--border-width) solid var(--color-muted); background: var(--color-paper); color: var(--color-ink); font: inherit; resize: vertical; }

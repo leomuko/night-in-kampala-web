@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { Link } from 'react-router-dom';
 import { Button, ErrorState, Field, LoadingState } from '../../components/UI.jsx';
+import StaffCatalogue from './StaffCatalogue.jsx';
 import { useStaffSession } from './useStaffSession.js';
 
 export default function AdminShell() {
@@ -35,6 +36,7 @@ export default function AdminShell() {
         <Button variant="secondary" disabled={busy} onClick={() => run(() => user.getIdToken(true), 'Could not refresh access.')}>Refresh access</Button>
         <Button variant="secondary" disabled={busy} onClick={() => run(() => signOut(auth), 'Could not sign out.')}>Sign out</Button>
       </div>
+      {role && <StaffCatalogue key={user.uid} />}
     </>}
     <Link className="text-link" to="/">Return to store</Link>
   </section>;
