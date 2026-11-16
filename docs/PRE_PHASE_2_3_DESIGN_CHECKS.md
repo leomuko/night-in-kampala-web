@@ -1,8 +1,8 @@
 # Design checks before Phases 2 and 3
 
-The approved white boards remain visual references. The review identified additional views/corrections needed before feature work. The owner's sales-first revision now prioritises on-site orders, cash/manual payment and dashboard alerts, with email/gateway integration deferred. See [SALES_FIRST_LAUNCH.md](SALES_FIRST_LAUNCH.md). These entry checks have not been generated or approved by implication.
+The approved white boards remain visual references. The review identified additional views/corrections needed before feature work. The owner's sales-first revision now prioritises on-site orders, cash/manual payment and dashboard alerts, with email/gateway integration deferred. See [SALES_FIRST_LAUNCH.md](SALES_FIRST_LAUNCH.md). Review the relevant boards and task list at each entry gate.
 
-D2.01 and D2.02 are ready for owner review. See the [shop grid](design-concepts/10-shop-grid.png), [mobile product detail](design-concepts/11-product-mobile.png) and [Phase 2 tasks](PHASE_2_TASKS.md).
+The owner approved D2.01 and D2.02. See the [shop grid](design-concepts/10-shop-grid.png), [mobile product detail](design-concepts/11-product-mobile.png) and [Phase 2 tasks](PHASE_2_TASKS.md).
 
 ## Before Phase 2 feature implementation
 
@@ -24,6 +24,6 @@ D2.01 and D2.02 are ready for owner review. See the [shop grid](design-concepts/
 | D3.04 | Verify limits, bot checks, stock and submit edge cases. | Server enforces 3 open requests/normalised phone, one per piece, 5 new submissions/rolling hour/trusted connection source, phone format/+256 handling, App Check and honeypot. Idempotent retry consumes no extra slot and reveals no other order. Test concurrent confirmations/cancellation and atomic Requested state changes. Resolve hold/overdue/Sold policy inputs. |
 | D3.05 | Review admin queue/detail, alerts, overdue and spam controls. | Persistent unread/contacted states, grouped oldest-first competing requests, overdue flag without auto-cancel, audited spam/block/unblock and separate manual-payment/fulfilment controls. Spam clears Requested only if no other request/allocation remains. Live disconnect loses no order; staff routine covers skipped WhatsApp; automated closed-dashboard alerts remain outside launch. |
 
-Detailed required behaviour and acceptance checks: [MANUAL_ORDER_REQUIREMENTS.md](MANUAL_ORDER_REQUIREMENTS.md). The owner confirmed reserve-at-staff-confirmation; the confirmed-hold duration and pending overdue threshold are not yet selected.
+Detailed required behaviour and acceptance checks: [MANUAL_ORDER_REQUIREMENTS.md](MANUAL_ORDER_REQUIREMENTS.md). The owner confirmed reserve-at-staff-confirmation; Sold requires an explicit staff action. The proposed 24-hour overdue default and any timed confirmed hold await owner review. [Boards 12–14 and the Phase 3 task list](PHASE_3_TASKS.md) are ready for approval.
 
 These tasks belong at the design entry to their feature phases. They do not delay the local Phase 1 shell after its spacing approval and baseline commit. Board 10 remains optional and unrequested.

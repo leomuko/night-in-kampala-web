@@ -21,13 +21,13 @@ The owner confirmed **reserve at staff confirmation**. An unverified request mus
 | Available | No active request, reservation or completed sale. Requests can be placed. |
 | Requested | At least one active request, with no confirmed allocation. Show "Requested, awaiting confirmation" and explain that another request is welcome, with confirmation handled in order received. The label does not disable ordering. |
 | Reserved | Staff atomically allocated the piece to one confirmed order. Further allocation is blocked. |
-| Sold | The trusted sale/stock workflow completed allocation according to the agreed payment/fulfilment transitions. Purchasing is disabled; the archive remains visible. |
+| Sold | Authorized staff explicitly used Mark as sold through the audited stock workflow. Purchasing is disabled; the archive remains visible. |
 
 Save the order, unread queue state, private active-request accounting and public Requested projection in the same trusted transaction. No public client writes. Status priority is Sold, then Reserved, then Requested, then Available. When all requests are declined/cancelled/spam, return to Available only if no reservation or sale remains. Repeated submissions and repeated cancellation/spam actions must not increment/decrement counters twice. A single request limit cannot be bypassed through a different cart payload containing the same piece.
 
 Group competing requests by piece, oldest first. Confirming one uses a transaction that allocates it at most once and prompts staff to decline/contact the others. For multi-item orders, handle the affected piece explicitly; do not silently cancel unrelated items or change a customer's agreed total. The "in order received" promise needs staff handling of earlier requests before later confirmation; any exception must be recorded and communicated.
 
-Show an overdue flag when a pending request exceeds an owner-configured threshold. **Do not auto-cancel it.** The threshold and any separate expiry of a confirmed reservation are still owner inputs; no duration has been selected. The final Sold/payment/fulfilment transition must also be defined before coding, particularly where cash is collected at delivery.
+Show an overdue flag when a pending request exceeds an owner-configured threshold. **Do not auto-cancel it.** The proposed 24-hour overdue default awaits owner confirmation. A timed confirmed hold requires an owner decision. Recording payment leaves the piece Reserved until authorized staff explicitly use Mark as sold.
 
 Acceptance: first request changes Available to Requested atomically; subsequent valid requests remain allowed; concurrent staff confirmations yield at most one allocation; decline/cancel/spam recomputes the correct state; a Reserved/Sold piece cannot be reset by clearing an unrelated request; overdue only flags work for staff.
 
@@ -47,4 +47,4 @@ Acceptance: simultaneous calls cannot exceed either limit or create duplicate ph
 
 ## Implementation entry checks
 
-Update the order-received/mobile product/admin-queue designs for the above states before Phase 3. The Phase 3 task breakdown must include persistence, state/counter transactions, limits, App Check, staff spam controls and their behaviour tests. Business WhatsApp number, staff queue-review routine, overdue threshold, confirmed-hold policy, Sold transition and cash/collection/delivery terms remain concrete inputs to resolve before real ordering.
+Update the order-received/mobile product/admin-queue designs for the above states before Phase 3. The Phase 3 task breakdown must include persistence, state/counter transactions, limits, App Check, staff spam controls and their behaviour tests. Business WhatsApp number, staff queue-review routine, confirmation of the overdue threshold, any timed confirmed-hold policy and cash/collection/delivery terms remain concrete inputs to resolve before real ordering.

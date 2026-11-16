@@ -17,6 +17,7 @@ A React JavaScript storefront and Firebase backend for reworked clothing, brand 
 - [Standalone placeholder images](docs/implementation-assets/placeholders/README.md): generated development assets and their provenance.
 - [Firebase location decision](docs/FIREBASE_REGION_DECISION.md): explicit gate before cloud resource creation/staging.
 - [Approved Phase 2 tasks](docs/PHASE_2_TASKS.md) and [catalogue data and permissions](docs/CATALOGUE_DATA.md).
+- [Phase 3 approval packet](docs/PHASE_3_TASKS.md): A1–A4, order and queue boards, and the proposed build sequence.
 - [Phase 2/3 design checks](docs/PRE_PHASE_2_3_DESIGN_CHECKS.md): missing views and checkout/product corrections.
 
 - [Visual concepts](docs/design-concepts/README.md): round-1 mockups and the [round-2 image prompts](docs/design-concepts/PROMPTS-ROUND-2.md).
