@@ -75,6 +75,8 @@ export async function addDraftPhoto(db, bucket, data, actor) {
     const photos = [...previous, { id, alt, kind, sourcePath, processedPath, uploadedBy: actor.uid }];
     const revision = data.revision + 1;
     tx.update(path, { photos, revision, updatedAt: FieldValue.serverTimestamp(), updatedBy: actor.uid });
+    tx.create(db.collection('auditLogs').doc(), { action: 'attach-product-photo', productId: slug,
+      photoId: id, actorUid: actor.uid, at: FieldValue.serverTimestamp() });
     return { photos, revision };
   });
 }

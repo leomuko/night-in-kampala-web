@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Button, ErrorState, Field, Select } from '../../components/UI.jsx';
 import { getFirebaseServices } from '../../services/firebase.js';
+import { getFirebaseRuntime } from '../../services/firebaseApp.js';
 import { callStaff, staffError } from './catalogueAdmin.js';
 import { preparePhoto } from './preparePhoto.js';
 
@@ -23,20 +24,29 @@ export default function PhotoEditor({ draft, user, onSave }) {
     setStatus('Photo saved.');
   }
 
-  async function upload(event) {
+  async function upload(event, example) {
     event.preventDefault();
-    const form = event.currentTarget;
+    const form = event.currentTarget.closest('form');
     const fields = new FormData(form);
-    const file = fields.get('photo');
     setError('');
     setStatus('Preparing photo…');
     setBusy(true);
     let stage = 'prepare';
     try {
+      let file = fields.get('photo');
+      if (example) {
+        const source = example === 'jpeg' ? '/share/painted-denim.jpg' : '/assets/painted-denim-640.webp';
+        const response = await fetch(source);
+        if (!response.ok) throw new Error('Could not load the test image.');
+        file = new File([await response.blob()], `test.${example === 'jpeg' ? 'jpg' : 'webp'}`, {
+          type: example === 'jpeg' ? 'image/jpeg' : 'image/webp',
+        });
+      }
       const jpeg = await preparePhoto(file);
       stage = 'upload';
       const id = crypto.randomUUID();
-      const data = { id, alt: fields.get('alt').trim(), extension: 'jpg', kind: fields.get('kind') };
+      const data = { id, alt: example ? `TEST illustrative ${example} upload` : fields.get('alt').trim(),
+        extension: 'jpg', kind: example ? 'illustrative' : fields.get('kind') };
       const [{ ref, uploadBytesResumable }, { storage }] = await Promise.all([import('firebase/storage'), getFirebaseServices()]);
       const task = uploadBytesResumable(ref(storage, `product-drafts/${draft.slug}/${user.uid}/${id}.jpg`), jpeg, { contentType: 'image/jpeg' });
       await new Promise((resolve, reject) => task.on('state_changed', snapshot => {
@@ -49,7 +59,8 @@ export default function PhotoEditor({ draft, user, onSave }) {
       form.reset();
     } catch (failure) {
       setStatus('');
-      setError(stage === 'prepare' ? failure.message : stage === 'upload' ? 'The upload failed. Select the photo and try again.' : staffError(failure));
+      setError(stage === 'prepare' ? failure.message : stage === 'upload'
+        ? `The upload failed (${failure.code ?? 'connection error'}). Select the photo and try again.` : staffError(failure));
     } finally {
       setProgress(null);
       setBusy(false);
@@ -103,6 +114,12 @@ export default function PhotoEditor({ draft, user, onSave }) {
         <option value="photograph">Photograph of the actual piece</option>
       </Select>
       <Button type="submit" disabled={busy || dirty || !!pending || photos.length >= 8}>Upload photo</Button>
+      {getFirebaseRuntime().target === 'preview' && draft.isTestData === true && <div className="staff-actions">
+        {['jpeg', 'webp'].map(example => <Button key={example} variant="secondary"
+          disabled={busy || dirty || !!pending || photos.length >= 8} onClick={event => upload(event, example)}>
+          Use test {example.toUpperCase()}
+        </Button>)}
+      </div>}
     </form>
     {progress !== null && <progress aria-label="Upload progress" max="100" value={progress}>{progress}%</progress>}
     {status && <p role="status">{status}</p>}

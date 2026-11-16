@@ -90,6 +90,8 @@ export async function saveProductDraft(db, data, actor, previewData = false) {
     const revision = data.revision + 1;
     const marker = previewData && !previous.exists ? { isTestData: true } : {};
     tx.set(path, { ...fields, ...marker, revision, updatedAt: FieldValue.serverTimestamp(), updatedBy: actor.uid }, { merge: true });
+    tx.create(db.collection('auditLogs').doc(), { action: previous.exists ? 'save-product-draft' : 'create-product-draft',
+      productId: slug, revision, actorUid: actor.uid, at: FieldValue.serverTimestamp() });
     return { slug, revision };
   });
 }

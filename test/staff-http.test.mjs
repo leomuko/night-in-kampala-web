@@ -96,6 +96,8 @@ test('staff reopen saved drafts, concurrent edits are rejected and category IDs 
     assert.deepEqual(reloaded.measurements, draft.measurements);
     assert.equal(reloaded.isRealCatalogueStock, false);
     assert.equal(reloaded.isTestData, true);
+    const draftAudit = await db.collection('auditLogs').where('productId', '==', slug).get();
+    assert.equal(draftAudit.docs.filter(row => row.data().action === 'create-product-draft').length, 1);
     assert.equal((await auth.getUser(uid)).customClaims.testAccount, true);
     const generated = await call('catalogueDraftSave', { revision: 0, draft: { ...draft, name: 'Slug Test Denim' } });
     assert.equal(generated.body.result?.slug, 'slug-test-denim');
@@ -245,6 +247,8 @@ test('photo processing and catalogue publication work through staff, Storage and
       assert.equal(photo.body.result.revision, index + 2);
     }
     const [share] = await bucket.file(`product-processed/${slug}/${uid}/front/share.jpg`).download();
+    const photoAudit = await db.collection('auditLogs').where('productId', '==', slug).get();
+    assert.equal(photoAudit.docs.filter(row => row.data().action === 'attach-product-photo').length, 2);
     const meta = await sharp(share).metadata();
     assert.deepEqual([meta.format, meta.width, meta.height], ['jpeg', 1200, 630]);
     const [thumbnail] = await bucket.file(`product-processed/${slug}/${uid}/front/320.webp`).download();
