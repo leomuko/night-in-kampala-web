@@ -33,7 +33,7 @@ export default function PagedList({ read, empty, children }) {
   return <>
     {pages.rows.length > 0 && children(pages.rows)}
     {pending && <LoadingState />}
-    {failed && <ErrorState onRetry={() => load(request.cursor)}>Could not load these pieces. Please try again.</ErrorState>}
+    {failed && <ErrorState onRetry={() => load(request.cursor)}>Could not load this list. Please try again.</ErrorState>}
     {!pending && !failed && !pages.rows.length && <p role="status">{empty}</p>}
     {!pending && !failed && pages.cursor && <Button variant="secondary" onClick={() => load(pages.cursor)}>Load more</Button>}
   </>;

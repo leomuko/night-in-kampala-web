@@ -25,9 +25,15 @@ service cloud.firestore {
       allow get: if true;
     }
 
+    match /contentDrafts/{id} {
+      allow read: if isCatalogueStaff();
+    }
     match /{collection}/{slug} {
-      allow read: if collection in ['collections', 'events', 'lookbooks', 'pages']
-        && resource.data.status == 'published';
+      function isPublishedContent() {
+        return collection in ['collections', 'events', 'lookbooks', 'pages'] && resource.data.status == 'published';
+      }
+      allow get: if isPublishedContent();
+      allow list: if isPublishedContent() && request.query.limit <= 24;
     }
     // All Firestore writes go through a trusted server. Orders remain private.
     match /{document=**} { allow read, write: if false; }

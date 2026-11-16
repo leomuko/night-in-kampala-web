@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { Link } from 'react-router-dom';
 import { Button, ErrorState, Field, LoadingState } from '../../components/UI.jsx';
+import ContentEditor from './ContentEditor.jsx';
 import StaffCatalogue from './StaffCatalogue.jsx';
 import { useStaffSession } from './useStaffSession.js';
 
 export default function AdminShell() {
   const { status, auth, user, role } = useStaffSession();
+  const [section, setSection] = useState('products');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   async function run(action, message) {
@@ -36,7 +38,14 @@ export default function AdminShell() {
         <Button variant="secondary" disabled={busy} onClick={() => run(() => user.getIdToken(true), 'Could not refresh access.')}>Refresh access</Button>
         <Button variant="secondary" disabled={busy} onClick={() => run(() => signOut(auth), 'Could not sign out.')}>Sign out</Button>
       </div>
-      {role && <StaffCatalogue key={user.uid} user={user} />}
+      {role && <>
+        <div className="staff-actions" role="group" aria-label="Staff sections">
+          <Button variant="secondary" aria-pressed={section === 'products'} onClick={() => setSection('products')}>Products</Button>
+          <Button variant="secondary" aria-pressed={section === 'collections'} onClick={() => setSection('collections')}>Drops</Button>
+        </div>
+        {section === 'products' ? <StaffCatalogue key={user.uid} user={user} />
+          : <ContentEditor key={`${user.uid}-${section}`} collection={section} heading="Drop drafts" />}
+      </>}
     </>}
     <Link className="text-link" to="/">Return to store</Link>
   </section>;

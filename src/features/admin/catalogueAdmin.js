@@ -20,3 +20,11 @@ export function staffError(error) {
   return error?.code?.startsWith('functions/') && error.code !== 'functions/internal'
     ? error.message : 'The change could not be saved. Try again.';
 }
+
+export async function readContentDrafts(kind) {
+  const [{ collection, getDocs, query, where, limit }, { db }] = await Promise.all([
+    import('firebase/firestore'), getFirebaseServices(),
+  ]);
+  const result = await getDocs(query(collection(db, 'contentDrafts'), where('collection', '==', kind), limit(30)));
+  return result.docs.map(doc => doc.data());
+}

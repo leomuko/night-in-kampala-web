@@ -75,6 +75,7 @@ before(async () => {
       setDoc(doc(db, 'products/archived'), { ...published, status: 'archived' }),
       setDoc(doc(db, 'products/legacy'), { status: 'published', name: 'Older illustrative fixture' }),
       setDoc(doc(db, 'productDrafts/published'), publishedDraft),
+      setDoc(doc(db, 'contentDrafts/collections--published'), { collection: 'collections', title: 'Private draft' }),
       setDoc(doc(db, 'orders/private'), { orderStatus: 'new', paymentStatus: 'unpaid', fulfilmentStatus: 'unfulfilled' }),
       setDoc(doc(db, 'inventory/published'), { availableUnits: 1 }),
       setDoc(doc(db, 'auditLogs/first'), { operation: 'publish', actorUid: 'staff' }),
@@ -168,9 +169,19 @@ test('categories and existing published content are public, with other settings 
   assert.ok(result.data().items.every(item => item.active && item.id && item.label));
   await assertFails(getDocs(collection(db, 'catalogueSettings')));
   await assertFails(getDoc(doc(db, 'catalogueSettings/internal')));
+  await assertFails(getDoc(doc(db, 'contentDrafts/collections--published')));
+  await assertSucceeds(getDoc(doc(roles.staff.firestore(), 'contentDrafts/collections--published')));
+  await assertFails(updateDoc(doc(roles.staff.firestore(), 'contentDrafts/collections--published'), { title: 'Untrusted draft update' }));
   for (const kind of ['collections', 'events', 'lookbooks', 'pages']) {
     await assertSucceeds(getDoc(doc(db, kind, 'published')));
     await assertFails(getDoc(doc(db, kind, 'draft')));
+    const rows = collection(db, kind);
+    const published = where('status', '==', 'published');
+    await assertFails(getDocs(query(rows, published)));
+    await assertFails(getDocs(query(rows, published, limit(25))));
+    await assertFails(getDocs(query(rows, limit(12))));
+    assert.deepEqual((await assertSucceeds(getDocs(query(rows, published, limit(12))))).docs.map(row => row.id), ['published']);
+    await assertFails(updateDoc(doc(roles.staff.firestore(), kind, 'published'), { title: 'Untrusted update' }));
   }
 });
 

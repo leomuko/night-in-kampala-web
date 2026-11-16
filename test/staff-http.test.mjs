@@ -190,6 +190,27 @@ test('photo processing and catalogue publication work through staff, Storage and
     assert.match(await html.text(), /Illustrative edited piece/);
     assert.equal((await fetch(home + firstPublic.share.imageUrl)).status, 404);
 
+    const dropSlug = 'photo-test-drop';
+    const dropPath = `${home}/collections/${dropSlug}`;
+    const draftDrop = (productIds, revision) => ({
+      collection: 'collections', slug: dropSlug, revision,
+      draft: { title: 'Illustrative test drop', body: 'A synthetic collection', productIds, coverProductId: slug, privateNote: 'Do not project' },
+    });
+    const publishDrop = revision => call('editorialPublish', { collection: 'collections', slug: dropSlug, revision });
+    assert.equal((await post(endpoint.replace(/staffAccess$/, 'editorialDraftSave'), { data: draftDrop([slug], 0) })).status, 401);
+    assert.equal((await call('editorialDraftSave', draftDrop([slug, 'missing'], 0))).status, 200);
+    assert.equal((await fetch(dropPath)).status, 404);
+    assert.equal((await publishDrop(1)).body.error?.status, 'FAILED_PRECONDITION');
+    assert.equal((await call('editorialDraftSave', draftDrop([slug], 1))).status, 200);
+    assert.equal((await publishDrop(2)).status, 200);
+    const drop = (await db.doc(`collections/${dropSlug}`).get()).data();
+    assert.deepEqual(drop.productIds, [slug]);
+    assert.equal(drop.privateNote, undefined);
+    assert.equal(drop.updatedBy, undefined);
+    const dropHtml = await (await fetch(dropPath)).text();
+    assert.ok(dropHtml.includes(current.share.imageUrl));
+    assert.match(dropHtml, /Illustrative test drop/);
+
     const inventory = db.doc(`inventory/${slug}`);
     await inventory.update({ reservedUnits: 1 });
     assert.equal((await call('catalogueAvailability', { slug, availability: 'available' })).body.error?.status, 'FAILED_PRECONDITION');
@@ -201,10 +222,15 @@ test('photo processing and catalogue publication work through staff, Storage and
     assert.equal(withdrawn.status, 404);
     assert.match(withdrawn.headers.get('cache-control'), /no-store/);
     assert.equal((await fetch(`${home}/products/${slug}`)).status, 404);
+    assert.match(await (await fetch(dropPath)).text(), /\/share\/campaign\.jpg/);
   } finally {
     await bucket.deleteFiles({ prefix: `product-drafts/${slug}/` });
     await bucket.deleteFiles({ prefix: `product-processed/${slug}/` });
     await path.delete();
+    await db.doc('contentDrafts/collections--photo-test-drop').delete();
+    await db.doc('collections/photo-test-drop').delete();
+    const contentAudit = await db.collection('auditLogs').where('slug', '==', 'photo-test-drop').get();
+    await Promise.all(contentAudit.docs.map(doc => doc.ref.delete()));
     await db.doc(`products/${slug}`).delete();
     await db.doc(`inventory/${slug}`).delete();
     if (previousCategories.exists) await categoryPath.set(previousCategories.data());

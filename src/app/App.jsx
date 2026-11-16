@@ -3,6 +3,7 @@ import { Routes, Route, Outlet, useLocation } from 'react-router-dom';
 import Header from '../components/Header.jsx';
 import Footer from '../components/Footer.jsx';
 import { LoadingState, ErrorState } from '../components/UI.jsx';
+import { DropPage, DropsPage } from '../features/editorial/DropPages.jsx';
 import ProductPage from '../features/catalogue/ProductPage.jsx';
 import ShopPage from '../features/catalogue/ShopPage.jsx';
 import HomePage from '../features/home/HomePage.jsx';
@@ -31,9 +32,11 @@ export default function App() {
   return <Routes><Route element={<Layout />}>
     <Route index element={<HomePage />} />
     <Route path="shop" element={<ShopPage />} />
-    {['collections', 'archive', 'about', 'lookbooks', 'events', 'contact', 'cart', 'checkout'].map(page => <Route key={page} path={page} element={<PlaceholderPage page={page} />} />)}
+    <Route path="collections" element={<DropsPage />} />
+    <Route path="collections/:slug" element={<DropPage />} />
+    {['archive', 'about', 'lookbooks', 'events', 'contact', 'cart', 'checkout'].map(page => <Route key={page} path={page} element={<PlaceholderPage page={page} />} />)}
     <Route path="products/:slug" element={<ProductPage />} />
-    {['collections', 'lookbooks', 'events', 'help'].map(page => <Route key={page} path={`${page}/:slug`} element={<PlaceholderPage page={page} />} />)}
+    {['lookbooks', 'events', 'help'].map(page => <Route key={page} path={`${page}/:slug`} element={<PlaceholderPage page={page} />} />)}
     <Route path="orders/:id" element={<PlaceholderPage page="orders" />} />
     <Route path="admin/*" element={<AdminShell />} />
     {ComponentPage && <Route path="components" element={<ComponentPage />} />}

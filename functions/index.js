@@ -10,6 +10,7 @@ import { addDraftPhoto, updateDraftPhotos } from './catalogue-media.js';
 import { publishCatalogueProduct, withdrawCatalogueProduct } from './catalogue-publish.js';
 import { changeCatalogueAvailability } from './catalogue-stock.js';
 import { catalogueMediaHandler } from './serve-catalogue-media.js';
+import { saveEditorialDraft, publishEditorial } from './editorial.js';
 import { staffCallable } from './staff-access.js';
 import { resolveFunctionRuntime } from './runtime-config.js';
 
@@ -26,7 +27,13 @@ async function loadHandler() {
     emulator: runtime.emulator,
     indexPublicPages: runtime.indexPublicPages === true,
     template: await readFile(new URL('./generated/index.html', import.meta.url), 'utf8'),
-    readDocument: async (collection, slug) => (await db.collection(collection).doc(slug).get()).data(),
+    readDocument: async (collection, slug) => {
+      const document = (await db.collection(collection).doc(slug).get()).data();
+      if (document?.status !== 'published' || !document.coverProductId) return document;
+      const cover = (await db.collection('products').doc(document.coverProductId).get()).data();
+      if (cover?.status !== 'published') return document;
+      return { ...document, share: { ...document.share, imageUrl: cover.share?.imageUrl, imageAlt: cover.share?.imageAlt } };
+    },
   });
 }
 export const renderSharedLink = onRequest({ region: runtime.region, timeoutSeconds: 15, maxInstances: 3 }, async (request, response) => {
@@ -53,3 +60,5 @@ export const cataloguePublish = staffCallable(runtime, (data, actor) => publishC
 export const catalogueWithdraw = staffCallable(runtime, (data, actor) => withdrawCatalogueProduct(db, data, actor));
 export const catalogueAvailability = staffCallable(runtime, (data, actor) => changeCatalogueAvailability(db, data, actor));
 export const catalogueMedia = onRequest({ region: runtime.region, maxInstances: 3 }, catalogueMediaHandler(db, () => catalogueBucket(app, runtime)));
+export const editorialDraftSave = staffCallable(runtime, (data, actor) => saveEditorialDraft(db, data, actor));
+export const editorialPublish = staffCallable(runtime, (data, actor) => publishEditorial(db, data, actor));
