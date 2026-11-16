@@ -1,5 +1,4 @@
-import { getFirebaseRuntime } from '../../services/firebaseApp.js';
-import { getFirebaseServices } from '../../services/firebase.js';
+import { getFirebaseApp, getFirebaseRuntime } from '../../services/firebaseApp.js';
 
 export const availabilityLabels = { available: 'Available', requested: 'Requested', reserved: 'Reserved', sold: 'Sold' };
 export const productSorts = {
@@ -8,10 +7,18 @@ export const productSorts = {
   'price-high': ['priceUGX', 'desc'],
 };
 
-export async function publicFirestore() {
-  if (getFirebaseRuntime().mode === 'preview') return null;
-  const [{ db }, sdk] = await Promise.all([getFirebaseServices(), import('firebase/firestore')]);
-  return { db, sdk };
+let publicClient;
+async function publicFirestore() {
+  const { mode } = getFirebaseRuntime();
+  if (mode === 'preview') return null;
+  // The catalogue uses server reads. The Lite SDK avoids a realtime connection
+  // for guests and never substitutes a local cache for a publication check.
+  publicClient ??= import('firebase/firestore/lite').then(sdk => {
+    const db = sdk.getFirestore(getFirebaseApp());
+    if (mode === 'emulator') sdk.connectFirestoreEmulator(db, '127.0.0.1', 8080);
+    return { db, sdk };
+  }).catch(error => { publicClient = undefined; throw error; });
+  return publicClient;
 }
 
 export async function readPublicPage(collection, buildConstraints, cursor, pageSize = 12) {
