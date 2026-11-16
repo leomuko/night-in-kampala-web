@@ -139,3 +139,7 @@
 .order-items li > img { width: var(--space-16); aspect-ratio: 1; object-fit: contain; background: var(--color-fog); }
 .order-items li > div { min-width: 0; overflow-wrap: anywhere; }
 .order-items .staff-actions { margin-top: var(--space-2); }
+.order-form, .order-form .field { width: 100%; }
+.order-form { align-items: stretch; }
+.order-method { border: 0; padding: 0; margin: 0; gap: var(--space-2); }
+.order-method legend { margin-bottom: var(--space-2); font-weight: var(--weight-semibold); }

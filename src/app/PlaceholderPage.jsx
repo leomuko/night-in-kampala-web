@@ -5,7 +5,6 @@ const messages = {
     heading: 'Order status',
     copy: 'Order access is being prepared. Once ordering opens, staff will follow up using the contact details you provide. An order number alone does not give access.',
   },
-  checkout: { heading: 'Checkout', copy: 'Online ordering will open with the first collection.' },
 };
 
 export default function PlaceholderPage({ page }) {

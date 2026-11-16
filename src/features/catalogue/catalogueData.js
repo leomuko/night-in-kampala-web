@@ -80,3 +80,10 @@ export async function readPublicDocument(collection, slug) {
     throw error;
   }
 }
+
+export async function readOrderPolicy() {
+  const firestore = await publicFirestore();
+  if (!firestore) return null;
+  const { db, sdk } = firestore;
+  return (await sdk.getDoc(sdk.doc(db, 'orderPolicy', 'current'))).data() ?? null;
+}

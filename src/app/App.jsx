@@ -10,6 +10,7 @@ import ArchivePage from '../features/catalogue/ArchivePage.jsx';
 import ProductPage from '../features/catalogue/ProductPage.jsx';
 import ShopPage from '../features/catalogue/ShopPage.jsx';
 import BagProvider from '../features/orders/BagProvider.jsx';
+import CheckoutPage from '../features/orders/CheckoutPage.jsx';
 import BagPage from '../features/orders/BagPage.jsx';
 import HomePage from '../features/home/HomePage.jsx';
 import PlaceholderPage from './PlaceholderPage.jsx';
@@ -49,7 +50,7 @@ export default function App() {
     <Route path="lookbooks" element={<LookbooksPage />} />
     <Route path="lookbooks/:slug" element={<LookbookPage />} />
     <Route path="cart" element={<BagPage />} />
-    <Route path="checkout" element={<PlaceholderPage page="checkout" />} />
+    <Route path="checkout" element={<CheckoutPage />} />
     <Route path="products/:slug" element={<ProductPage />} />
     <Route path="orders/:id" element={<PlaceholderPage page="orders" />} />
     <Route path="admin/*" element={<AdminShell />} />
