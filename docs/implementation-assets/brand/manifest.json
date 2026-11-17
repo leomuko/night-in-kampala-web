@@ -1,0 +1,14 @@
+{
+  "file": "public/share/brand.jpg",
+  "kind": "brand_typography",
+  "text": "NIGHT IN KAMPALA",
+  "width": 1200,
+  "height": 630,
+  "sha256": "d1aa875950d7e4929abb6a18c10786f756abb845767167f4e0ac4b787e88bb6f",
+  "font": "Anton",
+  "fontSource": "https://raw.githubusercontent.com/google/fonts/main/ofl/anton/Anton-Regular.ttf",
+  "fontSha256": "a4ba3a92350ebb031da0cb47630ac49eb265082ca1bc0450442f4a83ab947cab",
+  "license": "OFL.txt",
+  "command": "node scripts/prepare-brand-share.mjs",
+  "note": "Approved wordmark rendered from open-licence glyphs. No generated photography or invented garment."
+}

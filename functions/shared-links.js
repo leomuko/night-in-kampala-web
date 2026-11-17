@@ -1,11 +1,12 @@
 // Only public, published document fields cross this boundary. Admin SDK reads
 // bypass Firestore rules, so the visibility check here is mandatory.
 import { robotsForPath } from './indexing.js';
+import { isLaunchContent } from './public-content.js';
 export const PREVIEW_CACHE_SECONDS = 60;
 export const PREVIEW_CACHE_CONTROL = `public, max-age=0, s-maxage=${PREVIEW_CACHE_SECONDS}, must-revalidate`;
 export const HEAD_START = '<!-- shared-link-head:start -->';
 export const HEAD_END = '<!-- shared-link-head:end -->';
-export const DEFAULT_SHARE_IMAGE = '/share/campaign.jpg';
+export const DEFAULT_SHARE_IMAGE = '/share/brand.jpg';
 
 export function configuredOrigin(value, { emulator = false } = {}) {
   const url = new URL(value);
@@ -58,7 +59,7 @@ export function publicDetailMetadata(document, route, origin) {
     description: optionalText(share?.description, 500, `${title}. Explore reworked clothing, stories and fashion from Night in Kampala.`),
     canonical: `${origin}${route.path}`,
     image,
-    imageAlt: image === `${origin}${DEFAULT_SHARE_IMAGE}` ? 'Night in Kampala — AI-generated campaign placeholder' : optionalText(share?.imageAlt, 300, title),
+    imageAlt: image === `${origin}${DEFAULT_SHARE_IMAGE}` ? 'Night in Kampala wordmark' : optionalText(share?.imageAlt, 300, title),
   };
 }
 
@@ -87,7 +88,7 @@ function replaceHead(template, metadata, path, status, indexPublicPages) {
   return `${template.slice(0, start + HEAD_START.length)}\n${tags.join('\n')}\n${template.slice(end)}`;
 }
 
-export function createSharedLinkHandler({ origin, template, readDocument, reportError = console.error, emulator = false, indexPublicPages = false }) {
+export function createSharedLinkHandler({ origin, template, readDocument, reportError = console.error, emulator = false, indexPublicPages = false, launchCatalogueOnly = false }) {
   // Validate once, before accepting requests. The adapter supplies only trusted config.
   origin = configuredOrigin(origin, { emulator });
   const errorPage = (status, path = '') => ({
@@ -106,7 +107,7 @@ export function createSharedLinkHandler({ origin, template, readDocument, report
     }
     try {
       const document = await readDocument(route.collection, route.slug);
-      if (!document || document.status !== 'published') return errorPage(404, route.path);
+      if (!document || document.status !== 'published' || (launchCatalogueOnly && !isLaunchContent(route.collection, document))) return errorPage(404, route.path);
       const metadata = publicDetailMetadata(document, route, origin);
       return {
         status: 200,

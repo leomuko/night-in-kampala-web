@@ -24,6 +24,10 @@ test('predeploy builds matching browser/Function artifacts and imports the confi
     for (const key of ['FUNCTIONS_EMULATOR', 'FIRESTORE_EMULATOR_HOST', 'FIREBASE_AUTH_EMULATOR_HOST', 'FIREBASE_STORAGE_EMULATOR_HOST']) delete env[key];
     const build = spawnSync(process.execPath, ['scripts/prepare-deployment.mjs', 'preview'], { cwd: root, env, encoding: 'utf8' });
     assert.equal(build.status, 0, `${build.stdout}\n${build.stderr}`);
+    const provenance = JSON.parse(await readFile(path.join(root, 'dist/asset-provenance.json'), 'utf8'));
+    assert.ok(provenance.assets.every(asset => asset.kind !== 'ai_generated_placeholder'));
+    await assert.rejects(readFile(path.join(root, 'dist/assets/campaign-960.webp')), { code: 'ENOENT' });
+    assert.ok((await readFile(path.join(root, 'dist/share/brand.jpg'))).length > 0);
     const manifest = JSON.parse(await readFile(path.join(root, 'firebase.preview.generated.json'), 'utf8'));
     assert.ok(manifest.functions[0].predeploy[0].endsWith(' preview --hook backend'));
     assert.ok(manifest.hosting.predeploy[0].endsWith(' preview --hook hosting'));

@@ -19,7 +19,7 @@ describe('store foundations', () => {
   test('preview clothing is visibly labelled and cannot be purchased', async () => {
     visit();
     await screen.findByText('Reworked graphic tee');
-    expect(screen.getAllByText('AI-generated placeholder')).toHaveLength(4);
+    expect(screen.getAllByText('AI-generated placeholder')).toHaveLength(3);
     expect(screen.queryByRole('button', { name: /add to bag/i })).not.toBeInTheDocument();
     expect(screen.getAllByText('UGX 160,000')).toHaveLength(1);
   });

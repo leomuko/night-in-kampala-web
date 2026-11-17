@@ -26,7 +26,7 @@
     "release:firebase": "node scripts/release-firebase.mjs",
     "test:hosting": "node scripts/emulators.mjs metadata",
     "test:cleanup": "node scripts/emulators.mjs cleanup",
-    "assets": "node scripts/prepare-assets.mjs",
+    "assets": "node scripts/prepare-assets.mjs && node scripts/prepare-brand-share.mjs",
     "emulators": "node scripts/emulators.mjs start",
     "emulators:staff": "node scripts/provision-demo-staff.mjs",
     "emulators:seed": "node scripts/seed-emulators.mjs",

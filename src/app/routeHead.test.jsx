@@ -41,7 +41,7 @@ test('server 404s display the useful not-found screen and navigation still works
   expect(screen.getByRole('heading', { name: 'PAGE NOT FOUND' })).toBeInTheDocument();
   await userEvent.click(screen.getByRole('link', { name: 'Back to home' }));
   expect(document.title).toBe('Reworked in Kampala — Night in Kampala');
-  expect(await screen.findByText('The first pieces will appear here when they’re published.')).toBeInTheDocument();
+  expect(await screen.findByRole('heading', { name: 'Every piece starts somewhere' })).toBeInTheDocument();
 });
 test('server failures display a retry explanation without pretending the page is missing', () => {
   seed(503);
@@ -79,7 +79,7 @@ test('in-app product navigation and Back replace the head and unavailable items 
   await user.click(screen.getByRole('link', { name: 'Next piece' }));
   await screen.findByRole('heading', { name: 'Second piece' });
   expect(document.querySelector('link[rel="canonical"]').href).toMatch(/\/products\/second$/);
-  expect(document.querySelector('meta[property="og:image"]').content).toMatch(/\/share\/campaign.jpg$/);
+  expect(document.querySelector('meta[property="og:image"]').content).toMatch(/\/share\/brand.jpg$/);
   expect(document.querySelectorAll('meta[property="og:image"]')).toHaveLength(1);
   await user.click(screen.getByRole('button', { name: 'Go back' }));
   await screen.findByRole('heading', { name: 'First piece' });

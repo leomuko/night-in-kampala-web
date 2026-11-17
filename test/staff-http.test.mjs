@@ -373,7 +373,7 @@ test('photo processing and catalogue publication work through staff, Storage and
     assert.equal((await fetch(`${home}/products/${slug}`)).status, 404);
     await assert.rejects(getDoc(webDoc(guest, 'products', slug)), { code: 'permission-denied' });
     assert.ok(!(await getDocs(newest)).docs.some(doc => doc.id === slug));
-    assert.match(await (await fetch(dropPath)).text(), /\/share\/campaign\.jpg/);
+    assert.match(await (await fetch(dropPath)).text(), /\/share\/brand\.jpg/);
   } finally {
     await bucket.deleteFiles({ prefix: `product-drafts/${slug}/` });
     await bucket.deleteFiles({ prefix: `product-processed/${slug}/` });

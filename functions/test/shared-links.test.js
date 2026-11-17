@@ -113,3 +113,17 @@ test('indexing is opt-in for published pages and always disabled on errors', asy
   assert.equal(head(missing).querySelector('meta[name="robots"]').content, 'noindex, nofollow');
   assert.equal(missing.headers['X-Robots-Tag'], 'noindex, nofollow');
 });
+
+test('launch shares hide test/illustrative documents while retaining genuine sold stock and approved stories', async () => {
+  for (const fields of [{ isTestData: true, isRealCatalogueStock: true }, { isRealCatalogueStock: false }]) {
+    const result = await handler({ ...document, ...fields }, { launchCatalogueOnly: true })({ url: '/products/hidden' });
+    assert.equal(result.status, 404);
+    assert.ok(!result.body.includes(document.name));
+  }
+  const sold = await handler({ ...document, isRealCatalogueStock: true, availability: 'sold' }, { launchCatalogueOnly: true })({ url: '/products/real-sold' });
+  assert.equal(sold.status, 200);
+  for (const illustrative of [true, false]) {
+    const result = await handler({ ...document, illustrative }, { launchCatalogueOnly: true })({ url: '/events/real-event' });
+    assert.equal(result.status, illustrative ? 404 : 200);
+  }
+});

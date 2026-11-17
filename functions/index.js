@@ -21,6 +21,7 @@ import { updateOrderDesk } from './order-desk.js';
 import { saveOrderSettings } from './order-settings.js';
 import { staffCallable } from './staff-access.js';
 import { resolveFunctionRuntime } from './runtime-config.js';
+import { isLaunchContent } from './public-content.js';
 
 // Cloud startup requires a prepared, approved artifact and a matching project.
 // No default cloud origin, region or project is inferred from request headers.
@@ -34,13 +35,14 @@ async function loadHandler() {
   return createSharedLinkHandler({
     origin: runtime.origin,
     emulator: runtime.emulator,
+    launchCatalogueOnly: !runtime.emulator,
     indexPublicPages: runtime.indexPublicPages === true,
     template: await readFile(new URL('./generated/index.html', import.meta.url), 'utf8'),
     readDocument: async (collection, slug) => {
       const document = (await db.collection(collection).doc(slug).get()).data();
       if (document?.status !== 'published' || !document.coverProductId) return document;
       const cover = (await db.collection('products').doc(document.coverProductId).get()).data();
-      if (cover?.status !== 'published') return document;
+      if (cover?.status !== 'published' || (!runtime.emulator && !isLaunchContent('products', cover))) return document;
       return { ...document, share: { ...document.share, imageUrl: cover.share?.imageUrl, imageAlt: cover.share?.imageAlt } };
     },
   });

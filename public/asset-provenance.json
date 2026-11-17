@@ -148,6 +148,14 @@
       "kind": "ai_generated_placeholder",
       "requiresVisibleLabel": true,
       "isRealCatalogueStock": false
+    },
+    {
+      "file": "share/brand.jpg",
+      "kind": "brand_typography",
+      "width": 1200,
+      "height": 630,
+      "bytes": 15132,
+      "sha256": "d1aa875950d7e4929abb6a18c10786f756abb845767167f4e0ac4b787e88bb6f"
     }
   ],
   "fonts": [

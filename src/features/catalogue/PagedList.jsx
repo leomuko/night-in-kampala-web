@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Button, ErrorState, LoadingState } from '../../components/UI.jsx';
+import EmptyState from '../../components/EmptyState.jsx';
 
-export default function PagedList({ read, empty, children }) {
+export default function PagedList({ read, empty, children, emptyTo = '/shop', emptyLabel = 'Explore the shop' }) {
   const [pages, setPages] = useState({ rows: [], cursor: null });
   const [request, setRequest] = useState({ cursor: null });
   const [pending, setPending] = useState(true);
@@ -34,7 +35,7 @@ export default function PagedList({ read, empty, children }) {
     {pages.rows.length > 0 && children(pages.rows)}
     {pending && <LoadingState />}
     {failed && <ErrorState onRetry={() => load(request.cursor)}>Could not load this list. Please try again.</ErrorState>}
-    {!pending && !failed && !pages.rows.length && <p role="status">{empty}</p>}
+    {!pending && !failed && !pages.rows.length && <EmptyState title="A little more to come" to={emptyTo} label={emptyLabel}>{empty}</EmptyState>}
     {!pending && !failed && pages.cursor && <Button variant="secondary" onClick={() => load(pages.cursor)}>Load more</Button>}
   </>;
 }

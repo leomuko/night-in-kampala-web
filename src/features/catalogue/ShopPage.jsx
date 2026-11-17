@@ -71,7 +71,9 @@ export default function ShopPage() {
     <ShopFilters filters={{ category, size, availability, sort }} categories={categories} sizes={sizes} onChange={updateFilter} />
     {categoryError && <ErrorState>Could not load category options.</ErrorState>}
     {sizeError && <ErrorState onRetry={() => { setSizeError(false); setSizeAttempt(value => value + 1); }}>Could not load the sizes in stock.</ErrorState>}
-    <PagedList key={key} read={read} empty="No pieces match these filters.">
+    <PagedList key={key} read={read} emptyTo={category || size || availability ? '/shop' : '/about'}
+      emptyLabel={category || size || availability ? 'Clear filters' : 'Our process'}
+      empty={category || size || availability ? 'No pieces match these filters. Try another selection.' : 'Pieces will appear here as they are published. Explore our process while you browse.'}>
       {rows => <div className="product-grid">{rows.map(product => <GarmentCard key={product.slug} product={product} />)}</div>}
     </PagedList>
   </section>;

@@ -1,4 +1,5 @@
 import { getFirebaseApp, getFirebaseRuntime } from '../../services/firebaseApp.js';
+import { isLaunchContent } from '../../../functions/public-content.js';
 
 export const availabilityLabels = { available: 'Available', requested: 'Requested', reserved: 'Reserved', sold: 'Sold' };
 export const productSorts = {
@@ -25,11 +26,21 @@ export async function readPublicPage(collection, buildConstraints, cursor, pageS
   const firestore = await publicFirestore();
   if (!firestore) return { rows: [], cursor: null };
   const { db, sdk } = firestore;
-  const constraints = [sdk.where('status', '==', 'published'), ...buildConstraints(sdk)];
-  if (cursor) constraints.push(sdk.startAfter(cursor));
-  const snapshot = await sdk.getDocs(sdk.query(sdk.collection(db, collection), ...constraints, sdk.limit(pageSize + 1)));
-  const docs = snapshot.docs.slice(0, pageSize);
-  return { rows: docs.map(doc => ({ ...doc.data(), slug: doc.id })), cursor: snapshot.size > pageSize ? docs.at(-1) : null };
+  if (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > 23) throw new Error('Use a bounded catalogue page.');
+  const cloud = getFirebaseRuntime().mode === 'cloud';
+  const eligible = [];
+  let next = cursor;
+  // Retain bounded reads and raw Firestore cursors while stepping over old
+  // fixtures. Hidden documents must not leave an apparently empty first page.
+  do {
+    const constraints = [sdk.where('status', '==', 'published'), ...buildConstraints(sdk)];
+    if (next) constraints.push(sdk.startAfter(next));
+    const snapshot = await sdk.getDocs(sdk.query(sdk.collection(db, collection), ...constraints, sdk.limit(pageSize + 1)));
+    eligible.push(...snapshot.docs.filter(doc => !cloud || isLaunchContent(collection, doc.data())));
+    next = snapshot.size === pageSize + 1 ? snapshot.docs.at(-1) : null;
+  } while (cloud && eligible.length <= pageSize && next);
+  const docs = eligible.slice(0, pageSize);
+  return { rows: docs.map(doc => ({ ...doc.data(), slug: doc.id })), cursor: eligible.length > pageSize ? docs.at(-1) : null };
 }
 
 export function readProductPage(filters, cursor, pageSize) {
@@ -60,7 +71,8 @@ export async function readRequestableSizes() {
     const constraints = [sdk.orderBy('label'), sdk.limit(24)];
     if (cursor) constraints.push(sdk.startAfter(cursor));
     const result = await sdk.getDocs(sdk.query(sdk.collection(db, 'catalogueSizes'), ...constraints));
-    sizes.push(...result.docs.map(doc => ({ id: doc.id, label: doc.data().label })));
+    sizes.push(...result.docs.filter(doc => getFirebaseRuntime().mode !== 'cloud' || doc.data().isTestData !== true)
+      .map(doc => ({ id: doc.id, label: doc.data().label })));
     cursor = result.size === 24 ? result.docs.at(-1) : undefined;
   } while (cursor);
   return sizes;
@@ -74,7 +86,8 @@ export async function readPublicDocument(collection, slug) {
   try {
     const snapshot = await sdk.getDoc(sdk.doc(db, collection, slug));
     const document = snapshot.data();
-    return document?.status === 'published' ? { ...document, slug: snapshot.id } : null;
+    return document?.status === 'published' && (getFirebaseRuntime().mode !== 'cloud' || isLaunchContent(collection, document))
+      ? { ...document, slug: snapshot.id } : null;
   } catch (error) {
     if (error.code === 'permission-denied') return null;
     throw error;

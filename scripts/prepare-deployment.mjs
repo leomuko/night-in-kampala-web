@@ -1,4 +1,4 @@
-import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, rm } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
@@ -21,6 +21,14 @@ const env = {
 };
 const build = spawnSync(process.execPath, ['node_modules/vite/bin/vite.js', 'build', '--mode', target], { cwd: root, env, stdio: 'inherit' });
 if (build.error || build.status !== 0) throw new Error('Cloud build failed; deployment preparation stopped.');
+const provenance = JSON.parse(await readFile(new URL('../dist/asset-provenance.json', import.meta.url), 'utf8'));
+for (const asset of provenance.assets.filter(asset => asset.kind === 'ai_generated_placeholder')) {
+  if (!/^(assets\/[a-z0-9-]+\.webp|share\/[a-z0-9-]+\.jpg)$/.test(asset.file)) throw new Error('Unexpected placeholder asset path.');
+  await rm(new URL(`../dist/${asset.file}`, import.meta.url), { force: true });
+}
+await writeFile(new URL('../dist/asset-provenance.json', import.meta.url), JSON.stringify({ ...provenance,
+  status: 'launch', assets: provenance.assets.filter(asset => asset.kind !== 'ai_generated_placeholder'),
+}, null, 2) + '\n');
 await import('./prepare-preview-template.mjs');
 const { webConfig, ...runtime } = config;
 await mkdir(new URL('../functions/generated/', import.meta.url), { recursive: true });
