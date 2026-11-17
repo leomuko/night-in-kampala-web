@@ -1,0 +1,15 @@
+{
+  "date": "2026-11-17",
+  "command": "npm run check",
+  "result": "pass",
+  "total": 137,
+  "application": 77,
+  "metadata": 15,
+  "deployment": 6,
+  "rules": 10,
+  "emulatorHttp": 24,
+  "cleanupAndRole": 4,
+  "secretScan": 1,
+  "lint": "pass",
+  "build": "pass"
+}

@@ -1,0 +1,37 @@
+{
+  "checkedAt": "2026-11-17T06:49:00.697Z",
+  "bothProfilesUseNewKey": true,
+  "remainingLocalFiles": [],
+  "gitHistoryExamined": false,
+  "checks": [
+    {
+      "path": "/",
+      "entry": "/assets/index-BHxt8S4y.js",
+      "resolvedEntry": "/assets/index-BHxt8S4y.js",
+      "status": 200,
+      "containsNewKey": true,
+      "containsRetiringKey": false
+    },
+    {
+      "path": "/products/preview-painted-denim",
+      "entry": "/assets/index-BHxt8S4y.js",
+      "resolvedEntry": "/assets/index-BHxt8S4y.js",
+      "status": 200,
+      "containsNewKey": true,
+      "containsRetiringKey": false
+    },
+    {
+      "path": "/events/preview-test-event",
+      "entry": "/assets/index-BHxt8S4y.js",
+      "resolvedEntry": "/assets/index-BHxt8S4y.js",
+      "status": 200,
+      "containsNewKey": true,
+      "containsRetiringKey": false
+    }
+  ],
+  "compatibilityModule": {
+    "path": "/assets/index-CTJL3u1e.js",
+    "status": 200,
+    "cacheControl": "no-store"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "checkedAt": "2026-11-17T06:44:46.531Z",
+  "ttl": {
+    "state": "ACTIVE"
+  },
+  "artifact": {
+    "cleanupPolicies": {
+      "firebase-functions-cleanup": {
+        "id": "firebase-functions-cleanup",
+        "action": "DELETE",
+        "condition": {
+          "tagState": "ANY",
+          "olderThan": "86400s"
+        }
+      }
+    },
+    "dryRun": false
+  },
+  "settings": {
+    "overdueHours": 24,
+    "openPerPhone": 3,
+    "activePerPiece": 1,
+    "submissionsPerHour": 50,
+    "whatsappNumberUnset": true,
+    "copyReviewed": false
+  },
+  "permanentOwner": {
+    "email": "superadmin@nightinkampala.com",
+    "owner": true,
+    "testAccount": false,
+    "unchangedByTheseChecks": true
+  },
+  "signedOutOrderQueue": [
+    {
+      "isTestData": true,
+      "unread": true,
+      "state": "new"
+    }
+  ],
+  "appCheck": {
+    "validLoggedCalls": 9,
+    "anonymousValidCalls": 2
+  }
+}
