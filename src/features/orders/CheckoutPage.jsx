@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { defaultOrderSettings } from '../../../functions/order-model.js';
 import { Button, ErrorState, Field, LoadingState, Select } from '../../components/UI.jsx';
 import { formatPrice } from '../../data/previewProducts.js';
-import { readOrderPolicy } from '../catalogue/catalogueData.js';
+import useOrderPolicy from './useOrderPolicy.js';
 import { createOrder } from './orderClient.js';
 import { countries } from './countries.js';
 import { canContinue, subtotal } from './bagData.js';
@@ -28,7 +27,7 @@ function CheckoutForm({ onOrder }) {
   const { rows, failed, loading, retry } = useBagReview(items);
   const [country, setCountry] = useState('UG');
   const [method, setMethod] = useState('delivery');
-  const [policy, setPolicy] = useState(defaultOrderSettings.copy);
+  const { copy: policy, copyReviewed } = useOrderPolicy();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [receipt, setReceipt] = useState(null);
@@ -40,11 +39,6 @@ function CheckoutForm({ onOrder }) {
     if (error) errorHeading.current?.focus();
     else if (lastRequest.current && !receipt) form.current?.elements.namedItem('name')?.focus();
   }, [error, receipt]);
-  useEffect(() => {
-    let current = true;
-    readOrderPolicy().then(result => { if (current && result?.copy) setPolicy(result.copy); }).catch(() => {});
-    return () => { current = false; };
-  }, []);
 
   async function send(request) {
     if (busy) return;
@@ -112,6 +106,7 @@ function CheckoutForm({ onOrder }) {
       </>}
       <p>{policy[method]}</p>
       <p>{policy.payment}</p>
+      {!copyReviewed && <p className="helper">Launch wording · awaiting owner review</p>}
       <Button type="submit" disabled={busy || !canContinue(rows ?? [])}>{busy ? 'Submitting…' : 'Place order'}</Button>
     </form></div>}
   </section>;

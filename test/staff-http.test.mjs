@@ -430,9 +430,11 @@ test('order settings accept only validated owner changes and audit the safe proj
     assert.equal((await save('owner', { ...data, whatsappNumber: 'not-a-number' })).status, 400);
     assert.equal((await save('owner', data)).status, 200);
     assert.equal((await save('owner', data)).body.error.status, 'ABORTED');
-    assert.deepEqual((await policy.get()).data(), { copy, copyReviewed: false });
+    assert.deepEqual((await policy.get()).data(), { copy, copyReviewed: false, whatsappNumber: '' });
+    assert.equal((await save('owner', { ...data, revision: revision + 1, whatsappNumber: '+12025550123' })).status, 200);
+    assert.equal((await policy.get()).data().whatsappNumber, '+12025550123');
     const audit = await logs.where('actorUid', '==', users[1]).get();
-    assert.equal(audit.size, 1);
+    assert.equal(audit.size, 2);
     assert.equal(audit.docs[0].data().action, 'order-settings-update');
   } finally {
     await Promise.all(prior.map(doc => doc.exists ? doc.ref.set(doc.data()) : doc.ref.delete()));

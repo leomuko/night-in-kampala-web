@@ -40,7 +40,7 @@ export default function Header() {
     </Dialog>
     <Dialog open={dialog === 'region'} onClose={() => setDialog(null)} title="Shopping region">
       {dialog === 'region' && <form className="stack" onSubmit={saveRegion}>
-        <p>Prices are shown in Ugandan shillings. Delivery destinations will be confirmed when the store opens.</p>
+        <p>Prices are shown in Ugandan shillings. Collection and delivery arrangements are confirmed with the team.</p>
         <label className="radio-row"><input type="radio" name="region" value="uganda" defaultChecked={region === 'uganda'} />Uganda</label>
         <label className="radio-row"><input type="radio" name="region" value="international" defaultChecked={region === 'international'} />International</label>
         <Button type="submit">Save region</Button>

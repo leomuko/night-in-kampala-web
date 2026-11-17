@@ -32,7 +32,7 @@ export function EventsPage() {
   const read = useCallback(cursor => readPublicPage('events', sdk => [sdk.where('season', '==', season)], cursor), [season]);
   return <section className="container page-section catalogue-page stack">
     <h1>Events</h1>
-    <p className="editorial">Runways, pop-ups and nights for the community.</p>
+    <p className="editorial">Fashion events by Night in Kampala.</p>
     <nav className="event-tabs" aria-label="Event listings">
       <Link to="/events" aria-current={season === 'upcoming' ? 'page' : undefined}>Upcoming</Link>
       <Link to="/events?view=past" aria-current={season === 'past' ? 'page' : undefined}>Past</Link>

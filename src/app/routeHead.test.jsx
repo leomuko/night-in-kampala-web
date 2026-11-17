@@ -1,5 +1,5 @@
 import { afterEach, expect, test, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Link, MemoryRouter, useNavigate } from 'react-router-dom';
 import App from './App.jsx';
@@ -74,7 +74,7 @@ test('in-app product navigation and Back replace the head and unavailable items 
   const user = userEvent.setup();
   render(<MemoryRouter initialEntries={['/products/first']}><DetailLinks /></MemoryRouter>);
   await screen.findByRole('heading', { name: 'First piece' });
-  expect(document.title).toBe('First piece — Night in Kampala');
+  await waitFor(() => expect(document.title).toBe('First piece — Night in Kampala'));
   expect(document.querySelector('meta[name="description"]').content).toBe('First description');
   await user.click(screen.getByRole('link', { name: 'Next piece' }));
   await screen.findByRole('heading', { name: 'Second piece' });

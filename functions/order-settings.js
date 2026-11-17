@@ -37,7 +37,7 @@ export async function saveOrderSettings(db, data, actor) {
     if (data.revision !== current.revision) throw new HttpsError('aborted', 'Settings changed. Reopen the screen before saving.');
     const revision = current.revision + 1;
     tx.set(path, { ...fields, revision });
-    tx.set(db.doc('orderPolicy/current'), { copy, copyReviewed: fields.copyReviewed });
+    tx.set(db.doc('orderPolicy/current'), { copy, copyReviewed: fields.copyReviewed, whatsappNumber });
     tx.create(db.collection('auditLogs').doc(), {
       action: 'order-settings-update', actorUid: actor.uid, revision,
       changedFields: Object.keys(fields).filter(key => JSON.stringify(fields[key]) !== JSON.stringify(current[key])),

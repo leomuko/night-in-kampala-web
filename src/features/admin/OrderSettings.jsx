@@ -4,6 +4,7 @@ import { Button, ErrorState, Field, LoadingState } from '../../components/UI.jsx
 import { getFirebaseServices } from '../../services/firebase.js';
 import { callStaff, staffError } from './catalogueAdmin.js';
 import PreviewChecks from './PreviewChecks.jsx';
+import { resolveLaunchPolicy, launchContactPhone } from '../../../functions/launch-copy.js';
 
 const limits = [
   ['overdueHours', 'Overdue threshold (hours)', 720],
@@ -21,7 +22,10 @@ export default function OrderSettings() {
     let alive = true;
     Promise.all([getFirebaseServices(), import('firebase/firestore')]).then(async ([{ db }, sdk]) => {
       const snapshot = await sdk.getDocFromServer(sdk.doc(db, 'orderSettings', 'config'));
-      if (alive) setSettings(snapshot.data() ?? defaultOrderSettings);
+      if (alive) {
+        const saved = snapshot.data() ?? defaultOrderSettings;
+        setSettings({ ...saved, copy: resolveLaunchPolicy(saved).copy });
+      }
     }).catch(() => { if (alive) setError('Could not load order settings. Reopen Settings to retry.'); });
     return () => { alive = false; };
   }, []);
@@ -47,6 +51,7 @@ export default function OrderSettings() {
 
   return <section className="staff-panel stack">
     <h2>Order settings</h2>
+    <p className="helper">Launch contact: {launchContactPhone}. Save this number below to enable WhatsApp links. Review and save the launch wording before approving it.</p>
     {error && <ErrorState>{error}</ErrorState>}
     {!settings && !error && <LoadingState />}
     {settings && <form className="stack staff-form" onSubmit={save} key={settings.revision}>

@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Button } from '../../components/UI.jsx';
 import { formatPrice } from '../../data/previewProducts.js';
 import { dismissRecentOrder, readRecentOrder, whatsappOrderLink } from './receiptData.js';
+import useOrderPolicy from './useOrderPolicy.js';
 
 function Summary({ receipt }) {
   return <>
@@ -29,6 +30,7 @@ export function RecentOrder() {
 }
 
 export default function OrderReceipt({ receipt }) {
+  const policy = useOrderPolicy();
   const heading = useRef(null);
   useEffect(() => { heading.current?.focus(); }, [receipt.reference]);
   const whatsapp = whatsappOrderLink(receipt);
@@ -41,6 +43,10 @@ export default function OrderReceipt({ receipt }) {
     </>}
     <h2>What happens next</h2>
     <p>Staff will follow up to confirm availability, delivery and payment.</p>
+    <p>{policy.copy.payment}</p>
+    <p>{policy.copy.collection}</p>
+    <p>{policy.copy.delivery}</p>
+    {!policy.copyReviewed && <p className="helper">Launch wording · awaiting owner review</p>}
     <Link className="text-link" to="/shop">Back to shop</Link>
   </section>;
 }

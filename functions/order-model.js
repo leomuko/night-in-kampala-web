@@ -1,3 +1,5 @@
+import { defaultLaunchCopy } from './launch-copy.js';
+
 export const openOrderStates = ['new', 'contacted', 'confirmed'];
 
 export const orderTransitions = {
@@ -23,11 +25,7 @@ export const defaultOrderSettings = {
   activePerPiece: 1,
   submissionsPerHour: 50,
   copyReviewed: false,
-  copy: {
-    collection: 'Staff will contact you to arrange collection.',
-    delivery: 'Delivery and final total to be confirmed.',
-    payment: 'Staff will contact you to confirm the order and arrange payment.',
-  },
+  copy: { ...defaultLaunchCopy },
 };
 
 export const maxOrderLines = 12;

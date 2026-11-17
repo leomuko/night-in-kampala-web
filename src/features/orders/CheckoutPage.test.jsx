@@ -19,7 +19,7 @@ test('guest form shows pieces and keeps contact while switching to collection', 
   render(<MemoryRouter><BagProvider><CheckoutPage /></BagProvider></MemoryRouter>);
   expect(await screen.findByRole('img', { name: 'Demo photo' })).toBeInTheDocument();
   expect(screen.getByText(/Waist 32/)).toBeInTheDocument();
-  expect(screen.getByText('Delivery and final total to be confirmed.')).toBeInTheDocument();
+  expect(screen.getByText(/Delivery within Kampala by boda/)).toBeInTheDocument();
   expect(screen.getByLabelText('Phone or WhatsApp number')).toBeRequired();
   expect(screen.getByLabelText('Email (optional)')).not.toBeRequired();
   await userEvent.type(screen.getByLabelText('Full name'), 'Demo shopper');

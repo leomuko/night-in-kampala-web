@@ -4,6 +4,7 @@ import { readPublicDocument } from '../catalogue/catalogueData.js';
 import useDetailHead from '../catalogue/useDetailHead.js';
 import usePublicDocument from '../catalogue/usePublicDocument.js';
 import EditorialList from './EditorialList.jsx';
+import LaunchHelp, { launchHelpHeadings } from './LaunchHelp.jsx';
 
 async function readWithCover(collection, slug) {
   const page = await readPublicDocument(collection, slug);
@@ -36,13 +37,13 @@ export function SitePage({ slug, heading }) {
     {state.loading && <LoadingState />}
     {state.failed && <ErrorState onRetry={state.retry}>Could not load this page.</ErrorState>}
     {page && <PageBody page={page} />}
-    {!state.loading && !state.failed && !page && <p>{slug === 'our-process'
-      ? 'We rework secondhand clothing with original prints and designs in Kampala.'
-      : 'This information is being prepared.'}</p>}
+    {!state.loading && !state.failed && !page && (slug === 'our-process'
+      ? <p>We rework secondhand clothing with original prints and designs in Kampala.</p>
+      : <LaunchHelp slug={slug} />)}
   </article>;
 }
 
-const helpHeadings = { delivery: 'Delivery', returns: 'Returns', sizing: 'Sizing & care', privacy: 'Privacy' };
+const helpHeadings = launchHelpHeadings;
 
 export function HelpPage() {
   const { slug } = useParams();
