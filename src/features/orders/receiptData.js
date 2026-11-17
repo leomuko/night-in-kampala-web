@@ -1,6 +1,8 @@
 import { formatPrice } from '../../data/previewProducts.js';
 
-const key = 'nk-recent-order-v1';
+// Prelaunch summaries have no trustworthy test marker. Keep the old browser
+// record untouched, but do not display it in the launch storefront.
+export const recentOrderStorageKey = 'nk-recent-order-launch-v1';
 
 function receiptRecord({ reference, receivedAt, subtotalUGX, items }) {
   if (typeof reference !== 'string' || !/^NK-[A-Z0-9-]{1,40}$/.test(reference)
@@ -15,15 +17,15 @@ function receiptRecord({ reference, receivedAt, subtotalUGX, items }) {
 export function saveRecentOrder(receipt) {
   const summary = receiptRecord(receipt);
   if (!summary) return;
-  try { localStorage.setItem(key, JSON.stringify(summary)); } catch { /* The receipt is still available on screen. */ }
+  try { localStorage.setItem(recentOrderStorageKey, JSON.stringify(summary)); } catch { /* The receipt is still available on screen. */ }
 }
 
 export function readRecentOrder() {
-  try { return receiptRecord(JSON.parse(localStorage.getItem(key))); } catch { return null; }
+  try { return receiptRecord(JSON.parse(localStorage.getItem(recentOrderStorageKey))); } catch { return null; }
 }
 
 export function dismissRecentOrder() {
-  try { localStorage.removeItem(key); } catch { /* Dismiss in the current view. */ }
+  try { localStorage.removeItem(recentOrderStorageKey); } catch { /* Dismiss in the current view. */ }
 }
 
 export function whatsappOrderLink(receipt) {

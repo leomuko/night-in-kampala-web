@@ -5,6 +5,7 @@ import { MemoryRouter } from 'react-router-dom';
 import BagProvider from './BagProvider.jsx';
 import CheckoutPage from './CheckoutPage.jsx';
 import { bagStorageKey } from './bagData.js';
+import { recentOrderStorageKey } from './receiptData.js';
 
 vi.mock('../catalogue/catalogueData.js', () => ({
   readOrderPolicy: async () => null,
@@ -46,7 +47,7 @@ test('a failed submit retries the same request and saves a dismissible safe rece
   expect(await screen.findByRole('heading', { name: 'Order received, awaiting confirmation' })).toHaveFocus();
   expect(submit.mock.calls[0][0]).toEqual(submit.mock.calls[1][0]);
   expect(screen.queryByRole('link', { name: /on WhatsApp/ })).toBeNull();
-  expect(localStorage.getItem('nk-recent-order-v1')).toContain('NK-DEMO');
-  expect(localStorage.getItem('nk-recent-order-v1')).not.toContain('Demo shopper');
+  expect(localStorage.getItem(recentOrderStorageKey)).toContain('NK-DEMO');
+  expect(localStorage.getItem(recentOrderStorageKey)).not.toContain('Demo shopper');
   expect(localStorage.getItem(bagStorageKey)).toBe('[]');
 });

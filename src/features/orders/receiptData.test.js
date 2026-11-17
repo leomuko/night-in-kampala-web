@@ -17,3 +17,11 @@ test('the WhatsApp prefill and recent record contain only public snapshot fields
   dismissRecentOrder();
   expect(readRecentOrder()).toBeNull();
 });
+
+test('a legacy prelaunch browser receipt is retained but never displayed as a launch order', () => {
+  const legacy = JSON.stringify({ reference: 'NK-TEST', receivedAt: 1000, subtotalUGX: 85000,
+    items: [{ name: 'Synthetic old piece', sizeLabel: 'M', quantity: 1, priceUGX: 85000 }] });
+  localStorage.setItem('nk-recent-order-v1', legacy);
+  expect(readRecentOrder()).toBeNull();
+  expect(localStorage.getItem('nk-recent-order-v1')).toBe(legacy);
+});
