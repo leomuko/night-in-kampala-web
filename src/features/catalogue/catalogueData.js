@@ -84,8 +84,14 @@ export async function readPublicDocument(collection, slug) {
   if (!firestore) return null;
   const { db, sdk } = firestore;
   try {
-    const snapshot = await sdk.getDoc(sdk.doc(db, collection, slug));
-    const document = snapshot.data();
+    // Missing optional Help pages must be an empty published query, rather than
+    // a denied get on a non-existent document. Never broaden public access.
+    const snapshot = collection === 'pages'
+      ? (await sdk.getDocs(sdk.query(sdk.collection(db, collection),
+        sdk.where('status', '==', 'published'), sdk.orderBy(sdk.documentId()), sdk.startAt(slug), sdk.limit(1)))).docs
+        .find(doc => doc.id === slug)
+      : await sdk.getDoc(sdk.doc(db, collection, slug));
+    const document = snapshot?.data();
     return document?.status === 'published' && (getFirebaseRuntime().mode !== 'cloud' || isLaunchContent(collection, document))
       ? { ...document, slug: snapshot.id } : null;
   } catch (error) {

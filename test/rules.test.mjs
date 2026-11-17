@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { before, after, test } from 'node:test';
 import { readFile } from 'node:fs/promises';
 import { initializeTestEnvironment, assertFails, assertSucceeds } from '@firebase/rules-unit-testing';
-import { collection, deleteDoc, doc, getDoc, getDocs, limit, orderBy, query, setDoc, startAfter, Timestamp, updateDoc, where } from 'firebase/firestore';
+import { collection, deleteDoc, doc, documentId, getDoc, getDocs, limit, orderBy, query, setDoc, startAfter, startAt, Timestamp, updateDoc, where } from 'firebase/firestore';
 import { deleteObject, getBytes, listAll, ref, updateMetadata, uploadBytes } from 'firebase/storage';
 import { buildPublicProduct } from '../functions/catalogue-projection.js';
 
@@ -193,6 +193,10 @@ test('categories and existing published content are public, with other settings 
     await assertFails(getDocs(query(rows, published, limit(25))));
     await assertFails(getDocs(query(rows, limit(12))));
     assert.deepEqual((await assertSucceeds(getDocs(query(rows, published, limit(12))))).docs.map(row => row.id), ['published']);
+    for (const [slug, expected] of [['published', ['published']], ['draft', []], ['aaa-missing', []], ['zzz-missing', []]]) {
+      const page = await assertSucceeds(getDocs(query(rows, published, orderBy(documentId()), startAt(slug), limit(1))));
+      assert.deepEqual(page.docs.filter(row => row.id === slug).map(row => row.id), expected);
+    }
     await assertFails(updateDoc(doc(roles.staff.firestore(), kind, 'published'), { title: 'Untrusted update' }));
   }
 });

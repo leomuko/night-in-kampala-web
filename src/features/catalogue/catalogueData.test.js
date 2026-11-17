@@ -11,8 +11,8 @@ vi.mock('../../services/firebaseApp.js', () => ({
 vi.mock('firebase/firestore/lite', () => ({
   getFirestore: sdk.getFirestore, connectFirestoreEmulator: sdk.connectFirestoreEmulator,
   collection: (db, name) => ({ db, name }), doc: (db, name, slug) => ({ db, name, slug }),
-  where: (...values) => ({ where: values }), orderBy: (...values) => ({ orderBy: values }),
-  limit: value => ({ limit: value }), startAfter: cursor => ({ cursor }),
+  documentId: () => '__name__', where: (...values) => ({ where: values }), orderBy: (...values) => ({ orderBy: values }),
+  limit: value => ({ limit: value }), startAfter: cursor => ({ cursor }), startAt: value => ({ startAt: value }),
   query: (collection, ...constraints) => ({ collection, constraints }),
   getDocs: sdk.getDocs, getDoc: sdk.getDoc,
 }));
@@ -63,4 +63,17 @@ test('cloud pages step over synthetic and unapproved stock without dropping real
     sdk.getDoc.mockResolvedValueOnce({ id: 'real-first', data: first.data });
     expect((await readPublicDocument('products', 'real-first')).slug).toBe('real-first');
   } finally { sdk.mode = 'emulator'; }
+});
+
+
+test('optional Help pages use a bounded published query for absent, private and published content', async () => {
+  const page = { id: 'delivery', data: () => ({ status: 'published', title: 'Delivery', illustrative: false }) };
+  sdk.getDocs.mockResolvedValueOnce({ docs: [], size: 0 })
+    .mockResolvedValueOnce({ docs: [page], size: 1 }).mockResolvedValueOnce({ docs: [page], size: 1 });
+  expect(await readPublicDocument('pages', 'missing')).toBeNull();
+  expect(await readPublicDocument('pages', 'private')).toBeNull();
+  expect(await readPublicDocument('pages', 'delivery')).toEqual({ slug: 'delivery', ...page.data() });
+  expect(sdk.getDocs).toHaveBeenLastCalledWith({ collection: { db: sdk.db, name: 'pages' }, constraints: [
+    { where: ['status', '==', 'published'] }, { orderBy: ['__name__'] }, { startAt: 'delivery' }, { limit: 1 },
+  ] });
 });
