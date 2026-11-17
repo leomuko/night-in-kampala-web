@@ -1,0 +1,15 @@
+{
+  "checkedAt": "2026-11-17T11:15:07.562Z",
+  "email": "fahkerahmed@nightinkampala.com",
+  "role": "staff",
+  "testAccount": false,
+  "existingAccount": true,
+  "passwordTouched": false,
+  "permanentOwner": {
+    "email": "superadmin@nightinkampala.com",
+    "owner": true,
+    "testAccount": false,
+    "unchanged": true
+  },
+  "workflow": "Reviewed grant-staff-role script; dry run, confirmed execution, server re-read"
+}
