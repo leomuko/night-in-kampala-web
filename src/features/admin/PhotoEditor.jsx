@@ -33,6 +33,10 @@ export default function PhotoEditor({ draft, user, onSave }) {
     setBusy(true);
     let stage = 'prepare';
     try {
+      if (!example && !fields.get('alt')?.trim()) {
+        form.elements.namedItem('alt')?.focus();
+        throw new Error('Describe what the photo shows before uploading it.');
+      }
       let file = fields.get('photo');
       if (example) {
         const source = example === 'jpeg' ? '/share/painted-denim.jpg' : '/assets/painted-denim-640.webp';
@@ -70,6 +74,10 @@ export default function PhotoEditor({ draft, user, onSave }) {
   }
 
   async function saveOrder() {
+    if (photos.some(photo => !photo.alt?.trim())) {
+      setError('Describe every saved photo before saving photo changes.');
+      return;
+    }
     setBusy(true);
     setError('');
     setStatus('');
@@ -96,7 +104,8 @@ export default function PhotoEditor({ draft, user, onSave }) {
     {photos.map((photo, index) => <div className="stack staff-form" key={photo.id}>
       <PhotoPreview photo={photo} />
       <p className="helper">{photo.kind === 'photograph' ? 'Photograph of the piece' : 'Illustrative image'}</p>
-      <Field label={`Photo ${index + 1} alt text`} value={photo.alt} maxLength={200} disabled={busy} onChange={event => {
+      <Field label={`Photo ${index + 1} alt text`} value={photo.alt ?? ''} maxLength={200} required disabled={busy}
+        error={photo.alt?.trim() ? undefined : 'Describe what this photo shows.'} onChange={event => {
         const alt = event.target.value;
         setPhotos(previous => previous.map(item => item.id === photo.id ? { ...item, alt } : item));
       }} />

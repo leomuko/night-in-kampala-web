@@ -41,9 +41,9 @@ test('a failed submit retries the same request and saves a dismissible safe rece
   await userEvent.type(screen.getByLabelText('Phone or WhatsApp number'), '0772123456');
   await userEvent.click(screen.getByRole('radio', { name: 'Collection' }));
   await userEvent.click(screen.getByRole('button', { name: 'Place order' }));
-  expect(await screen.findByRole('heading', { name: 'We couldn’t confirm your submission' })).toBeInTheDocument();
+  expect(await screen.findByRole('heading', { name: 'We couldn’t confirm your submission' })).toHaveFocus();
   await userEvent.click(screen.getByRole('button', { name: 'Try again' }));
-  expect(await screen.findByRole('heading', { name: 'Order received, awaiting confirmation' })).toBeInTheDocument();
+  expect(await screen.findByRole('heading', { name: 'Order received, awaiting confirmation' })).toHaveFocus();
   expect(submit.mock.calls[0][0]).toEqual(submit.mock.calls[1][0]);
   expect(screen.queryByRole('link', { name: /on WhatsApp/ })).toBeNull();
   expect(localStorage.getItem('nk-recent-order-v1')).toContain('NK-DEMO');

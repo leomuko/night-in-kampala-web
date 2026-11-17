@@ -34,6 +34,12 @@ function CheckoutForm({ onOrder }) {
   const [receipt, setReceipt] = useState(null);
   const submission = useRef(null);
   const lastRequest = useRef(null);
+  const errorHeading = useRef(null);
+  const form = useRef(null);
+  useEffect(() => {
+    if (error) errorHeading.current?.focus();
+    else if (lastRequest.current && !receipt) form.current?.elements.namedItem('name')?.focus();
+  }, [error, receipt]);
   useEffect(() => {
     let current = true;
     readOrderPolicy().then(result => { if (current && result?.copy) setPolicy(result.copy); }).catch(() => {});
@@ -75,12 +81,12 @@ function CheckoutForm({ onOrder }) {
     {failed && <ErrorState onRetry={retry}>Could not check the bag. Your selections are still here.</ErrorState>}
     {!!rows?.length && !canContinue(rows) && <ErrorState>Review the changes in your bag before placing an order.</ErrorState>}
     {error && <section className="order-submit-error stack" aria-labelledby="order-error">
-      <h2 id="order-error">We couldn’t confirm your submission</h2>
+      <h2 id="order-error" tabIndex={-1} ref={errorHeading}>We couldn’t confirm your submission</h2>
       <p role="alert">{error}</p>
       <Button disabled={busy} onClick={() => send(lastRequest.current)}>Try again</Button>
       <Button variant="secondary" onClick={() => setError('')}>Back to order form</Button>
     </section>}
-    {!!items.length && <div className="order-form-frame" hidden={Boolean(error)}><form className="order-form stack" onSubmit={submit}>
+    {!!items.length && <div className="order-form-frame" hidden={Boolean(error)}><form ref={form} className="order-form stack" onSubmit={submit}>
       <Field name="name" label="Full name" autoComplete="name" maxLength={120} required />
       <Field name="phone" label="Phone or WhatsApp number" type="tel" autoComplete="tel" maxLength={48} required />
       <Field name="email" label="Email (optional)" type="email" autoComplete="email" maxLength={254} />

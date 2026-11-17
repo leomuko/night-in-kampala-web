@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { Link } from 'react-router-dom';
 import { Button, ErrorState, Field, LoadingState } from '../../components/UI.jsx';
@@ -17,6 +17,10 @@ export default function AdminShell() {
   const [section, setSection] = useState('products');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const dashboardHeading = useRef(null);
+  useEffect(() => {
+    if (status === 'ready' && role) dashboardHeading.current?.focus();
+  }, [status, role]);
   async function run(action, message) {
     setBusy(true);
     setError('');
@@ -42,7 +46,7 @@ export default function AdminShell() {
     </aside>
     <div className="admin-dashboard-main">
       <div className="admin-dashboard-heading">
-        <div><h1>Store administration</h1><p className="helper">Signed in as {role}.</p></div>
+        <div><h1 ref={dashboardHeading} tabIndex={-1}>Store administration</h1><p className="helper">Signed in as {role}.</p></div>
         <div className="staff-actions"><Link className="button button--secondary" to="/">View store</Link>{actions}</div>
       </div>
       {error && <ErrorState>{error}</ErrorState>}

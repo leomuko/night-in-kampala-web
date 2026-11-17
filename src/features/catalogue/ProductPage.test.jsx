@@ -34,6 +34,10 @@ test('requested detail exposes one state, measurements and operable gallery cont
   expect(dots.getByRole('button', { name: 'Photo 1 of 2' })).toHaveAttribute('aria-pressed', 'true');
   await user.click(screen.getByRole('button', { name: 'Show Back view' }));
   expect(dots.getByRole('button', { name: 'Photo 2 of 2' })).toHaveAttribute('aria-pressed', 'true');
+  expect(screen.getByRole('status')).toHaveTextContent('Photo 2 of 2');
+  expect(screen.queryByRole('img', { name: 'Front view' })).toBeNull();
+  fireEvent.keyDown(track, { key: 'ArrowLeft' });
+  expect(screen.getByRole('img', { name: 'Front view' })).toBeInTheDocument();
 });
 
 test('a missing or private piece has no order or product details', async () => {

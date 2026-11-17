@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button } from '../../components/UI.jsx';
 import { formatPrice } from '../../data/previewProducts.js';
 import { dismissRecentOrder, readRecentOrder, whatsappOrderLink } from './receiptData.js';
@@ -29,9 +29,11 @@ export function RecentOrder() {
 }
 
 export default function OrderReceipt({ receipt }) {
+  const heading = useRef(null);
+  useEffect(() => { heading.current?.focus(); }, [receipt.reference]);
   const whatsapp = whatsappOrderLink(receipt);
   return <section className="container page-section order-page stack">
-    <h1>Order received, awaiting confirmation</h1>
+    <h1 ref={heading} tabIndex={-1}>Order received, awaiting confirmation</h1>
     <Summary receipt={receipt} />
     {whatsapp && <>
       <a href={whatsapp} className="button button--primary" target="_blank" rel="noreferrer">Send this order to us on WhatsApp</a>

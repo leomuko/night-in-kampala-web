@@ -1,0 +1,9 @@
+{
+  "method": "WCAG relative luminance; approved token sRGB values, without antialiasing",
+  "inkOnPaper": 19.67,
+  "mutedOnPaper": 6.25,
+  "mutedOnFog": 5.52,
+  "controlBorderOnPaper": 6.25,
+  "focusOnPaper": 19.67,
+  "focusOnSidebar": 19.67
+}

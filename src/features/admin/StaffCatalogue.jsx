@@ -16,6 +16,10 @@ export default function StaffCatalogue({ user, role }) {
   const [selling, setSelling] = useState(null);
   const [saleError, setSaleError] = useState('');
   const selectionId = useRef(0);
+  const editor = useRef(null);
+  const editorTrigger = useRef(null);
+  const editorKey = selection?.key;
+  useEffect(() => { if (editorKey) editor.current?.focus(); }, [editorKey]);
   useEffect(() => {
     let active = true;
     readEditorData().then(data => {
@@ -54,19 +58,22 @@ export default function StaffCatalogue({ user, role }) {
     catch (failure) { setSaleError(staffError(failure)); }
     finally { setSelling(null); }
   }
-  function open(slug) { setSelection({ key: ++selectionId.current, slug }); }
+  function open(slug) {
+    editorTrigger.current = document.activeElement;
+    setSelection({ key: ++selectionId.current, slug });
+  }
 
   return <div className="staff-catalogue stack">
     {saleError && <ErrorState>{saleError}</ErrorState>}
     <div className={selection ? 'staff-product-workspace staff-product-workspace--editing' : 'staff-product-workspace'}>
       <ProductTable rows={state.rows} onEdit={open} onAdd={() => open('')} onSell={markSold} onManual={setManual} selling={selling} />
-      {selection && <div className="staff-product-editor stack">
-        <Button variant="secondary" onClick={() => setSelection(null)}>Close editor</Button>
+      {selection && <section className="staff-product-editor stack" ref={editor} tabIndex={-1} aria-label="Product editor">
+        <Button variant="secondary" onClick={() => { setSelection(null); editorTrigger.current?.focus(); }}>Close editor</Button>
         <DraftEditor key={`draft-${selection.key}`} draft={draft} categories={state.categories} onSave={saveDraft} />
         {draft.slug && <PhotoEditor key={`photos-${selection.key}`} draft={draft} user={user} onSave={saveDraft} />}
         {draft.slug && <PublicationControls key={`publication-${draft.slug}`} draft={draft} onChange={result => updatePublication(draft.slug, result)} />}
         {draft.slug && role === 'owner' && <ApprovalControl key={draft.slug} collection="products" draft={draft} onSave={saveDraft} />}
-      </div>}
+      </section>}
     </div>
     {manual && <ManualSale key={manual} slug={manual} onClose={() => setManual(null)}
       onSave={result => { updatePublication(manual, result); setManual(null); }} />}

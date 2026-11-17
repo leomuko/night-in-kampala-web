@@ -1,5 +1,5 @@
 import { allowedFulfilment, canCompleteOrder } from '../../../functions/order-model.js';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button, ErrorState, Field, LoadingState, Select } from '../../components/UI.jsx';
 import { formatPrice } from '../../data/previewProducts.js';
 import { callStaff, staffError } from './catalogueAdmin.js';
@@ -17,6 +17,8 @@ function OrderDetails({ id }) {
   const [notice, setNotice] = useState('');
   const [blocked, setBlocked] = useState(false);
   const [reason, setReason] = useState('');
+  const heading = useRef(null);
+  useEffect(() => { heading.current?.focus(); }, [state.order?.reference]);
   useEffect(() => {
     let active = true;
     let stop;
@@ -64,7 +66,7 @@ function OrderDetails({ id }) {
     && order.items.some(item => ['reserved', 'sold'].includes(item.state));
   const canAllocate = ['new', 'contacted', 'confirmed'].includes(order.state) && ['unfulfilled', 'ready_for_collection'].includes(order.fulfilment);
   return <section className="staff-order-detail stack">
-    <h2>{order.reference}</h2>
+    <h2 ref={heading} tabIndex={-1}>{order.reference}</h2>
     <p className="helper">{label(order.state)} · {order.paymentState} · {label(order.fulfilment)}</p>
     <section className="stack">
       <h3>Customer details</h3>

@@ -52,3 +52,14 @@ test('production keeps preview image controls out of staff forms', () => {
   render(<PhotoEditor draft={draft} user={{ uid: 'test-owner' }} onSave={vi.fn()} />);
   expect(screen.queryByRole('button', { name: 'Use test JPEG' })).toBeNull();
 });
+
+test('staff cannot save photo edits with an empty accessible description', async () => {
+  render(<PhotoEditor draft={{ ...draft, photos: [{ id: 'front', alt: 'Front view' }] }} user={{ uid: 'demo-owner' }} onSave={vi.fn()} />);
+  const alt = screen.getByLabelText('Photo 1 alt text');
+  expect(alt).toBeRequired();
+  await userEvent.clear(alt);
+  expect(alt).toHaveAccessibleDescription('Describe what this photo shows.');
+  await userEvent.click(screen.getByRole('button', { name: 'Save photo changes' }));
+  expect(await screen.findByText('Describe every saved photo before saving photo changes.')).toBeInTheDocument();
+  expect(callStaff).not.toHaveBeenCalled();
+});

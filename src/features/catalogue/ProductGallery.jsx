@@ -13,6 +13,7 @@ export default function ProductGallery({ photos }) {
 
   return <section className="product-gallery" aria-label="Product photos">
     <div className="gallery-track" ref={track} tabIndex={photos.length > 1 ? 0 : undefined}
+      role="group" aria-roledescription="carousel" aria-label="Garment views. Use left and right arrow keys to change photo."
       onScroll={event => {
         const { scrollLeft, clientWidth } = event.currentTarget;
         if (clientWidth) setActive(Math.max(0, Math.min(photos.length - 1, Math.round(scrollLeft / clientWidth))));
@@ -24,8 +25,9 @@ export default function ProductGallery({ photos }) {
       }}>
       {photos.map((photo, index) => <img key={photo.id} src={photo.mediumUrl}
         srcSet={photo.smallUrl && photo.largeUrl ? `${photo.smallUrl} 320w, ${photo.mediumUrl} 640w, ${photo.largeUrl} 1280w` : undefined}
-        sizes="(min-width: 1024px) 48vw, 90vw" loading={index ? 'lazy' : 'eager'} alt={photo.alt} />)}
+        sizes="(min-width: 1024px) 48vw, 90vw" loading={index ? 'lazy' : 'eager'} alt={photo.alt} aria-hidden={index !== active} />)}
     </div>
+    {photos.length > 1 && <p className="visually-hidden" role="status">Photo {active + 1} of {photos.length}</p>}
     {photos.length > 1 && <>
       <div className="gallery-dots" role="group" aria-label="Photo positions">
         {photos.map((photo, index) => <button type="button" key={photo.id} aria-label={`Photo ${index + 1} of ${photos.length}`}
