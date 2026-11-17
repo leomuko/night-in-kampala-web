@@ -12,7 +12,7 @@ A React JavaScript storefront and Firebase backend for reworked clothing, brand 
 - [Design foundations](docs/DESIGN_FOUNDATIONS.md): approved Anton/Inter/Newsreader and measured layout values.
 - [Local development](docs/LOCAL_DEVELOPMENT.md): commands, completed local P1.01–P1.10 checks and remaining limits.
 - [Firebase SDK setup](docs/FIREBASE_SETUP.md): registered project configuration, emulator/cloud behaviour and optional Analytics.
-- [Deployment preparation](docs/DEPLOYMENT_PREPARATION.md): offline/explicit cloud targets, matched build/region hooks, indexing and CI; real staging readiness remains open.
+- [Deployment preparation](docs/DEPLOYMENT_PREPARATION.md): offline/explicit cloud targets, matched build/region hooks, indexing and CI; single-project preview/live guards and the soft-launch approval stop.
 - [Shared-link previews](docs/SHARED_LINK_PREVIEWS.md): local P1.09–P1.10 implementation, public metadata schema, cache contract and staging limits.
 - [Standalone placeholder images](docs/implementation-assets/placeholders/README.md): generated development assets and their provenance.
 - [Firebase location decision](docs/FIREBASE_REGION_DECISION.md): explicit gate before cloud resource creation/staging.
@@ -22,7 +22,9 @@ A React JavaScript storefront and Firebase backend for reworked clothing, brand 
 
 - [Visual concepts](docs/design-concepts/README.md): round-1 mockups and the [round-2 image prompts](docs/design-concepts/PROMPTS-ROUND-2.md).
 
-Phases 2 and 3 passed locally. Staff can publish the catalogue and manage requests through a live queue, from contact and reservation to manual payment, explicit Sold and fulfilment. Shoppers can request eligible pieces without an account. P1.11 is deferred, and P1.13–P1.15 still require staging and owner inputs. See the [Phase 3 gate and launch inputs](docs/PHASE_3_TASKS.md#p312-local-gate).
+Phases 2 and 3 passed locally. Staff can publish the catalogue and manage requests through a live queue, from contact and reservation to manual payment, explicit Sold and fulfilment. Shoppers can request eligible pieces without an account. P1.11 is deferred. P1.13–P1.15 have hosted preview evidence; production still waits for the soft-launch owner approval stop. See the [Phase 3 gate and launch inputs](docs/PHASE_3_TASKS.md#p312-local-gate).
+
+The [soft-launch review report](docs/qa/soft-launch/README.md) contains the latest checks, cleanup inventory and pending wording approval.
 
 ## Run locally
 

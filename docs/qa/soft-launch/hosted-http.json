@@ -1,0 +1,122 @@
+{
+  "checkedAt": "2026-11-17T11:39:43.239Z",
+  "origin": "https://night-in-kampala--review-jrrv7tp2.web.app",
+  "routes": [
+    {
+      "path": "/",
+      "status": 200,
+      "noindexHeader": true,
+      "noindexMeta": true,
+      "currentEntry": true
+    },
+    {
+      "path": "/shop",
+      "status": 200,
+      "noindexHeader": true,
+      "noindexMeta": true,
+      "currentEntry": true
+    },
+    {
+      "path": "/collections",
+      "status": 200,
+      "noindexHeader": true,
+      "noindexMeta": true,
+      "currentEntry": true
+    },
+    {
+      "path": "/lookbooks",
+      "status": 200,
+      "noindexHeader": true,
+      "noindexMeta": true,
+      "currentEntry": true
+    },
+    {
+      "path": "/events",
+      "status": 200,
+      "noindexHeader": true,
+      "noindexMeta": true,
+      "currentEntry": true
+    },
+    {
+      "path": "/help/delivery",
+      "status": 200,
+      "noindexHeader": true,
+      "noindexMeta": true,
+      "currentEntry": true
+    },
+    {
+      "path": "/help/returns",
+      "status": 200,
+      "noindexHeader": true,
+      "noindexMeta": true,
+      "currentEntry": true
+    },
+    {
+      "path": "/help/privacy",
+      "status": 200,
+      "noindexHeader": true,
+      "noindexMeta": true,
+      "currentEntry": true
+    },
+    {
+      "path": "/admin",
+      "status": 200,
+      "noindexHeader": true,
+      "noindexMeta": true,
+      "currentEntry": true
+    },
+    {
+      "path": "/cart",
+      "status": 200,
+      "noindexHeader": true,
+      "noindexMeta": true,
+      "currentEntry": true
+    },
+    {
+      "path": "/checkout",
+      "status": 200,
+      "noindexHeader": true,
+      "noindexMeta": true,
+      "currentEntry": true
+    }
+  ],
+  "bundle": {
+    "path": "/assets/index-CSzfbu-q.js",
+    "status": 200,
+    "matchesBuiltHash": true,
+    "sha256": "82e68d67dc36590d492e976828d57a2e214bb5e33b0ec25ca50eda925a87240b",
+    "newKeyPresent": true,
+    "oldKeyEndingT6MPresent": false
+  },
+  "brandShare": {
+    "status": 200,
+    "contentType": "image/jpeg",
+    "matchesBuiltHash": true
+  },
+  "hiddenTestDetails": [
+    {
+      "path": "/products/preview-painted-denim",
+      "status": 404,
+      "cacheControl": "no-store",
+      "noindex": true
+    },
+    {
+      "path": "/products/test-network-piece",
+      "status": 404,
+      "cacheControl": "no-store",
+      "noindex": true
+    }
+  ],
+  "removedPlaceholder": {
+    "path": "/assets/campaign-home-1280.webp",
+    "contentType": "text/html; charset=utf-8",
+    "isImage": false
+  },
+  "reviewConfiguration": {
+    "catalogueTestData": false,
+    "proxyVerified": false,
+    "trustedProxyHops": 1,
+    "indexPublicPages": false
+  },
+  "productionRelease": false
+}
