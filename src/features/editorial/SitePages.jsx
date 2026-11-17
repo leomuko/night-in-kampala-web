@@ -4,7 +4,8 @@ import { readPublicDocument } from '../catalogue/catalogueData.js';
 import useDetailHead from '../catalogue/useDetailHead.js';
 import usePublicDocument from '../catalogue/usePublicDocument.js';
 import EditorialList from './EditorialList.jsx';
-import LaunchHelp, { launchHelpHeadings } from './LaunchHelp.jsx';
+import LaunchHelp from './LaunchHelp.jsx';
+import { launchHelpHeadings } from './launchHelpHeadings.js';
 
 async function readWithCover(collection, slug) {
   const page = await readPublicDocument(collection, slug);

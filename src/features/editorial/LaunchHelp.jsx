@@ -2,11 +2,6 @@ import { Link } from 'react-router-dom';
 import { launchContactPhone, launchReturnsDays } from '../../../functions/launch-copy.js';
 import useOrderPolicy from '../orders/useOrderPolicy.js';
 
-export const launchHelpHeadings = {
-  'how-to-order': 'How to order', delivery: 'Delivery & collection', collection: 'Collection', payment: 'Payment',
-  returns: 'Returns', privacy: 'Privacy', contact: 'Contact', sizing: 'Sizing & care',
-};
-
 export default function LaunchHelp({ slug }) {
   const policy = useOrderPolicy();
   const phone = policy.whatsappNumber || launchContactPhone;
