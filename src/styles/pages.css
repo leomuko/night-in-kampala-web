@@ -1,6 +1,6 @@
 .hero { display: grid; gap: var(--hero-gap); margin-top: var(--space-8); }
 .hero-media { min-width: 0; }
-.hero-media img { width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: cover; }
+.hero-media img { width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: contain; background: var(--color-fog); }
 .hero-copy { order: 2; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: var(--space-6); }
 .hero-copy h1 { text-wrap: balance; }
 .hero-copy .button { margin-top: var(--space-2); }
@@ -81,6 +81,7 @@
 .editorial-list h2 a { text-decoration: none; }
 .editorial-list h2 a:hover { text-decoration: underline; }
 .editorial-body { max-width: var(--prose-width); white-space: pre-line; overflow-wrap: anywhere; }
+.launch-help { max-width: var(--prose-width); }
 .editorial-cover { max-width: var(--content-width); }
 .editorial-cover img { width: 100%; max-height: 55vh; object-fit: contain; background: var(--color-fog); }
 .content-fields { width: 100%; }
