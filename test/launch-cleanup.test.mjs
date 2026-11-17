@@ -145,3 +145,37 @@ test('cleanup lists test data, blocks mixed stock, deletes reviewed candidates a
     await deleteApp(app);
   }
 });
+
+test('cleanup retains photographed unapproved stock and blocks ambiguous historical preview markers', async () => {
+  assert.equal(process.env.GCLOUD_PROJECT, projectId);
+  const app = initializeApp({ projectId }, 'photographed-draft-cleanup');
+  const db = getFirestore(app), bucket = getStorage(app).bucket(`${projectId}.appspot.com`);
+  const rows = {
+    'productDrafts/new-real-work': { revision: 1, photos: [{ kind: 'photograph' }] },
+    'productDrafts/real-unapproved': { revision: 1, photos: [{ kind: 'photograph' }] },
+    'products/real-unapproved': { status: 'published', isRealCatalogueStock: false },
+    'inventory/real-unapproved': { availableUnits: 1 },
+    'productDrafts/legacy-photo': { revision: 1, isTestData: true, photos: [{ kind: 'photograph' }] },
+    'productPhotoSources/legacy-photo/photos/source': {},
+  };
+  const files = ['product-drafts/new-real-work/staff/photo.jpg', 'product-drafts/legacy-photo/staff/photo.jpg'];
+  try {
+    await Promise.all(Object.entries(rows).map(([name, value]) => db.doc(name).set(value)));
+    await Promise.all(files.map(name => bucket.file(name).save('local fixture', { resumable: false })));
+    const dry = run(project);
+    assert.equal(dry.status, 0, dry.stderr);
+    const inventory = await report();
+    for (const name of Object.keys(rows)) {
+      assert.ok(!inventory.firestore.includes(name), name);
+      assert.ok(inventory.keptUnpublished.firestore.includes(name), name);
+    }
+    for (const name of files) assert.ok(inventory.keptUnpublished.storage.includes(name), name);
+    assert.match(inventory.blockers.join(' '), /Photographed draft has a test marker/);
+    assert.equal(run([...project, ...confirmation]).status, 1);
+    assert.ok((await db.getAll(...Object.keys(rows).map(name => db.doc(name)))).every(row => row.exists));
+  } finally {
+    await Promise.all(Object.keys(rows).map(name => db.doc(name).delete()));
+    await Promise.all(files.map(name => bucket.file(name).delete({ ignoreNotFound: true })));
+    await deleteApp(app);
+  }
+});

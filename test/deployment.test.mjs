@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { checkReleaseHook, liveConfirmation, releaseSteps, selectDeployment } from '../scripts/deployment-config.mjs';
-import { resolveFunctionRuntime } from '../functions/runtime-config.js';
+import { catalogueUsesTestData, resolveFunctionRuntime } from '../functions/runtime-config.js';
 
 const projectId = 'night-in-kampala';
 function profile(target) {
@@ -13,6 +13,14 @@ function profile(target) {
       authDomain: `${projectId}.firebaseapp.com`, storageBucket: `${projectId}.firebasestorage.app` } };
 }
 const profiles = () => ({ preview: profile('preview'), production: profile('production') });
+test('real draft review can opt out of preview test marking without changing emulator or production rules', () => {
+  assert.equal(catalogueUsesTestData({ emulator: true, catalogueTestData: false }), true);
+  assert.equal(catalogueUsesTestData({ target: 'preview' }), true);
+  assert.equal(catalogueUsesTestData({ target: 'preview', catalogueTestData: false }), false);
+  assert.equal(catalogueUsesTestData({ target: 'production' }), false);
+  assert.throws(() => selectDeployment({ preview: { ...profile('preview'), catalogueTestData: 'false' } }, 'preview'), /boolean/);
+  assert.throws(() => selectDeployment({ production: { ...profile('production'), catalogueTestData: true } }, 'production', projectId, liveConfirmation), /Production catalogue/);
+});
 test('one project serves both an approved preview channel and the live site', () => {
   const preview = selectDeployment(profiles(), 'preview', projectId);
   const live = selectDeployment(profiles(), 'production', projectId, liveConfirmation);

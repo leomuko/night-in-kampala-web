@@ -6,6 +6,8 @@ export function validateCloudDeployment(config) {
   if (config.projectId !== 'night-in-kampala') throw new Error('Cloud releases must target night-in-kampala.');
   if (config.indexPublicPages !== undefined && typeof config.indexPublicPages !== 'boolean') throw new Error('indexPublicPages must be an explicit boolean.');
   if (config.indexPublicPages && config.target !== 'production') throw new Error('Preview cannot enable public indexing.');
+  if (config.catalogueTestData !== undefined && typeof config.catalogueTestData !== 'boolean') throw new Error('catalogueTestData must be a boolean.');
+  if (config.target === 'production' && config.catalogueTestData === true) throw new Error('Production catalogue writes cannot be marked as preview tests.');
   if (config.region !== FUNCTIONS_REGION) throw new Error('The approved Functions region is europe-west1.');
   if (config.previousEntryScripts !== undefined && (!Array.isArray(config.previousEntryScripts)
     || config.previousEntryScripts.length > 20 || config.previousEntryScripts.some(path =>
@@ -20,6 +22,10 @@ export function validateCloudDeployment(config) {
     if (order.proxyVerified !== undefined && typeof order.proxyVerified !== 'boolean') throw new Error('proxyVerified must be a boolean.');
   }
   return { ...config, origin: configuredOrigin(config.origin), emulator: false };
+}
+
+export function catalogueUsesTestData(runtime) {
+  return runtime.emulator === true || (runtime.target === 'preview' && runtime.catalogueTestData !== false);
 }
 
 export function resolveFunctionRuntime(env, deployment) {

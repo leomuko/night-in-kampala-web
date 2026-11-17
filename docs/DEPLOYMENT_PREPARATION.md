@@ -103,3 +103,9 @@ The preview is deployed. [Hosted evidence](qa/preview-orders/README.md) records 
 ## Private staff photo previews
 
 On 17 November the owner approved and the operator applied GET-only bucket CORS for the exact review-channel, web.app and firebaseapp.com origins. [The saved configuration](qa/preview-orders/storage-cors.json) records the change. Private image reads still require the staff/owner Storage rule. A new preview hostname needs corresponding CORS, reCAPTCHA and browser-key origin updates before testing; do not use wildcard bucket origins.
+
+## Soft-launch review mode
+
+For the owner-approved real-draft review, set `preview.catalogueTestData` false in the ignored profile. Keep `preview.order.proxyVerified` false while the owner reviews wording and the cleanup inventory. This pauses new shopper orders in the shared backend while allowing staff to prepare real drafts. Preview orders remain test-marked; do not use them to accept real sales. The production profile will use catalogueTestData false, the verified hop count 1, proxyVerified true and indexPublicPages false only after “approved for launch”.
+
+The cleanup dry run protects unpublished actual-photo drafts. Review every keptUnpublished path and resolve every blocker; do not erase an old test marker without explicit owner classification. No cleanup execution, secret version change, merge or production release is authorized before the approval stop. The soft-launch prompt authorizes those later steps only after the stop is satisfied.

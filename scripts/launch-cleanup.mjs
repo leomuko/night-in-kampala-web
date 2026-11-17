@@ -79,12 +79,27 @@ async function plan(db, auth, bucket) {
   ]);
   const data = Object.fromEntries(snapshots);
   const blockers = new Set();
-  const testProducts = data.products.filter(row => marked(row) || row.data().isRealCatalogueStock === false);
+  const candidateProducts = data.products.filter(row => marked(row) || row.data().isRealCatalogueStock === false);
+  const candidateSlugs = new Set(candidateProducts.map(row => row.id));
+  // Preview historically marked every new draft. Actual staff photographs must
+  // never become deletion candidates merely because of that old default or an
+  // approval that has not happened yet. Ambiguous test markers need review.
+  const protectedDrafts = data.productDrafts.filter(row => row.data().photos?.some(photo => photo.kind === 'photograph')
+    && (marked(row) || candidateSlugs.has(row.id)));
+  const protectedSlugs = new Set(protectedDrafts.map(row => row.id));
+  for (const row of protectedDrafts) {
+    if (marked(row) || candidateProducts.some(product => product.id === row.id && marked(product))) {
+      blockers.add(`Photographed draft has a test marker; review and retain genuine work: ${row.ref.path}`);
+    }
+  }
+  const testProducts = candidateProducts.filter(row => !protectedSlugs.has(row.id));
   const testSlugs = new Set(testProducts.map(row => row.id));
   const retainedProducts = data.products.filter(row => !testSlugs.has(row.id));
-  const retainedSlugs = new Set(retainedProducts.map(row => row.id));
-  const drafts = data.productDrafts.filter(row => marked(row) || testSlugs.has(row.id));
+  const retainedSlugs = new Set([...retainedProducts.map(row => row.id), ...protectedSlugs]);
+  const drafts = data.productDrafts.filter(row => !protectedSlugs.has(row.id) && (marked(row) || testSlugs.has(row.id)));
   const keptUnpublished = { firestore: [], storage: [] };
+  keptUnpublished.firestore.push(...[...data.productDrafts, ...data.products, ...data.inventory]
+    .filter(row => protectedSlugs.has(row.id)).map(row => row.ref.path));
   for (const row of drafts) {
     if (retainedSlugs.has(row.id)) blockers.add(`Retained product has a marked draft: ${row.id}`);
     testSlugs.add(row.id);
@@ -134,7 +149,7 @@ async function plan(db, auth, bucket) {
   const retainedSizes = sizeIds(retainedProducts);
   for (const size of testSizes) if (retainedSizes.has(size)) blockers.add(`Size counter is shared with retained stock: ${size}`);
 
-  const stockDocs = data.inventory.filter(row => marked(row) || testSlugs.has(row.id));
+  const stockDocs = data.inventory.filter(row => !protectedSlugs.has(row.id) && (marked(row) || testSlugs.has(row.id)));
   for (const row of stockDocs) if (retainedSlugs.has(row.id)) blockers.add(`Retained product has test inventory: ${row.id}`);
   const manualSales = data.manualSales.filter(row => marked(row) || testSlugs.has(row.data().slug));
   for (const row of manualSales) {
@@ -151,6 +166,7 @@ async function plan(db, auth, bucket) {
   const isTestPhoto = row => {
     const [parent, slug, group, , ...extra] = row.ref.path.split('/');
     const eligible = parent === 'productPhotoSources' && group === 'photos' && !extra.length;
+    if (eligible && protectedSlugs.has(slug)) { keptUnpublished.firestore.push(row.ref.path); return false; }
     if (eligible && !marked(row) && !testSlugs.has(slug) && !retainedSlugs.has(slug)) keptUnpublished.firestore.push(row.ref.path);
     return eligible && (marked(row) || testSlugs.has(slug));
   };
@@ -174,6 +190,7 @@ async function plan(db, auth, bucket) {
     if (!slug || !tail) continue;
     const isMarked = file.metadata.metadata?.nikTestData === 'true';
     if (retainedSlugs.has(slug)) {
+      if (protectedSlugs.has(slug)) keptUnpublished.storage.push(file.name);
       if (isMarked) blockers.add(`Retained product has marked media: ${file.name}`);
       continue;
     }
