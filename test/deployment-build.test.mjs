@@ -29,6 +29,9 @@ test('predeploy builds matching browser/Function artifacts and imports the confi
     assert.ok(manifest.hosting.predeploy[0].endsWith(' preview --hook hosting'));
     const entryRedirect = manifest.hosting.redirects.find(row => row.source === '/assets/index-previous.js');
     assert.equal(entryRedirect.type, 302);
+    assert.deepEqual(manifest.hosting.headers.at(-1), {
+      source: '/assets/index-previous.js', headers: [{ key: 'Cache-Control', value: 'no-store' }],
+    });
     const builtIndex = await readFile(path.join(root, 'dist/index.html'), 'utf8');
     assert.ok(builtIndex.includes(`src="${entryRedirect.destination}"`));
     const redirectedModule = await readFile(path.join(root, 'dist', entryRedirect.destination), 'utf8');

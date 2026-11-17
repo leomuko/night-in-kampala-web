@@ -42,6 +42,11 @@ firebase.hosting.redirects = [
   ...(firebase.hosting.redirects ?? []),
   ...previousEntries.map(source => ({ source, destination: entry, type: 302 })),
 ];
+// Compatibility filenames change destinations between builds. They must not
+// inherit the immutable cache policy of the hashed module they replace.
+firebase.hosting.headers.push(...previousEntries.map(source => ({ source,
+  headers: [{ key: 'Cache-Control', value: 'no-store' }],
+})));
 if (config.indexPublicPages) firebase.hosting.headers = firebase.hosting.headers.filter(item => item.source !== '**');
 firebase.hosting.rewrites.forEach(item => {
   if (item.function) item.function = { ...item.function, region: config.region, ...(target === 'production' ? { pinTag: true } : {}) };
