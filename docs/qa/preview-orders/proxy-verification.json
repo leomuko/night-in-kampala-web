@@ -1,0 +1,41 @@
+{
+  "verifiedHops": 1,
+  "endpoint": "https://europe-west1-night-in-kampala.cloudfunctions.net/orderCreate",
+  "desktop": {
+    "fingerprint": "0c1ff553aad0f3ec",
+    "initialCount": 1,
+    "reference": "NK-B8C7701CDEB82F12"
+  },
+  "spoofedPrefix": {
+    "prefix": "198.51.100.77",
+    "fingerprint": "0c1ff553aad0f3ec",
+    "count": 2,
+    "reference": "NK-7D44C4ECBF5C7F37"
+  },
+  "mobile": {
+    "fingerprint": "5e40f8d36d349046",
+    "count": 1,
+    "reference": "NK-353E930CA119BF13",
+    "network": "Owner-confirmed Android mobile data, screenshot shows 5G"
+  },
+  "orders": [
+    {
+      "reference": "NK-B8C7701CDEB82F12",
+      "documentId": "5d8d94610ae1f3980d215a539bcdb690408c3ae1814057277839f0ffc264d98d",
+      "isTestData": true,
+      "state": "new"
+    },
+    {
+      "reference": "NK-7D44C4ECBF5C7F37",
+      "documentId": "3af1e2973b108433071e84908aade1e9dfdbc33d3872bac2e7babc7bf186dcfb",
+      "isTestData": true,
+      "state": "new"
+    },
+    {
+      "reference": "NK-353E930CA119BF13",
+      "documentId": "2a22964e8b7a57c6dfc708bb895e76b66a33775a0c0a143ec413909769e84f7a",
+      "isTestData": true,
+      "state": "new"
+    }
+  ]
+}

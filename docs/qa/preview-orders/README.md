@@ -19,3 +19,13 @@ Both policies are verified in `policies.json`. Firestore TTL on `(default)/order
 ## Owner phone confirmation
 
 On 16 November 2026 the owner confirmed that WhatsApp on an Android phone shows the expected title and denim image for `/products/preview-painted-denim`. No iPhone is available, so a physical iPhone HEIC upload remains not run.
+
+## App Check and verified proxy count
+
+The registered Enterprise key now includes the preview domain. The owner saved that entry after the first attestation attempts failed. A subsequent owner probe issued an App Check token and returned a successful server verification. `app-check-logs.json` records `app: VALID` and `auth: VALID` on `orderCreate`. No debug provider or debug token was used.
+
+The verified `ORDER_TRUSTED_PROXY_HOPS` value is **1** for the tested canonical callable endpoint. Desktop request `NK-B8C7701CDEB82F12` used source fingerprint `0c1ff553aad0f3ec` with count 1. Adding the spoofed prefix `198.51.100.77` produced `NK-7D44C4ECBF5C7F37` on the same fingerprint with count 2. The owner's Android mobile-data request `NK-353E930CA119BF13` used the different fingerprint `5e40f8d36d349046` with count 1. All three saved orders were confirmed marked test data. See `proxy-verification.json` and the source screenshots.
+
+The initial reserved UK test number was rejected by the server's phone validator. It created no order. The probe default was corrected to the Ugandan test format and covered by a regression test. The successful mobile screenshot uses the corrected number.
+
+The owner preview controls kept the public storefront closed during calibration. Enabling the verified preview profile is the next release step. Production remains unapproved. Uploads still require a successful cloud verification after the reported authorization failure.
