@@ -1,0 +1,17 @@
+[
+  {
+    "origin": [
+      "https://night-in-kampala--review-jrrv7tp2.web.app",
+      "https://night-in-kampala.web.app",
+      "https://night-in-kampala.firebaseapp.com"
+    ],
+    "method": [
+      "GET"
+    ],
+    "responseHeader": [
+      "Content-Type",
+      "Content-Length"
+    ],
+    "maxAgeSeconds": 3600
+  }
+]
