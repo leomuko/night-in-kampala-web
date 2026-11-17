@@ -32,7 +32,7 @@ test.each(['JPEG', 'WEBP'])('preview %s samples use the normal preparation and t
   expect(await screen.findByText('Photo saved.')).toBeInTheDocument();
   expect(preparePhoto.mock.calls[0][0].type).toBe(format === 'JPEG' ? 'image/jpeg' : 'image/webp');
   expect(uploadBytesResumable).toHaveBeenCalledWith(expect.stringContaining('product-drafts/test-piece/test-owner/'),
-    expect.any(Blob), { contentType: 'image/jpeg', customMetadata: {} });
+    expect.any(Blob), { contentType: 'image/jpeg', customMetadata: { nikDraftUpload: 'true' } });
   expect(callStaff).toHaveBeenCalledWith('cataloguePhotoAdd', expect.objectContaining({ slug: 'test-piece',
     revision: 1, kind: 'illustrative', extension: 'jpg', alt: `TEST illustrative ${format.toLowerCase()} upload` }));
   expect(save).toHaveBeenCalled();

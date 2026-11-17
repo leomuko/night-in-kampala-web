@@ -9,7 +9,8 @@ service firebase.storage {
     }
     function isValidDraftImage(fileName) {
       return request.resource.size > 0 && request.resource.size <= 2 * 1024 * 1024
-        && request.resource.metadata.keys().size() == 0
+        && request.resource.metadata.keys().hasOnly(['nikDraftUpload'])
+        && request.resource.metadata.get('nikDraftUpload', '') == 'true'
         && (
           (fileName.matches('[A-Za-z0-9_-]{1,120}[.]jpg') && request.resource.contentType == 'image/jpeg') ||
           (fileName.matches('[A-Za-z0-9_-]{1,120}[.]webp') && request.resource.contentType == 'image/webp')

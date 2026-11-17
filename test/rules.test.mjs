@@ -200,8 +200,10 @@ test('categories and existing published content are public, with other settings 
 test('staff and owners can create bounded JPEG/WebP uploads only within their own existing draft paths', async () => {
   const staff = roles.staff.storage();
   const owner = roles.owner.storage();
-  await assertSucceeds(uploadBytes(ref(staff, 'product-drafts/published/staff/back.webp'), jpeg, { contentType: 'image/webp' }));
-  await assertSucceeds(uploadBytes(ref(owner, 'product-drafts/published/owner-account/edge.jpg'), new Uint8Array(2 * 1024 * 1024), jpegMetadata));
+  const draftMetadata = { ...jpegMetadata, customMetadata: { nikDraftUpload: 'true' } };
+  await assertSucceeds(uploadBytes(ref(staff, 'product-drafts/published/staff/back.webp'), jpeg, { ...draftMetadata, contentType: 'image/webp' }));
+  await assertSucceeds(uploadBytes(ref(owner, 'product-drafts/published/owner-account/edge.jpg'), new Uint8Array(2 * 1024 * 1024), draftMetadata));
+  await assertFails(uploadBytes(ref(staff, 'product-drafts/published/staff/empty-metadata.jpg'), jpeg, { ...jpegMetadata, customMetadata: {} }));
   await assertFails(uploadBytes(ref(staff, 'product-drafts/published/owner-account/wrong.jpg'), jpeg, jpegMetadata));
   await assertFails(uploadBytes(ref(staff, 'product-drafts/nonexistent/staff/wrong.jpg'), jpeg, jpegMetadata));
   await assertFails(uploadBytes(ref(staff, 'product-drafts/published/staff/oversize.jpg'), new Uint8Array(2 * 1024 * 1024 + 1), jpegMetadata));
@@ -209,6 +211,8 @@ test('staff and owners can create bounded JPEG/WebP uploads only within their ow
   await assertFails(uploadBytes(ref(staff, 'product-drafts/published/staff/mismatch.webp'), jpeg, jpegMetadata));
   await assertFails(uploadBytes(ref(staff, 'product-drafts/published/staff/vector.svg'), jpeg, { contentType: 'image/svg+xml' }));
   await assertFails(uploadBytes(ref(staff, 'product-drafts/published/staff/custom.jpg'), jpeg, { ...jpegMetadata, customMetadata: { marker: 'untrusted' } }));
+  await assertFails(uploadBytes(ref(staff, 'product-drafts/published/staff/extra.jpg'), jpeg, { ...draftMetadata, customMetadata: { nikDraftUpload: 'true', untrusted: 'value' } }));
+  await assertFails(uploadBytes(ref(staff, 'product-drafts/published/staff/false-marker.jpg'), jpeg, { ...draftMetadata, customMetadata: { nikDraftUpload: 'false' } }));
 });
 
 test('draft media stays private and clients cannot overwrite, delete or publish objects', async () => {

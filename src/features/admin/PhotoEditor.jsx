@@ -49,7 +49,7 @@ export default function PhotoEditor({ draft, user, onSave }) {
         extension: 'jpg', kind: example ? 'illustrative' : fields.get('kind') };
       const [{ ref, uploadBytesResumable }, { storage }] = await Promise.all([import('firebase/storage'), getFirebaseServices()]);
       const task = uploadBytesResumable(ref(storage, `product-drafts/${draft.slug}/${user.uid}/${id}.jpg`), jpeg, {
-        contentType: 'image/jpeg', customMetadata: {},
+        contentType: 'image/jpeg', customMetadata: { nikDraftUpload: 'true' },
       });
       await new Promise((resolve, reject) => task.on('state_changed', snapshot => {
         setProgress(Math.round(snapshot.bytesTransferred * 100 / snapshot.totalBytes));

@@ -226,7 +226,9 @@ test('photo processing and catalogue publication work through staff, Storage and
   const previousCategories = await categoryPath.get();
   const jpeg = await sharp({ create: { width: 1400, height: 800, channels: 3, background: 'gray' } }).jpeg().toBuffer();
   async function upload(id, bytes) {
-    await uploadBytes(ref(storage, `product-drafts/${slug}/${uid}/${id}.jpg`), bytes, { contentType: 'image/jpeg' });
+    await uploadBytes(ref(storage, `product-drafts/${slug}/${uid}/${id}.jpg`), bytes, {
+      contentType: 'image/jpeg', customMetadata: { nikDraftUpload: 'true' },
+    });
   }
   const item = {
     name: 'Illustrative measured piece', itemCode: 'NK-DEMO-PHOTO', categoryId: 'photo-test', stockType: 'one-of-one',
