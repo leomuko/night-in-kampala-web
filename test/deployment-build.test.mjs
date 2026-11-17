@@ -27,14 +27,15 @@ test('predeploy builds matching browser/Function artifacts and imports the confi
     const manifest = JSON.parse(await readFile(path.join(root, 'firebase.preview.generated.json'), 'utf8'));
     assert.ok(manifest.functions[0].predeploy[0].endsWith(' preview --hook backend'));
     assert.ok(manifest.hosting.predeploy[0].endsWith(' preview --hook hosting'));
-    const entryRedirect = manifest.hosting.redirects.find(row => row.source === '/assets/index-previous.js');
-    assert.equal(entryRedirect.type, 302);
+    assert.ok(!manifest.hosting.redirects.some(row => row.source === '/assets/index-previous.js'));
     assert.deepEqual(manifest.hosting.headers.at(-1), {
       source: '/assets/index-previous.js', headers: [{ key: 'Cache-Control', value: 'no-store' }],
     });
     const builtIndex = await readFile(path.join(root, 'dist/index.html'), 'utf8');
-    assert.ok(builtIndex.includes(`src="${entryRedirect.destination}"`));
-    const redirectedModule = await readFile(path.join(root, 'dist', entryRedirect.destination), 'utf8');
+    const entry = builtIndex.match(/src="(\/assets\/index-[A-Za-z0-9_-]+\.js)"/)[1];
+    const compatibilityModule = await readFile(path.join(root, 'dist/assets/index-previous.js'), 'utf8');
+    assert.equal(compatibilityModule, `import ${JSON.stringify(entry)};\n`);
+    const redirectedModule = await readFile(path.join(root, 'dist', entry), 'utf8');
     assert.ok(redirectedModule.includes('fixture-key'));
     const media = manifest.hosting.rewrites.find(item => item.source === '/media/products/**');
     assert.equal(media.function.functionId, 'catalogueMedia');

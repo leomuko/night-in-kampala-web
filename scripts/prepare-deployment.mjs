@@ -33,15 +33,15 @@ firebase.firestore.predeploy = hook('backend');
 firebase.storage.predeploy = hook('backend');
 firebase.hosting.predeploy = hook('hosting');
 // A Hosting-only configuration change can leave shared-link Functions referring
-// to the preceding app filename. Redirect that entry to this build's module.
+// to the preceding app filename. Serve a small non-cached module at that path.
+// Hosting redirects can retain the old asset's immutable cache policy.
 const html = await readFile(new URL('../dist/index.html', import.meta.url), 'utf8');
 const entry = html.match(/<script\b[^>]*\bsrc="(\/assets\/index-[A-Za-z0-9_-]+\.js)"/)?.[1];
 if (!entry) throw new Error('Could not identify the built app entry script.');
 const previousEntries = [...new Set(config.previousEntryScripts ?? [])].filter(path => path !== entry);
-firebase.hosting.redirects = [
-  ...(firebase.hosting.redirects ?? []),
-  ...previousEntries.map(source => ({ source, destination: entry, type: 302 })),
-];
+await Promise.all(previousEntries.map(source => writeFile(new URL(`../dist${source}`, import.meta.url),
+  `import ${JSON.stringify(entry)};\n`)));
+firebase.hosting.redirects = (firebase.hosting.redirects ?? []).filter(row => !previousEntries.includes(row.source));
 // Compatibility filenames change destinations between builds. They must not
 // inherit the immutable cache policy of the hashed module they replace.
 firebase.hosting.headers.push(...previousEntries.map(source => ({ source,
