@@ -24,7 +24,7 @@ The release command is project-wide for backend services. Review functions, rule
 
 ## Gates
 
-P1.13 records the approved topology. P1.14 requires the console checks, a reviewed local preparation, explicit owner authorization, and verification against the actual preview URL. P1.15 requires the owner to verify a WhatsApp product preview on a phone. Work on these gates has made no cloud changes.
+P1.13 records the approved topology. P1.14 requires the console checks, a reviewed local preparation, explicit owner authorization, and verification against the actual preview URL. P1.15 requires the owner to verify a WhatsApp product preview on a phone. The owner-authorized preview releases and cloud changes are recorded in [the hosted QA report](qa/preview-orders/README.md); production remains unapproved.
 
 ### Owner checklist before the first preview deploy
 
@@ -34,7 +34,7 @@ P1.13 records the approved topology. P1.14 requires the console checks, a review
 - [ ] Create a score-based reCAPTCHA Enterprise website key for the approved preview hostname and register the Firebase web app under App Check. Confirm the actual preview hostname, pass the public site key as `order.appCheckSiteKey`, and verify an attested order call on preview. Include the approved live domain before production. [App Check for web](https://firebase.google.com/docs/app-check/web/recaptcha-enterprise-provider).
 - [x] Owner confirmed `ORDER_IDENTITY_KEY` exists in Secret Manager for Functions, following [the order identity instructions](#order-identity-trusted-source-and-retention). Keep the generated value in Secret Manager.
 
-The first preview proceeds under the owner’s Part B authorization after the local gate. Set the owner-supplied public `order.appCheckSiteKey` in the ignored preview profile. Keep `order.trustedProxyHops` null until verified. Product and bag controls show “Ordering opens soon”, and the checkout route offers browsing without collecting contact details. Cloud order submission stays disabled. App Check for Firestore and Storage remains an owner decision. P1.14 also verifies the deployed composite indexes, the `orderSources.expiresAt` TTL policy, and the actual preview with the reviewed rules and Function settings.
+The first preview proceeded under the owner’s Part B authorization. The ignored preview profile contains the owner-supplied public App Check site key. Before calibration, null/unverified proxy settings kept shopping controls paused. The canonical callable is now verified at hops 1 and ordering is enabled on the preview for test-stock checks. Production remains unapproved. Firestore and Storage console App Check enforcement remains unchanged. P1.14 evidence includes all 24 deployed composite indexes, ACTIVE orderSources.expiresAt TTL, reviewed rules and the hosted staff flow. See [the final preview report](qa/preview-orders/README.md), including physical-device limitations.
 
 ## Indexing at launch
 
@@ -73,7 +73,7 @@ Run the dry run again to verify that the deletion lists are empty. Review catego
 
 `npm run check` runs the secret scan, ESLint, application tests, metadata tests, deployment-boundary/build tests, the offline build, security-rule tests, Hosting HTTP tests and launch cleanup tests on isolated emulators. GitHub Actions runs that command on main-branch pushes and pull requests with Node 24 and Java 21, read-only repository permissions and no Firebase credentials. The updated workflow is in the local review commits. No deployment is part of CI.
 
-The single-project release preparation passed `npm run check` with **129 tests**. The run covered 69 app tests, 15 metadata tests, six deployment tests, ten rules tests, 24 emulator HTTP tests, four cleanup and role-tool tests and one secret-scan test. Deployment tests build synthetic preview and production artifacts and inspect Function metadata locally. Cleanup tests use only the dedicated demo project. Cloud IAM, billing, ingress, CDN expiry and device behaviour still require the actual preview.
+The single-project release preparation passed `npm run check` with **137 tests** on 17 November 2026. The run covered 77 app tests, 15 metadata tests, six deployment tests, ten rules tests, 24 emulator HTTP tests, four cleanup and role-tool tests and one secret-scan test. Deployment tests build synthetic preview and production artifacts and inspect Function metadata locally. Cleanup tests use only the dedicated demo project. Cloud IAM, billing, ingress, CDN expiry and device behaviour still require the actual preview.
 
 ## References
 
@@ -97,4 +97,9 @@ Part A passed locally on 16 November 2026 before cloud access. The cleanup regre
 
 The permanent account `superadmin@nightinkampala.com` must be retained during launch cleanup. Grant it the owner role and keep it free of the `testAccount` claim. Its password is controlled by the owner. Only disposable staff logins receive the test claim.
 
-The first preview is deployed. [Hosted evidence and the owner domain step](qa/first-preview/README.md) record the pause before Part C. The registered public App Check key is configured, and proxy hops remain null.
+The preview is deployed. [Hosted evidence](qa/preview-orders/README.md) records App Check verification, retention policies and the owner phone checks. The verified canonical callable proxy count is 1. The ignored preview profile enables ordering on marked test stock. Production remains unapproved.
+
+
+## Private staff photo previews
+
+On 17 November the owner approved and the operator applied GET-only bucket CORS for the exact review-channel, web.app and firebaseapp.com origins. [The saved configuration](qa/preview-orders/storage-cors.json) records the change. Private image reads still require the staff/owner Storage rule. A new preview hostname needs corresponding CORS, reCAPTCHA and browser-key origin updates before testing; do not use wildcard bucket origins.

@@ -65,3 +65,8 @@ Document order states `new / contacted / confirmed / declined / cancelled / spam
 - Save the business WhatsApp number in the owner’s Settings screen when ready. Dashboard alerts and the saved reference work without it. Confirm how staff will check the queue for orders without a WhatsApp message and any timed hold policy.
 - The owner approved the shared project and `europe-west1`. Authorize the first preview separately. Confirm closed live bucket rules and review the old browser key's restrictions in the console. Real App Check, trusted connection source, identity secret configuration, live indexes and rules, image delivery and physical-device WhatsApp checks remain staging work. P1.13–P1.15 remain open.
 - Supply real product photographs, measurements, conditions and prices, and a real brand share image for launch.
+
+
+## Hosted preview verification — 17 November 2026
+
+The separately authorized preview review has exercised the full manual-sales order journey, signed-out international submission, staff notification, public stock states, decline/release/spam actions and configured limits. See [the hosted QA matrix and evidence](qa/preview-orders/README.md). The owner confirmed the Android WhatsApp card. Physical iPhone HEIC and alternate run.app ingress checks remain unrun. This records verification beyond the local P3.12 gate; production, cleanup and merging still need the owner’s explicit instruction.

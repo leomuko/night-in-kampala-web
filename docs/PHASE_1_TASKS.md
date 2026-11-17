@@ -1,6 +1,6 @@
 # Phase 1: design and foundations
 
-The owner approved the white theme, roomier homepage, boards 06–09 and numerical measurements. Local tasks **P1.01–P1.10 are implemented and verified**; later Phase 1 tasks remain open. Actual CDN expiry and real shared-link previews still require staging and owner verification. Section 9 of [PROJECT_PLAN.md](PROJECT_PLAN.md) governs scope. See [LOCAL_DEVELOPMENT.md](LOCAL_DEVELOPMENT.md) and [SHARED_LINK_PREVIEWS.md](SHARED_LINK_PREVIEWS.md) for commands, evidence and limitations.
+The owner approved the white theme, roomier homepage, boards 06–09 and numerical measurements. Local tasks **P1.01–P1.10 are implemented and verified**; later Phase 1 tasks remain open. Hosted preview checks and the owner’s Android WhatsApp card confirmation are recorded in [the preview report](qa/preview-orders/README.md). Physical iPhone upload verification remains open. Section 9 of [PROJECT_PLAN.md](PROJECT_PLAN.md) governs scope. See [LOCAL_DEVELOPMENT.md](LOCAL_DEVELOPMENT.md) and [SHARED_LINK_PREVIEWS.md](SHARED_LINK_PREVIEWS.md) for commands, evidence and limitations.
 
 ## Pre-build review gates
 
@@ -23,7 +23,7 @@ Use paper `#FFFFFF`, ink `#0B0B0C`, fog `#F1F1EF`, and hairline `#E2E2DF`. Keep 
 
 ## Ordered build tasks
 
-**Current status:** P1.01–P1.10 complete locally; P1.11 deferred; P1.12 passed local shell QA. P1.13–P1.15 await the owner inputs. See [the shell review and captures](qa/p1-12/README.md). P1.09–P1.10 have raw-HTML and real-emulator HTTP evidence, not production CDN or WhatsApp verification. Task IDs remain stable; task 13 resolves remaining service placement before cloud work.
+**Current status:** P1.01–P1.10 complete locally; P1.11 deferred; P1.12 passed local shell QA. P1.13 records the approved topology; P1.14 passed the hosted preview checks and P1.15 passed the owner’s Android card check on illustrative test content. See [the shell review and captures](qa/p1-12/README.md) and [hosted evidence](qa/preview-orders/README.md). Real launch imagery and physical iPhone upload verification remain open. Task IDs remain stable; task 13 resolves remaining service placement before cloud work.
 
 | ID | Small task | Acceptance check | Depends on |
 | --- | --- | --- | --- |
@@ -40,10 +40,10 @@ Use paper `#FFFFFF`, ink `#0B0B0C`, fog `#F1F1EF`, and hairline `#E2E2DF`. Keep 
 | P1.11 — deferred | Select a transactional email service only when automated customer messages are scheduled after the manual-sales launch. | Not required for Phase 1 closure or initial ordering. On resumption: verify provider terms, domain/DNS, secrets and local previews before sending. Do not mark this task completed merely because it is deferred. | Later messaging requirements |
 | P1.12 — complete locally | Verify responsive shell, navigation and components against the boards. | Capture 360/390px phone, tablet and desktop views; check overflow, keyboard access, focus, readable type and spacing. Build, lint and relevant behaviour/rule/metadata tests pass. Record observed gaps. | P1.07–P1.10 |
 | P1.13 — decision recorded | Record the shared project and approved service locations. | Owner approved `night-in-kampala` for preview and live, Functions in `europe-west1`, Firestore in `eur3` and Storage in `US-EAST1`. See FIREBASE_REGION_DECISION.md. Verify deployed behaviour in P1.14. | Owner decision, 16 November 2026 |
-| P1.14 — preview deployed, verification partial | Verify the first Hosting preview channel and shared backend in the approved project. | The owner-authorized preview is deployed. Raw HTML/assets, versioned images, caching, all 24 indexes and Storage-to-Firestore lookups passed. Staff login is blocked by the browser key referrer restriction. TTL, attestation, trusted-source checks and the remaining staff checks are open. See qa/first-preview/README.md. Review test data before launch. | P1.12–P1.13, preview authorization |
-| P1.15 — pending phone verification | Verify a real product share from the preview channel. | Owner manually confirms the correct title and photograph in a WhatsApp preview on a phone. Check other content types and 404s on the channel. | P1.14 |
+| P1.14 — preview verified | Verify the first Hosting preview channel and shared backend in the approved project. | The owner-authorized preview is deployed. Raw HTML/assets, versioned images, caching, all 24 indexes and Storage-to-Firestore lookups passed. Staff login, JPEG/WebP processing, publish/withdraw/stock audits, ACTIVE TTL, App Check and canonical-callable proxy hops 1 passed. See qa/preview-orders/README.md. Physical iPhone HEIC is unrun; review test data before launch. | P1.12–P1.13, preview authorization |
+| P1.15 — owner phone check passed | Verify a real product share from the preview channel. | Owner confirmed the expected title and denim image on physical Android WhatsApp. This checks the illustrative preview fixture; genuine product/brand images remain launch inputs. Other route HTML and unpublished 404 checks passed in hosted evidence. | P1.14 |
 
-The first preview was deployed on 16 November 2026. P1.14 remains partial and P1.15 awaits the owner’s phone check. [Commands, response evidence, screenshots, API/permission changes and remaining checks](qa/first-preview/README.md) record what was verified. The project is paused for the owner to allow the preview hostname before Part C.
+The first preview was deployed on 16 November 2026. Hosted checks continued on 17 November after the owner saved the domain restrictions. [Final commands/results, screenshots, cloud changes and remaining checks](qa/preview-orders/README.md) supersede the initial pause. Production is unapproved; no merge or launch has occurred.
 
 ## Route map for the shell
 

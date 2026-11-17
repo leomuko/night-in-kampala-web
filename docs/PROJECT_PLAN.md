@@ -275,7 +275,7 @@ Rule going forward: nothing that grants access goes into Git, including service-
 
 ## 11. Next implementation inputs
 
-P1.11 email selection is deferred and [P1.12 shell QA](qa/p1-12/README.md) passed locally. P1.13 records the owner’s approved topology. P1.14–P1.15 await preview authorization and live verification. The [Phase 2 catalogue and staff publication gate](PHASE_2_TASKS.md#p214-local-gate) passed on local emulators. The first sales milestone is the complete on-site order → dashboard queue → staff follow-up journey.
+P1.11 email selection is deferred and [P1.12 shell QA](qa/p1-12/README.md) passed locally. P1.13 records the owner’s approved topology. P1.14 passed hosted preview checks and P1.15 passed the owner’s Android WhatsApp card check on illustrative content. [The hosted report](qa/preview-orders/README.md) records working staff publication, test ordering, source limits and remaining physical iPhone HEIC verification. Production is unapproved. The [Phase 2 catalogue and staff publication gate](PHASE_2_TASKS.md#p214-local-gate) passed on local emulators. The first sales milestone is the complete on-site order → dashboard queue → staff follow-up journey.
 
 For real sales, obtain product photos/details/prices/stock; staff identities and business phone/WhatsApp contact; approved cash/collection/delivery/manual-quote terms; queue-review routine, overdue threshold and confirmed-hold/Sold transition policy; and customer-facing wording. Reserve-at-staff-confirmation is approved. Record the preview-channel and live origins before cloud release. Sender-domain and gateway setup remain deferred.
 
