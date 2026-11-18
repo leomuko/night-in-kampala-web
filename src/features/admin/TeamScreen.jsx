@@ -49,8 +49,8 @@ export default function TeamScreen({ user }) {
         if (sequence === inviteSequence.current) setEmailStatus('Setup email requested. Ask the person to check their inbox and spam folder.');
       } catch { if (sequence === inviteSequence.current) setEmailStatus('The setup email could not be requested. Share the one-time link privately, or use Firebase Authentication to resend a reset email.'); }
       if (result.linkError && sequence === inviteSequence.current) setError(result.linkError);
-    } catch (failure) { setError(staffError(failure)); }
-    finally { setBusy(false); }
+    } catch (failure) { if (sequence === inviteSequence.current) setError(staffError(failure)); }
+    finally { if (sequence === inviteSequence.current) setBusy(false); }
   }
   function add(event) {
     event.preventDefault();

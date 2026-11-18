@@ -178,3 +178,8 @@
 .team-member-meta dd { margin: 0; }
 .team-dialog .field-error { margin-bottom: var(--space-4); }
 @media (min-width: 48rem) { .team-member-meta { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+.team-dialog { overflow-wrap: anywhere; }
+.team-dialog .dialog-heading { align-items: flex-start; }
+.team-dialog .dialog-heading h2 { min-width: 0; }
+.team-dialog .icon-button { flex-shrink: 0; }
