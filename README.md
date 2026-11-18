@@ -5,6 +5,7 @@ A React JavaScript storefront and Firebase backend for reworked clothing, brand 
 ## Planning documents
 
 - [Managing your team](docs/MANAGING_YOUR_TEAM.md): owner invitations, role changes, suspension/reactivation and private password setup.
+- [Setup-link recovery review](docs/qa/setup-recovery/README.md): owner resend links, neutral Forgot password, suspended-reset tests and the current review release.
 - [Team launch hold](docs/TEAM_TASKS.md): migration, access-boundary tests and the required owner review before production.
 - [Project plan](docs/PROJECT_PLAN.md): design, shopping journey, administration, architecture, delivery phases, and launch criteria.
 - [Sales-first launch](docs/SALES_FIRST_LAUNCH.md): on-site orders, dashboard alerts and staff follow-up for cash/manual payment; email and gateway integration deferred.

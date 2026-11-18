@@ -23,3 +23,8 @@ T1–T4 are implemented. Migration/retention tests, server/Storage membership gu
 ## Review handoff
 
 The final local gate passes 181 tests. Membership migration, enforcing rules and affected Functions are deployed, and the review Hosting channel is renewed through 25 November 2026. [Evidence and exact suspended-token results](qa/team/README.md). T5 is at its required owner handoff. Real email/private-link setup, live sign-out/reactivation and existing staff sign-in are **pending owner review**. No cloud cleanup, secret regeneration, merge, push or production Hosting release has been performed.
+
+
+## Setup-link recovery add-on
+
+Owner-requested recovery is implemented on dev and released to review. The latest full gate passes **195 tests**, including suspended-link denial, a completed password reset that leaves suspension/sign-in refusal intact, owner/per-member quota checks and neutral public recovery. Commits 6e21eb3, 587d872 and 8494897 cover the three parts. [Current evidence/version](qa/setup-recovery/README.md). The combined owner Team/recovery test remains pending. Launch hold is unchanged.

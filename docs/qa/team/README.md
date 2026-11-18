@@ -1,5 +1,7 @@
 # Team review gate — 18 November 2026
 
+**Setup recovery add-on:** the latest combined local gate is now 195 tests, with replacement setup links and Forgot password deployed. See [add-on evidence and current review version](../setup-recovery/README.md). The 181-test results below are the earlier Team foundation gate; owner combined review still blocks launch.
+
 **Launch remains on hold.** Work is on dev. No cloud launch-cleanup execution, ORDER_IDENTITY_KEY regeneration, merge, push or production Hosting release has been run. The owner must complete the Team checks below before replying **approved for launch**.
 
 ## What was built

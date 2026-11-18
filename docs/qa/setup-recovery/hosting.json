@@ -1,0 +1,71 @@
+{
+  "checkedAt": "2026-11-18T08:31:55.930Z",
+  "origin": "https://night-in-kampala--review-jrrv7tp2.web.app",
+  "pages": [
+    {
+      "path": "/",
+      "status": 200,
+      "noindexHeader": true,
+      "noindexMeta": true,
+      "currentEntry": true
+    },
+    {
+      "path": "/admin",
+      "status": 200,
+      "noindexHeader": true,
+      "noindexMeta": true,
+      "currentEntry": true
+    },
+    {
+      "path": "/shop",
+      "status": 200,
+      "noindexHeader": true,
+      "noindexMeta": true,
+      "currentEntry": true
+    },
+    {
+      "path": "/cart",
+      "status": 200,
+      "noindexHeader": true,
+      "noindexMeta": true,
+      "currentEntry": true
+    },
+    {
+      "path": "/help/delivery",
+      "status": 200,
+      "noindexHeader": true,
+      "noindexMeta": true,
+      "currentEntry": true
+    }
+  ],
+  "assets": [
+    {
+      "path": "/assets/index-6g1JgftS.js",
+      "status": 200,
+      "matchesBuiltHash": true,
+      "sha256": "3e517a1331e5a53462c7f3555077c5e70e5265a90fcdd1e0fce3b78e71df82c1"
+    },
+    {
+      "path": "/assets/AdminShell-Cp19sGGE.js",
+      "status": 200,
+      "matchesBuiltHash": true,
+      "sha256": "e573bcf78624422d6b62dbf5b8a04103fbac547f51033f13db7c6bdbc385c444",
+      "teamUiPresent": true
+    }
+  ],
+  "hiddenTestDetail": {
+    "status": 404,
+    "currentEntry": true
+  },
+  "channel": {
+    "url": "https://night-in-kampala--review-jrrv7tp2.web.app",
+    "expireTime": "2026-11-25T08:29:11.008562257Z",
+    "version": "sites/night-in-kampala/versions/8a1da99cd70e0def"
+  },
+  "reviewConfiguration": {
+    "indexPublicPages": false,
+    "shopperOrderingPaused": true
+  },
+  "nativeBrowserReview": "Pending owner",
+  "productionHostingReleased": false
+}

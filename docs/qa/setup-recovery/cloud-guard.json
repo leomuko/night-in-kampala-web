@@ -1,0 +1,10 @@
+{
+  "checkedAt": "2026-11-18T08:29:10.443Z",
+  "endpoint": "staffSetupLink",
+  "status": 401,
+  "error": "UNAUTHENTICATED",
+  "sdkAppCheckRejected": true,
+  "request": "No Auth, App Check or member UID supplied",
+  "realSetupLinksRequested": 0,
+  "passwordsChanged": 0
+}

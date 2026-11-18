@@ -1,0 +1,15 @@
+{
+  "date": "2026-11-18",
+  "command": "npm run check",
+  "result": "pass",
+  "total": 195,
+  "application": 124,
+  "metadataAndStaffGuard": 17,
+  "deployment": 7,
+  "rules": 11,
+  "emulatorHttp": 29,
+  "cleanupRoleMigration": 6,
+  "secretScan": 1,
+  "lint": "pass without warnings",
+  "offlineBuild": "pass"
+}
