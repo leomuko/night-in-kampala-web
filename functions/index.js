@@ -22,7 +22,7 @@ import { updateOrderDesk } from './order-desk.js';
 import { saveOrderSettings } from './order-settings.js';
 import { authorizeStaff, staffCallable } from './staff-access.js';
 import { catalogueUsesTestData, resolveFunctionRuntime } from './runtime-config.js';
-import { inviteStaff, changeStaff, listStaff } from './team.js';
+import { inviteStaff, changeStaff, listStaff, staffSetupLink as createStaffSetupLink } from './team.js';
 import { isLaunchContent } from './public-content.js';
 
 // Cloud startup requires a prepared, approved artifact and a matching project.
@@ -111,3 +111,5 @@ export const staffInvite = staff((data, actor) => inviteStaff(db, auth, runtime.
 export const staffSetRole = staff((data, actor) => changeStaff(db, auth, data, actor, 'role'), { ownerOnly: true });
 export const staffSuspend = staff((data, actor) => changeStaff(db, auth, data, actor, 'suspend'), { ownerOnly: true });
 export const staffReactivate = staff((data, actor) => changeStaff(db, auth, data, actor, 'reactivate'), { ownerOnly: true });
+
+export const staffSetupLink = staff((data, actor) => createStaffSetupLink(db, auth, runtime.origin, data, actor), { ownerOnly: true });

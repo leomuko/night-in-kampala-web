@@ -71,7 +71,7 @@ export async function inviteStaff(db, auth, origin, data, actor) {
     const existing = user ? (await db.doc(`staffMembers/${user.uid}`).get()).data() : null;
     if (existing) {
       await audit(db, actor, user.uid, 'staff-invite-existing-member', memberAudit(existing), memberAudit(existing));
-      return { existingMember: true, email: fields.email, uid: user.uid };
+      return { existingMember: true, email: fields.email, uid: user.uid, name: existing.name, status: existing.status };
     }
     if (user && data.grantExisting !== true) {
       await audit(db, actor, user.uid, 'staff-invite-existing-choice', null, null);
@@ -134,4 +134,37 @@ export async function listStaff(db, auth, data, actor) {
     accessPending: m.accessPending === true, lastSignInAt: user?.metadata.lastSignInTime ?? null, authMissing: !user,
   }; }), cursor: page.size === 50 ? page.docs.at(-1).data().email : null,
   activeOwnerCount: owners.docs.filter(row => activeMember(row.data())).length };
+}
+
+
+export async function staffSetupLink(db, auth, origin, data, actor) {
+  const uid = targetUid(data?.uid);
+  return withTeamLock(db, actor, async () => {
+    const member = (await db.doc(`staffMembers/${uid}`).get()).data();
+    if (!member) throw new HttpsError('not-found', 'This team member was not found.');
+    // Pending first setup / access synchronization does not prevent a reset
+    // link. Issuing a link never changes membership, claims or disabled state.
+    if (member.status !== 'active') throw new HttpsError('failed-precondition', 'Reactivate first. Suspended members cannot receive a setup link.');
+    let user;
+    try { user = await auth.getUser(uid); }
+    catch { throw new HttpsError('failed-precondition', 'This Auth account is unavailable.'); }
+    if (!user.email || user.email.toLowerCase() !== member.email.toLowerCase()) {
+      throw new HttpsError('failed-precondition', 'The account email changed. Ask the owner to review the membership.');
+    }
+    const counter = db.doc(`staffSetupLimits/${uid}/days/${new Date().toISOString().slice(0, 10)}`);
+    await db.runTransaction(async tx => {
+      await checkTeamOwner(tx, db, actor);
+      const count = (await tx.get(counter)).data()?.count ?? 0;
+      if (count >= 5) throw new HttpsError('resource-exhausted', 'The limit of 5 setup-link requests per member per UTC day has been reached. Try tomorrow.');
+      tx.set(counter, { count: count + 1, updatedAt: stamp() });
+    });
+    let setupLink;
+    try { setupLink = await auth.generatePasswordResetLink(user.email, { url: `${origin}/admin` }); }
+    catch {
+      await audit(db, actor, uid, 'staff-setup-link', null, null, 'failed');
+      throw new HttpsError('unavailable', 'The setup link could not be generated. Try again later.');
+    }
+    await audit(db, actor, uid, 'staff-setup-link', null, null);
+    return { uid, name: member.name, email: user.email, setupLink };
+  });
 }

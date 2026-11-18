@@ -38,7 +38,7 @@ test('Team owner invite supports setup, explicit existing-account consent, quota
   const counter = db.doc(`teamInviteLimits/${new Date().toISOString().slice(0, 10)}`);
   try {
     const owner = await f.user('owner'), staff = await f.user('staff');
-    for (const name of ['staffList', 'staffInvite', 'staffSetRole', 'staffSuspend', 'staffReactivate']) {
+    for (const name of ['staffList', 'staffInvite', 'staffSetRole', 'staffSuspend', 'staffReactivate', 'staffSetupLink']) {
       assert.equal((await call(name, {}, staff.token)).status, 403, name);
       assert.equal((await call(name, {})).status, 401, name);
     }
@@ -130,4 +130,71 @@ test('concurrent owners cannot remove each other and leave no active owner; part
     assert.equal((await call('staffReactivate', { uid: target.uid }, owner.token)).status, 200);
     assert.equal((await call('staffAccess', {}, (await target.login()).body.idToken)).status, 200);
   } finally { await f.close(); }
+});
+
+
+test('replacement setup links are active-only including pending setup, owner-only, audited without URLs and limited to five per member per UTC day', async () => {
+  const f = await fixture(), { db, auth } = f;
+  let target;
+  try {
+    const owner = await f.user('owner'), staff = await f.user('staff');
+    target = await f.user('staff');
+    const memberRef = db.doc(`staffMembers/${target.uid}`);
+    await memberRef.update({ accessPending: true });
+    const before = (await memberRef.get()).data();
+    assert.equal((await call('staffSetupLink', { uid: target.uid }, staff.token)).status, 403);
+    assert.equal((await call('staffSetupLink', { uid: target.uid })).status, 401);
+    const links = [];
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const result = await call('staffSetupLink', { uid: target.uid }, owner.token);
+      assert.equal(result.status, 200);
+      assert.equal(result.body.result.email, target.email);
+      const link = result.body.result.setupLink;
+      assert.equal(typeof link, 'string');
+      assert.equal(new URL(link).searchParams.get('continueUrl'), 'http://127.0.0.1:5500/admin');
+      assert.equal(links.includes(link), false);
+      links.push(link);
+    }
+    assert.deepEqual((await memberRef.get()).data(), before); // Does not clear pending or activate anything.
+    assert.equal((await auth.getUser(target.uid)).disabled, false);
+    const limited = await call('staffSetupLink', { uid: target.uid }, owner.token);
+    assert.equal(limited.status, 429); assert.match(limited.body.error.message, /5 setup-link requests/);
+    const audits = await db.collection('auditLogs').where('targetUid', '==', target.uid).get();
+    const generated = audits.docs.filter(row => row.data().action === 'staff-setup-link');
+    assert.equal(generated.length, 5);
+    assert.ok(generated.every(row => row.data().actorUid === owner.uid && row.data().at));
+    const stored = JSON.stringify([...(await db.collection('staffMembers').get()).docs.map(row => row.data()), ...audits.docs.map(row => row.data())]);
+    assert.equal(stored.includes('oobCode'), false);
+    assert.equal(links.some(link => stored.includes(link)), false);
+    await memberRef.update({ status: 'suspended', accessPending: false });
+    const blocked = await call('staffSetupLink', { uid: target.uid }, owner.token);
+    assert.equal(blocked.status, 400); assert.match(blocked.body.error.message, /Reactivate first/);
+  } finally {
+    if (target) await db.doc(`staffSetupLimits/${target.uid}/days/${new Date().toISOString().slice(0, 10)}`).delete();
+    await f.close();
+  }
+});
+
+test('a suspended member gets no new setup link and stays disabled and unable to sign in after using a prior reset code', async () => {
+  const f = await fixture(), { auth, db } = f;
+  let target;
+  try {
+    const owner = await f.user('owner'); target = await f.user('staff');
+    const generated = await call('staffSetupLink', { uid: target.uid }, owner.token);
+    assert.equal(generated.status, 200);
+    const code = new URL(generated.body.result.setupLink).searchParams.get('oobCode');
+    assert.equal((await call('staffSuspend', { uid: target.uid }, owner.token)).status, 200);
+    assert.equal((await call('staffSetupLink', { uid: target.uid }, owner.token)).status, 400);
+    const password = randomUUID();
+    const reset = await post(`${accounts}:resetPassword?key=demo-key`, { oobCode: code, newPassword: password });
+    assert.equal(reset.status, 200);
+    assert.equal((await auth.getUser(target.uid)).disabled, true);
+    assert.equal((await db.doc(`staffMembers/${target.uid}`).get()).data().status, 'suspended');
+    const login = await post(`${accounts}:signInWithPassword?key=demo-key`, { email: target.email, password, returnSecureToken: true });
+    assert.equal(login.status, 400); assert.match(login.body.error.message, /USER_DISABLED/);
+    assert.equal((await post(`${accounts}:resetPassword?key=demo-key`, { oobCode: code, newPassword: randomUUID() })).status, 400);
+  } finally {
+    if (target) await db.doc(`staffSetupLimits/${target.uid}/days/${new Date().toISOString().slice(0, 10)}`).delete();
+    await f.close();
+  }
 });

@@ -141,3 +141,52 @@ test('finishing an earlier setup email cannot clear the busy state of a later in
   expect(await screen.findByRole('dialog', { name: 'Set up Second fixture' })).toBeVisible();
   expect(screen.getByLabelText('One-time setup link')).toHaveValue('https://example.test/second-private-setup');
 });
+
+test('active pending members can receive a new private setup link; suspended rows say Reactivate first', async () => {
+  const user = userEvent.setup();
+  f.rows[1] = { ...f.rows[1], accessPending: true };
+  f.rows.push({ uid: 'suspended', name: 'Suspended fixture', email: 'suspended@example.test', role: 'staff', status: 'suspended' });
+  f.call.mockImplementation(async name => name === 'staffList' ? { rows: f.rows, activeOwnerCount: 1 } : { uid: 'staff', name: 'Staff fixture', email: 'staff@example.test', setupLink: 'https://example.test/replacement-setup' });
+  mount(); await screen.findByRole('heading', { name: 'Staff fixture' });
+  const disabled = screen.getByRole('button', { name: 'Send new setup link for Suspended fixture' });
+  expect(disabled).toBeDisabled(); expect(disabled).toHaveAccessibleDescription('Reactivate first');
+  await user.click(screen.getByRole('button', { name: 'Send new setup link for Staff fixture' }));
+  const dialog = await screen.findByRole('dialog', { name: 'Set up Staff fixture' });
+  expect(f.call).toHaveBeenCalledWith('staffSetupLink', { uid: 'staff' });
+  await screen.findByText(/Setup email requested/);
+  expect(f.resetEmail).toHaveBeenCalledWith('auth-fixture', 'staff@example.test', { url: new URL('/admin', window.location.origin).href });
+  expect(within(dialog).getByText(/Works once and expires after about an hour\. Older links stop working once this one is used\./)).toBeVisible();
+  await audit();
+  await user.click(within(dialog).getByRole('button', { name: 'Done' }));
+  expect(screen.queryByLabelText('One-time setup link')).toBeNull();
+  expect(localStorage.length).toBe(0); expect(sessionStorage.length).toBe(0);
+});
+
+test('reinviting an existing member offers setup recovery instead of changing the role or duplicating them', async () => {
+  const user = userEvent.setup(); mount();
+  await screen.findByRole('heading', { name: 'Staff fixture' });
+  f.call.mockImplementation(async name => name === 'staffList' ? { rows: f.rows, activeOwnerCount: 1 }
+    : name === 'staffInvite' ? { existingMember: true, uid: 'staff', name: 'Staff fixture', email: 'staff@example.test', status: 'active' }
+      : { uid: 'staff', email: 'staff@example.test', setupLink: 'https://example.test/replacement-setup' });
+  await user.click(screen.getByRole('button', { name: 'Add member' }));
+  let dialog = screen.getByRole('dialog');
+  await user.type(within(dialog).getByLabelText('Name'), 'Staff fixture');
+  await user.type(within(dialog).getByLabelText('Email'), 'staff@example.test');
+  await user.click(within(dialog).getByRole('button', { name: 'Add member' }));
+  dialog = await screen.findByRole('dialog', { name: 'Already a team member' });
+  expect(within(dialog).getByRole('button', { name: /^Close/ })).toHaveFocus();
+  expect(f.resetEmail).not.toHaveBeenCalled();
+  await user.click(within(dialog).getByRole('button', { name: 'Send new setup link' }));
+  await screen.findByRole('dialog', { name: 'Set up Staff fixture' });
+  expect(f.call).toHaveBeenCalledWith('staffSetupLink', { uid: 'staff' });
+});
+
+test('setup-link quota errors are clear and focused, with no link or email request', async () => {
+  const user = userEvent.setup(); mount();
+  await screen.findByRole('heading', { name: 'Staff fixture' });
+  f.call.mockRejectedValueOnce(new Error('The limit of 5 setup-link requests per member per UTC day has been reached. Try tomorrow.'));
+  await user.click(screen.getByRole('button', { name: 'Send new setup link for Staff fixture' }));
+  expect(await screen.findByRole('alert')).toHaveFocus();
+  expect(screen.getByRole('alert')).toHaveTextContent(/5 setup-link requests/);
+  expect(screen.queryByLabelText('One-time setup link')).toBeNull(); expect(f.resetEmail).not.toHaveBeenCalled();
+});
