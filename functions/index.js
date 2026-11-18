@@ -22,6 +22,7 @@ import { updateOrderDesk } from './order-desk.js';
 import { saveOrderSettings } from './order-settings.js';
 import { authorizeStaff, staffCallable } from './staff-access.js';
 import { catalogueUsesTestData, resolveFunctionRuntime } from './runtime-config.js';
+import { inviteStaff, changeStaff, listStaff } from './team.js';
 import { isLaunchContent } from './public-content.js';
 
 // Cloud startup requires a prepared, approved artifact and a matching project.
@@ -103,3 +104,10 @@ export const orderDesk = staff((data, actor) => {
 });
 export const catalogueMarkSold = staff((data, actor) => markCatalogueSold(db, data, actor));
 export const manualSaleRecord = staff((data, actor) => recordManualSale(db, data, actor));
+
+// Team setup links exist only in this callable response, never in a document or log.
+export const staffList = staff((data, actor) => listStaff(db, auth, data, actor), { ownerOnly: true });
+export const staffInvite = staff((data, actor) => inviteStaff(db, auth, runtime.origin, data, actor), { ownerOnly: true });
+export const staffSetRole = staff((data, actor) => changeStaff(db, auth, data, actor, 'role'), { ownerOnly: true });
+export const staffSuspend = staff((data, actor) => changeStaff(db, auth, data, actor, 'suspend'), { ownerOnly: true });
+export const staffReactivate = staff((data, actor) => changeStaff(db, auth, data, actor, 'reactivate'), { ownerOnly: true });

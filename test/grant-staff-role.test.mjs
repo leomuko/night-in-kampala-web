@@ -37,6 +37,11 @@ test('role tooling only updates an existing account after confirmation and prese
     const grant = run([...args, '--execute', '--confirm', phrase]);
     assert.equal(grant.status, 0, grant.stderr);
     assert.deepEqual((await auth.getUser(account.uid)).customClaims, { retained: true, owner: true, staffVersion: 1 });
+    const lastOwner = run(['--project', project, '--email', email, '--role', 'staff', '--execute', '--confirm', `GRANT STAFF ${account.uid} IN ${project}`]);
+    assert.equal(lastOwner.status, 1); assert.match(lastOwner.stderr, /last active owner/);
+    const backup = await auth.createUser({ uid: 'break-glass-backup-owner', email: 'backup@example.test' });
+    await auth.setCustomUserClaims(backup.uid, { owner: true, staffVersion: 1 });
+    await getFirestore(app).doc(`staffMembers/${backup.uid}`).set({ role: 'owner', status: 'active', accessVersion: 1 });
     const staffArgs = ['--project', project, '--email', email, '--role', 'staff', '--test-account', '--execute',
       '--confirm', `GRANT STAFF ${account.uid} IN ${project}`];
     assert.equal(run(staffArgs).status, 0);
@@ -52,6 +57,8 @@ test('role tooling only updates an existing account after confirmation and prese
     await assert.rejects(auth.getUserByEmail('absent@example.test'), { code: 'auth/user-not-found' });
   } finally {
     await auth.deleteUser(account.uid);
+    await auth.deleteUser('break-glass-backup-owner').catch(() => {});
+    await getFirestore(app).doc('staffMembers/break-glass-backup-owner').delete();
     await deleteApp(app);
   }
 });

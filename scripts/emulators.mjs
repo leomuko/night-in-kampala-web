@@ -33,7 +33,7 @@ if (mode !== 'start') {
     services = await (await fetch('http://127.0.0.1:4400/emulators', { signal: AbortSignal.timeout(1000) })).json();
   } catch { /* Start an isolated emulator run if no hub is serving. */ }
   const suites = {
-    metadata: { files: ['test/shared-links-http.test.mjs', 'test/staff-http.test.mjs', 'test/order-http.test.mjs'], emulators: ['auth', 'firestore', 'storage', 'functions', 'hosting'] },
+    metadata: { files: ['test/shared-links-http.test.mjs', 'test/staff-http.test.mjs', 'test/order-http.test.mjs', 'test/team-http.test.mjs'], emulators: ['auth', 'firestore', 'storage', 'functions', 'hosting'] },
     test: { files: ['test/rules.test.mjs'], emulators: ['firestore', 'storage'] },
     cleanup: { files: ['test/launch-cleanup.test.mjs', 'test/grant-staff-role.test.mjs', 'test/staff-migration.test.mjs'], emulators: ['auth', 'firestore', 'storage'] },
   };

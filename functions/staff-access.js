@@ -19,7 +19,7 @@ export async function authorizeStaff(db, auth, request, ownerOnly = false) {
 }
 
 export function staffCallable(runtime, db, auth, handler, { ownerOnly = false } = {}) {
-  return onCall({ region: runtime.region, maxInstances: 3, enforceAppCheck: !runtime.emulator }, async request => {
+  return onCall({ region: runtime.region, maxInstances: 3, timeoutSeconds: 60, enforceAppCheck: !runtime.emulator }, async request => {
     const actor = await authorizeStaff(db, auth, request, ownerOnly);
     return handler(request.data, actor);
   });
