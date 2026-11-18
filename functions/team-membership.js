@@ -1,17 +1,13 @@
 import { FieldValue } from 'firebase-admin/firestore';
+import { activeMember, claimRole, matchesMember } from './team-identity.js';
+export { claimRole, activeMember, matchesMember } from './team-identity.js';
 
 export const permanentTeamEmails = new Set(['superadmin@nightinkampala.com', 'fahkerahmed@nightinkampala.com']);
-export const claimRole = claims => claims?.owner === true ? 'owner' : claims?.staff === true ? 'staff' : null;
-export const activeMember = member => member?.status === 'active' && member.accessPending !== true;
 export function memberClaims(existing, member) {
   const claims = { ...existing };
   delete claims.owner; delete claims.staff; delete claims.staffVersion;
   if (activeMember(member)) { claims[member.role] = true; claims.staffVersion = member.accessVersion; }
   return claims;
-}
-export function matchesMember(claims, member) {
-  return activeMember(member) && claimRole(claims) === member.role
-    && Number.isInteger(member.accessVersion) && member.accessVersion > 0 && claims.staffVersion === member.accessVersion;
 }
 export function memberAudit(member) {
   if (!member) return null;

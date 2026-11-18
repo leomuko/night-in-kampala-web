@@ -2,10 +2,12 @@ rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
     function isCatalogueStaff() {
-      return request.auth != null && (
-        request.auth.token.get('staff', false) == true ||
-        request.auth.token.get('owner', false) == true
-      );
+      let member = firestore.get(/databases/(default)/documents/staffMembers/$(request.auth.uid)).data;
+      return request.auth != null && member.status == 'active' && member.get('accessPending', false) == false
+        && request.auth.token.get('staffVersion', 0) == member.accessVersion && (
+          (member.role == 'owner' && request.auth.token.get('owner', false) == true) ||
+          (member.role == 'staff' && request.auth.token.get('staff', false) == true)
+        );
     }
     function isValidDraftImage(fileName) {
       return request.resource.size > 0 && request.resource.size <= 2 * 1024 * 1024

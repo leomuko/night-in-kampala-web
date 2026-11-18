@@ -44,7 +44,8 @@ const auth = getAuth(app);
 for (const uid of ['fixture-customer', 'fixture-staff']) {
   try { await auth.createUser({ uid }); }
   catch (error) { if (error.code !== 'auth/uid-already-exists') throw error; }
-  await auth.setCustomUserClaims(uid, { testAccount: true, ...(uid === 'fixture-staff' ? { staff: true } : {}) });
+  if (uid === 'fixture-staff') await db.doc(`staffMembers/${uid}`).set({ name: 'Local fixture', email: 'fixture-staff@example.test', role: 'staff', status: 'active', accessVersion: 1 });
+  await auth.setCustomUserClaims(uid, { testAccount: true, ...(uid === 'fixture-staff' ? { staff: true, staffVersion: 1 } : {}) });
 }
 console.log('Seeded local published/draft/sold content and synthetic identities. No real inventory or cloud data touched.');
 await deleteApp(app);

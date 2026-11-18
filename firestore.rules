@@ -1,11 +1,18 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    function isOwner() {
-      return request.auth != null && request.auth.token.get('owner', false) == true;
+    function activeRole(role) {
+      let member = get(/databases/$(database)/documents/staffMembers/$(request.auth.uid)).data;
+      return member.status == 'active' && member.get('accessPending', false) == false
+        && member.role == role && request.auth.token.get(role, false) == true
+        && request.auth.token.get('staffVersion', 0) == member.accessVersion;
     }
-    function isCatalogueStaff() {
-      return isOwner() || (request.auth != null && request.auth.token.get('staff', false) == true);
+    function isOwner() { return request.auth != null && activeRole('owner'); }
+    function isCatalogueStaff() { return request.auth != null && (activeRole('owner') || activeRole('staff')); }
+
+    match /staffMembers/{uid} {
+      allow get: if request.auth != null && (request.auth.uid == uid || isOwner());
+      allow list: if isOwner();
     }
 
     match /products/{slug} {

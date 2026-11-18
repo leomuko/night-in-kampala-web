@@ -446,3 +446,31 @@ test('order settings accept only validated owner changes and audit the safe proj
     await deleteApp(app);
   }
 });
+
+test('suspended still-valid tokens fail staff callables; only a fresh reactivated session regains access', async () => {
+  const app = initializeApp({ projectId: project }, 'suspended-token-test');
+  const auth = getAuth(app), db = getFirestore(app);
+  const provision = spawnSync(process.execPath, ['scripts/provision-demo-staff.mjs', project, 'staff'], { encoding: 'utf8' });
+  assert.equal(provision.status, 0, provision.stderr);
+  const { uid, email, password } = JSON.parse(provision.stdout);
+  const login = () => post(`${authApi}:signInWithPassword?key=demo-key`, { email, password, returnSecureToken: true });
+  try {
+    const first = await login(), token = first.body.idToken;
+    assert.equal((await post(endpoint, { data: {} }, token)).status, 200);
+    await db.doc(`staffMembers/${uid}`).update({ status: 'suspended', accessVersion: 2 });
+    // No Auth revocation is needed for immediate record-based rejection.
+    assert.equal((await auth.verifyIdToken(token, false)).uid, uid);
+    assert.equal((await post(endpoint, { data: {} }, token)).status, 403);
+    await auth.updateUser(uid, { disabled: true });
+    await auth.setCustomUserClaims(uid, { testAccount: true });
+    await auth.revokeRefreshTokens(uid);
+    await assert.rejects(auth.verifyIdToken(token, true), { code: 'auth/user-disabled' });
+    assert.ok([401, 403].includes((await post(endpoint, { data: {} }, token)).status));
+    await auth.updateUser(uid, { disabled: false });
+    await auth.setCustomUserClaims(uid, { staff: true, staffVersion: 3, testAccount: true });
+    await db.doc(`staffMembers/${uid}`).update({ status: 'active', accessVersion: 3 });
+    assert.ok([401, 403].includes((await post(endpoint, { data: {} }, token)).status));
+    const refreshed = await login();
+    assert.equal((await post(endpoint, { data: {} }, refreshed.body.idToken)).status, 200);
+  } finally { await db.doc(`staffMembers/${uid}`).delete(); await auth.deleteUser(uid); await deleteApp(app); }
+});

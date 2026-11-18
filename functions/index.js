@@ -1,7 +1,8 @@
-import { onRequest, onCall, HttpsError } from 'firebase-functions/v2/https';
+import { onRequest, onCall } from 'firebase-functions/v2/https';
 import { defineSecret } from 'firebase-functions/params';
 import { initializeApp } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
+import { getAuth } from 'firebase-admin/auth';
 import { readFile } from 'node:fs/promises';
 import { readFileSync } from 'node:fs';
 import { createSharedLinkHandler } from './shared-links.js';
@@ -19,7 +20,7 @@ import { markCatalogueSold, settleOrder } from './order-settlement.js';
 import { changeOrderStock } from './order-stock.js';
 import { updateOrderDesk } from './order-desk.js';
 import { saveOrderSettings } from './order-settings.js';
-import { staffCallable } from './staff-access.js';
+import { authorizeStaff, staffCallable } from './staff-access.js';
 import { catalogueUsesTestData, resolveFunctionRuntime } from './runtime-config.js';
 import { isLaunchContent } from './public-content.js';
 
@@ -31,6 +32,8 @@ const previewData = runtime.emulator || runtime.target === 'preview';
 const catalogueTestData = catalogueUsesTestData(runtime);
 const app = initializeApp({ projectId: runtime.projectId });
 const db = getFirestore(app);
+const auth = getAuth(app);
+const staff = (handler, options) => staffCallable(runtime, db, auth, handler, options);
 let handler;
 async function loadHandler() {
   return createSharedLinkHandler({
@@ -63,19 +66,19 @@ export const localHealth = runtime.emulator ? onRequest({ region: runtime.region
   response.set('Cache-Control', 'no-store').json({ local: true, project: 'demo-night-in-kampala' });
 }) : undefined;
 
-export const staffAccess = staffCallable(runtime, (_data, actor) => ({ role: actor.role }));
-export const catalogueDraftSave = staffCallable(runtime, (data, actor) => saveProductDraft(db, data, actor, catalogueTestData));
-export const catalogueCategorySave = staffCallable(runtime, data => saveCategory(db, data));
-export const cataloguePhotoAdd = staffCallable(runtime, (data, actor) => addDraftPhoto(db, catalogueBucket(app, runtime), data, actor));
-export const cataloguePhotosSave = staffCallable(runtime, (data, actor) => updateDraftPhotos(db, data, actor));
-export const cataloguePublish = staffCallable(runtime, (data, actor) => publishCatalogueProduct(db, catalogueBucket(app, runtime), data, actor, catalogueTestData));
-export const catalogueWithdraw = staffCallable(runtime, (data, actor) => withdrawCatalogueProduct(db, data, actor));
-export const catalogueAvailability = staffCallable(runtime, (data, actor) => changeCatalogueAvailability(db, data, actor));
+export const staffAccess = staff((_data, actor) => ({ role: actor.role }));
+export const catalogueDraftSave = staff((data, actor) => saveProductDraft(db, data, actor, catalogueTestData));
+export const catalogueCategorySave = staff(data => saveCategory(db, data));
+export const cataloguePhotoAdd = staff((data, actor) => addDraftPhoto(db, catalogueBucket(app, runtime), data, actor));
+export const cataloguePhotosSave = staff((data, actor) => updateDraftPhotos(db, data, actor));
+export const cataloguePublish = staff((data, actor) => publishCatalogueProduct(db, catalogueBucket(app, runtime), data, actor, catalogueTestData));
+export const catalogueWithdraw = staff((data, actor) => withdrawCatalogueProduct(db, data, actor));
+export const catalogueAvailability = staff((data, actor) => changeCatalogueAvailability(db, data, actor));
 export const catalogueMedia = onRequest({ region: runtime.region, maxInstances: 3 }, catalogueMediaHandler(db, () => catalogueBucket(app, runtime)));
-export const editorialDraftSave = staffCallable(runtime, (data, actor) => saveEditorialDraft(db, data, actor, catalogueTestData));
-export const editorialPublish = staffCallable(runtime, (data, actor) => publishEditorial(db, data, actor, catalogueTestData));
-export const publicationApproval = staffCallable(runtime, (data, actor) => approvePublication(db, data, actor));
-export const orderSettingsSave = staffCallable(runtime, (data, actor) => saveOrderSettings(db, data, actor));
+export const editorialDraftSave = staff((data, actor) => saveEditorialDraft(db, data, actor, catalogueTestData));
+export const editorialPublish = staff((data, actor) => publishEditorial(db, data, actor, catalogueTestData));
+export const publicationApproval = staff((data, actor) => approvePublication(db, data, actor));
+export const orderSettingsSave = staff((data, actor) => saveOrderSettings(db, data, actor));
 
 const orderIdentityKey = defineSecret('ORDER_IDENTITY_KEY');
 export const orderCreate = onCall({
@@ -83,7 +86,7 @@ export const orderCreate = onCall({
   ...(runtime.emulator ? {} : { secrets: [orderIdentityKey] }),
 }, async request => {
   const previewCheck = runtime.target === 'preview' && request.data?.previewCheck === true;
-  if (previewCheck && request.auth?.token.owner !== true) throw new HttpsError('permission-denied', 'Owner access is required for preview checks.');
+  if (previewCheck) await authorizeStaff(db, auth, request, true);
   if (previewCheck && !request.data.items) return { previewAttestationVerified: Boolean(request.app) };
   const source = orderSource(request, runtime, runtime.order?.trustedProxyHops);
   const key = runtime.emulator ? runtime.projectId : orderIdentityKey.value();
@@ -93,10 +96,10 @@ export const orderCreate = onCall({
   const counters = (await db.doc(`orderSources/${sourceKey}`).get()).data();
   return { ...result, previewSource: { fingerprint: sourceKey.slice(0, 16), count: counters.timestamps.length } };
 });
-export const orderDesk = staffCallable(runtime, (data, actor) => {
+export const orderDesk = staff((data, actor) => {
   if (['confirm', 'decline', 'release', 'cancel', 'sell', 'spam'].includes(data?.action)) return changeOrderStock(db, data, actor);
   if (['payment', 'fulfil', 'complete'].includes(data?.action)) return settleOrder(db, data, actor);
   return updateOrderDesk(db, data, actor);
 });
-export const catalogueMarkSold = staffCallable(runtime, (data, actor) => markCatalogueSold(db, data, actor));
-export const manualSaleRecord = staffCallable(runtime, (data, actor) => recordManualSale(db, data, actor));
+export const catalogueMarkSold = staff((data, actor) => markCatalogueSold(db, data, actor));
+export const manualSaleRecord = staff((data, actor) => recordManualSale(db, data, actor));

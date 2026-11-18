@@ -20,7 +20,7 @@
     "check:secrets": "node --test test/secret-scan.test.mjs && node scripts/scan-secrets.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:metadata": "node --test functions/test/shared-links.test.js",
+    "test:metadata": "node --test functions/test/*.test.js",
     "test:deployment": "node --test test/deployment*.test.mjs",
     "prepare:deployment": "node scripts/prepare-deployment.mjs",
     "release:firebase": "node scripts/release-firebase.mjs",

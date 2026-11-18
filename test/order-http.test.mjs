@@ -74,7 +74,8 @@ async function orderFixture(run) {
     const auth = getAuth(app);
     const account = await auth.createUser({ email, password });
     staffUsers.push(account.uid);
-    if (role) await auth.setCustomUserClaims(account.uid, { [role]: true });
+    if (role) await db.doc(`staffMembers/${account.uid}`).set({ name: 'Local order fixture', email, role, status: 'active', accessVersion: 1 });
+    if (role) await auth.setCustomUserClaims(account.uid, { [role]: true, staffVersion: 1 });
     const response = await fetch('http://127.0.0.1:9099/identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=demo-key', {
       method: 'POST', body: JSON.stringify({ email, password, returnSecureToken: true }), headers: { 'Content-Type': 'application/json' },
     });

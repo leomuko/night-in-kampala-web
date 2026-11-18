@@ -60,14 +60,16 @@ before(async () => {
   roles = {
     guest: environment.unauthenticatedContext(),
     customer: environment.authenticatedContext('customer'),
-    staff: environment.authenticatedContext('staff', { staff: true }),
-    owner: environment.authenticatedContext('owner-account', { owner: true }),
+    staff: environment.authenticatedContext('staff', { staff: true, staffVersion: 1 }),
+    owner: environment.authenticatedContext('owner-account', { owner: true, staffVersion: 1 }),
     malformedClaim: environment.authenticatedContext('wrong-claim', { staff: 'true' }),
   };
 
   await environment.withSecurityRulesDisabled(async context => {
     const db = context.firestore();
     await Promise.all([
+      setDoc(doc(db, 'staffMembers/staff'), { name: 'Staff fixture', role: 'staff', status: 'active', accessVersion: 1 }),
+      setDoc(doc(db, 'staffMembers/owner-account'), { name: 'Owner fixture', role: 'owner', status: 'active', accessVersion: 1 }),
       setDoc(doc(db, 'products/published'), published),
       setDoc(doc(db, 'products/sold'), { ...published, name: 'Illustrative sold piece', availability: 'sold' }),
       setDoc(doc(db, 'products/requested'), { ...published, name: 'Illustrative requested piece', availability: 'requested', publishedAt: Timestamp.fromMillis(2000) }),
@@ -164,7 +166,7 @@ test('no client role can publish, mutate drafts/stock/audit/settings or elevate 
     await assertFails(setDoc(doc(db, 'auditLogs/forged'), { operation: 'publish' }));
     await assertFails(updateDoc(doc(db, 'catalogueSettings/categories'), { items: [] }));
     await assertFails(updateDoc(doc(db, 'orders/private'), { paymentStatus: 'paid' }));
-    await assertFails(setDoc(doc(db, 'users/customer'), { owner: true }));
+    await assertFails(setDoc(doc(db, 'users/customer'), { owner: true, staffVersion: 1 }));
   }
 });
 
@@ -269,4 +271,33 @@ test('order queue and settings reads are role-scoped and only the policy copy is
     await assertFails(updateDoc(doc(db, 'orderSettings/config'), { overdueHours: 1 }));
     await assertFails(updateDoc(doc(db, 'orderQueue/example'), { unread: false }));
   }
+});
+
+
+test('membership rules block stale suspended and demoted tokens in Firestore and Storage; fresh reactivation regains access', async () => {
+  const member = 'staffMembers/staff';
+  const change = fields => environment.withSecurityRulesDisabled(context => updateDoc(doc(context.firestore(), member), fields));
+  const db = roles.staff.firestore();
+  const privatePhoto = () => getBytes(ref(roles.staff.storage(), privateImage));
+  await assertSucceeds(getDoc(doc(db, member)));
+  await assertFails(getDocs(collection(db, 'staffMembers')));
+  await assertFails(getDoc(doc(db, 'staffMembers/owner-account')));
+  await assertFails(updateDoc(doc(db, member), { status: 'active' }));
+  await assertSucceeds(getDocs(collection(roles.owner.firestore(), 'staffMembers')));
+  await assertSucceeds(privatePhoto());
+  await change({ status: 'suspended', accessVersion: 2 });
+  await assertFails(getDoc(doc(db, 'productDrafts/published')));
+  await assertFails(privatePhoto());
+  await assertSucceeds(getDoc(doc(db, member))); // Own suspension remains observable for sign-out.
+  await change({ status: 'active', accessVersion: 3 });
+  await assertFails(getDoc(doc(db, 'productDrafts/published')));
+  await assertFails(privatePhoto()); // Old revoked epoch must not recover.
+  const fresh = environment.authenticatedContext('staff', { staff: true, staffVersion: 3 });
+  await assertSucceeds(getDoc(doc(fresh.firestore(), 'productDrafts/published')));
+  await assertSucceeds(getBytes(ref(fresh.storage(), privateImage)));
+  await change({ accessPending: true });
+  await assertFails(getDoc(doc(fresh.firestore(), 'productDrafts/published')));
+  await change({ role: 'owner', accessPending: false });
+  await assertFails(getDoc(doc(fresh.firestore(), 'auditLogs/first')));
+  await change({ role: 'staff', status: 'active', accessVersion: 1 });
 });
