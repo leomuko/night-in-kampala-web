@@ -101,7 +101,7 @@ export default function TeamScreen({ user }) {
     })}</ul>
     {cursor && <Button variant="secondary" disabled={loading || busy} onClick={() => { setLoading(true); void load(cursor); }}>Load more members</Button>}
     <Button variant="secondary" disabled={loading || busy} onClick={() => { setError(''); setLoading(true); void load(); }}>Refresh team</Button>
-    {modal && <Dialog open onClose={close} title={title} className="team-dialog">
+    {modal && <Dialog key={modal.kind} open onClose={close} title={title} className="team-dialog">
       {errorMessage}
       {modal.kind === 'add' && <form className="stack" onSubmit={add}>
         <Field label="Name" name="name" autoComplete="name" maxLength={100} required />

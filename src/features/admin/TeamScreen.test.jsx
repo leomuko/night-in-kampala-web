@@ -59,9 +59,11 @@ test('inviting an existing account requires the explicit grant choice, requests 
   await user.selectOptions(within(dialog).getByLabelText('Role'), 'owner');
   await user.click(within(dialog).getByRole('button', { name: 'Add member' }));
   dialog = await screen.findByRole('dialog', { name: 'Grant access to existing account' });
+  expect(within(dialog).getByRole('button', { name: /^Close/ })).toHaveFocus();
   expect(f.resetEmail).not.toHaveBeenCalled();
   await user.click(within(dialog).getByRole('button', { name: 'Grant access to existing account' }));
   dialog = await screen.findByRole('dialog', { name: 'Set up New fixture' });
+  expect(within(dialog).getByRole('button', { name: /^Close/ })).toHaveFocus();
   await screen.findByText(/Setup email requested/);
   expect(f.call).toHaveBeenCalledWith('staffInvite', { name: 'New fixture', email: 'existing@example.test', role: 'owner', grantExisting: true });
   expect(f.resetEmail).toHaveBeenCalledWith('auth-fixture', 'existing@example.test', { url: new URL('/admin', window.location.origin).href });
