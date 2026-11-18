@@ -77,6 +77,9 @@ test('cleanup lists test data, blocks mixed stock, deletes reviewed candidates a
     'catalogueSizes/m': { label: 'M' },
     'catalogueSizeCounts/m': { count: 1 },
     'orderSettings/config': { overdueHours: 24 },
+    'staffMembers/permanent-owner': { name: 'Owner fixture', email: 'superadmin@nightinkampala.com', role: 'owner', status: 'active' },
+    'staffMembers/permanent-staff': { name: 'Staff fixture', role: 'staff', status: 'active' },
+    'staffMembers/former-test-staff': { name: 'Historical fixture', role: 'staff', status: 'suspended', isTestData: true },
   };
   const disposableMedia = [
     'product-drafts/test-denim/staff/image.jpg', 'product-processed/test-denim/staff/image/share.jpg',

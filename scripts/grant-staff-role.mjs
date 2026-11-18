@@ -3,6 +3,8 @@ import { createInterface } from 'node:readline/promises';
 import { stdin, stdout } from 'node:process';
 import { deleteApp, initializeApp } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
+import { getFirestore } from 'firebase-admin/firestore';
+import { operatorMembership, permanentTeamEmails } from '../functions/team-membership.js';
 
 async function main() {
   const { values: args } = parseArgs({ options: {
@@ -15,7 +17,7 @@ async function main() {
   }
   const local = process.env.FIREBASE_AUTH_EMULATOR_HOST !== undefined;
   if (local ? process.env.FIREBASE_AUTH_EMULATOR_HOST !== '127.0.0.1:9099'
-    || args.project !== 'demo-night-in-kampala-cleanup' : args.project !== 'night-in-kampala') {
+    || process.env.FIRESTORE_EMULATOR_HOST !== '127.0.0.1:8080' || args.project !== 'demo-night-in-kampala-cleanup' : args.project !== 'night-in-kampala') {
     throw new Error('Use the explicit cloud project or the isolated loopback test project.');
   }
   if (!local && ['FIRESTORE_EMULATOR_HOST', 'FIREBASE_STORAGE_EMULATOR_HOST', 'STORAGE_EMULATOR_HOST']
@@ -32,6 +34,7 @@ async function main() {
     const user = await auth.getUserByEmail(args.email.trim());
     const phrase = `GRANT ${args.role.toUpperCase()} ${user.uid} IN ${args.project}`;
     const testAccount = args['test-account'] === true || user.customClaims?.testAccount === true;
+    if (testAccount && permanentTeamEmails.has(user.email.toLowerCase())) throw new Error('Real permanent accounts must never be marked as test.');
     console.log(JSON.stringify({ project: args.project, uid: user.uid, role: args.role, testAccount,
       mode: args.execute ? 'execute' : 'dry-run', confirmation: phrase }, null, 2));
     if (!args.execute) return;
@@ -43,12 +46,7 @@ async function main() {
     }
     if (supplied !== phrase) throw new Error('Typed confirmation does not match.');
     const current = await auth.getUser(user.uid);
-    const claims = { ...current.customClaims };
-    delete claims.owner;
-    delete claims.staff;
-    claims[args.role] = true;
-    if (testAccount) claims.testAccount = true;
-    await auth.setCustomUserClaims(user.uid, claims);
+    await operatorMembership(getFirestore(app), auth, current, { role: args.role, actor: 'operator:grant-staff-role', action: 'team-break-glass', testAccount });
     console.log('Role saved. Sign out and sign in again to refresh the user token.');
   } finally {
     await deleteApp(app);

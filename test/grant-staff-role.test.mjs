@@ -3,6 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { deleteApp, initializeApp } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
+import { getFirestore } from 'firebase-admin/firestore';
 
 const project = 'demo-night-in-kampala-cleanup';
 const run = (args, env = process.env) => spawnSync(process.execPath, ['scripts/grant-staff-role.mjs', ...args], {
@@ -35,13 +36,16 @@ test('role tooling only updates an existing account after confirmation and prese
     assert.deepEqual((await auth.getUser(account.uid)).customClaims, { retained: true });
     const grant = run([...args, '--execute', '--confirm', phrase]);
     assert.equal(grant.status, 0, grant.stderr);
-    assert.deepEqual((await auth.getUser(account.uid)).customClaims, { retained: true, owner: true });
+    assert.deepEqual((await auth.getUser(account.uid)).customClaims, { retained: true, owner: true, staffVersion: 1 });
     const staffArgs = ['--project', project, '--email', email, '--role', 'staff', '--test-account', '--execute',
       '--confirm', `GRANT STAFF ${account.uid} IN ${project}`];
     assert.equal(run(staffArgs).status, 0);
-    assert.deepEqual((await auth.getUser(account.uid)).customClaims, { retained: true, staff: true, testAccount: true });
+    assert.deepEqual((await auth.getUser(account.uid)).customClaims, { retained: true, staff: true, staffVersion: 2, testAccount: true });
     assert.equal(run([...args, '--execute', '--confirm', phrase]).status, 0);
-    assert.deepEqual((await auth.getUser(account.uid)).customClaims, { retained: true, owner: true, testAccount: true });
+    assert.deepEqual((await auth.getUser(account.uid)).customClaims, { retained: true, owner: true, staffVersion: 3, testAccount: true });
+    const member = (await getFirestore(app).doc(`staffMembers/${account.uid}`).get()).data();
+    assert.equal(member.role, 'owner'); assert.equal(member.status, 'active'); assert.equal(member.accessVersion, 3);
+    assert.equal(member.accessPending, false);
     const missing = run(['--project', project, '--email', 'absent@example.test', '--role', 'staff', '--execute', '--confirm', 'yes']);
     assert.equal(missing.status, 1);
     assert.match(missing.stderr, /No existing user/);

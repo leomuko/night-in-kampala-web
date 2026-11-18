@@ -35,7 +35,7 @@ if (mode !== 'start') {
   const suites = {
     metadata: { files: ['test/shared-links-http.test.mjs', 'test/staff-http.test.mjs', 'test/order-http.test.mjs'], emulators: ['auth', 'firestore', 'storage', 'functions', 'hosting'] },
     test: { files: ['test/rules.test.mjs'], emulators: ['firestore', 'storage'] },
-    cleanup: { files: ['test/launch-cleanup.test.mjs', 'test/grant-staff-role.test.mjs'], emulators: ['auth', 'firestore', 'storage'] },
+    cleanup: { files: ['test/launch-cleanup.test.mjs', 'test/grant-staff-role.test.mjs', 'test/staff-migration.test.mjs'], emulators: ['auth', 'firestore', 'storage'] },
   };
   if (services && mode !== 'metadata') throw new Error('Stop the running emulators before this test. It needs an isolated demo project.');
   const { files, emulators } = suites[mode];
