@@ -81,7 +81,11 @@ Use a separate, lazy-loaded `/admin` area with staff authentication and server-e
 | Promotions | Controlled discount codes with validity, limits and eligible pieces; validate and redeem on the server. |
 | Settings and access | Delivery zones/rates, enabled countries, display currencies, contacts, staff permissions, audit history and integration status. Provider secrets stay in server configuration. |
 
-Proposed roles: owner (access and business settings), store manager (catalogue and fulfilment), content editor (stories/events). The customer role has no staff permissions. Keep refunds and role assignment restricted to explicitly permitted staff.
+**Implemented roles:** owner (team/access and business settings, plus all staff work) and staff (catalogue, content and fulfilment). Customers have no staff permissions. Admin → Team lets only active owners invite people, explicitly grant an existing account, change roles, suspend and reactivate. Self-demotion, self-suspension and removing the last active owner are rejected; access mutations are serialized and audited. There is no member-delete action. See [Managing your team](MANAGING_YOUR_TEAM.md).
+
+**Current access authority:** `staffMembers/{uid}` is server-owned. Firestore and Storage require an active, synchronized record, matching Boolean role claim and matching access version. Staff/owner callables also verify token revocation; cloud callables enforce App Check. Staff can read their own membership; owners can read all memberships. No client writes membership or grants itself access. A membership listener hides cached/unverified access and signs a connected suspended user out. Reactivation requires a fresh session; old token versions remain blocked.
+
+**18 November launch hold:** Team must pass the emulator gate and owner review on the Hosting review channel before **approved for launch**. Migrate all existing role holders by dry run then explicit confirmation before deploying enforcing guards. Preserve the permanent owner and real staff identities, passwords and membership history. Cleanup, secret regeneration, merge and production release remain prohibited until that approval. [Team tasks](TEAM_TASKS.md).
 
 Product publishing flow: draft → images/details → measurements/condition → price/stock/weight → preview → publish or schedule. Validate mandatory fields before publishing; distinguish failed uploads from saved images and make unfinished drafts recoverable.
 

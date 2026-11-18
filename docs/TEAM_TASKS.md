@@ -13,3 +13,8 @@ Owner instruction, 18 November 2026. Work on dev. Launch approval has not been g
 Membership is the server-owned authority, backed by matching custom claims. An access-version claim prevents old tokens regaining access after reactivation. A brief pending-sync flag denies access during Auth/Firestore updates; failures leave the member blocked and recoverable through Reactivate. Permanent membership records are never deleted by Team or launch cleanup.
 
 The owner must still reply **approved for launch** after reviewing Team on the review site. The original production checklist then applies, including checking that the wording review label disappears after the owner ticks Wording reviewed.
+
+
+## Local implementation status
+
+T1–T4 are implemented. Migration/retention tests, server/Storage membership guards, one-time invitation setup, existing-account consent, quota, owner concurrency/fail-closed recovery and accessible UI checks are covered locally. Source commits: 79b83c0, 411b773, 4cf56be, 3bcb0c6, e75e23f, b692ffe and e284e03. The final gate and hosted rollout evidence are recorded in docs/qa/team/README.md. T5 closes at the review handoff; real email/password setup and live suspension/reactivation remain owner checks. No production authorization is implied.

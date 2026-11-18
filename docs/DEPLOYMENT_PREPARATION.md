@@ -109,3 +109,12 @@ On 17 November the owner approved and the operator applied GET-only bucket CORS 
 For the owner-approved real-draft review, set `preview.catalogueTestData` false in the ignored profile. Keep `preview.order.proxyVerified` false while the owner reviews wording and the cleanup inventory. This pauses new shopper orders in the shared backend while allowing staff to prepare real drafts. Preview orders remain test-marked; do not use them to accept real sales. The production profile will use catalogueTestData false, the verified hop count 1, proxyVerified true and indexPublicPages false only after “approved for launch”.
 
 The cleanup dry run protects unpublished actual-photo drafts. Review every keptUnpublished path and resolve every blocker; do not erase an old test marker without explicit owner classification. No cleanup execution, secret version change, merge or production release is authorized before the approval stop. The soft-launch prompt authorizes those later steps only after the stop is satisfied.
+
+
+## Team rollout while launch is on hold
+
+First run the local gate. Run the reviewed membership migration as a read-only dry run, inspect every role holder, then execute with `MIGRATE TEAM IN night-in-kampala`. This precedes the tightened rules/callables to avoid locking out current owners. The migration preserves both real accounts and passwords. New clients refresh version claims only after reading a server-confirmed active membership.
+
+Deploy the reviewed Firestore/Storage rules and all staff callable adapters (including the owner-only order preview check and new Team functions), then only the review Hosting channel. Keep indexPublicPages false and shopper ordering paused. The runtime already has the required existing permissions; adding only the exact review hostname to Auth's authorized domains enables the requested setup continue URL. Do not change browser keys or console App Check enforcement.
+
+The owner tests invitation email/private setup, role change, immediate suspension, fresh-session reactivation and existing real staff access on review before replying **approved for launch**. Live release remains the original separately gated Step 4, with the additional live check that ticking Wording reviewed removes the public review marker. [Team guide](MANAGING_YOUR_TEAM.md).

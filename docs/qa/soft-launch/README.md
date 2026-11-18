@@ -1,5 +1,7 @@
 # Soft-launch review — 17 November 2026
 
+**18 November hold:** the owner requires the Team screen and its review checks before launch approval. See [Team tasks](../../TEAM_TASKS.md) and [Managing your team](../../MANAGING_YOUR_TEAM.md). The earlier soft-launch checks below remain historical evidence, not permission to release production.
+
 Status: local preparation, hosted review and the owner Settings save passed. **Waiting at the Step 3 owner approval stop; not approved for production.** Work stays on dev; no merge or push.
 
 ## Local gate
