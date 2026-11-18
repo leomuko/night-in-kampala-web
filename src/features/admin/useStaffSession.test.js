@@ -5,7 +5,7 @@ vi.mock('firebase/auth', () => ({
   signOut: f.signOut,
   onIdTokenChanged: (_auth, callback) => { f.authCallback = callback; return f.stopAuth; },
 }));
-vi.mock('firebase/firestore', () => ({ doc: (...args) => args, onSnapshot: (_ref, callback) => { f.memberCallback = callback; return f.stopMember; } }));
+vi.mock('firebase/firestore', () => ({ doc: (...args) => args, onSnapshot: (_ref, _options, callback) => { f.memberCallback = callback; return f.stopMember; } }));
 
 test('a live suspension hides the dashboard and signs out a still-tokened user', async () => {
   const publish = vi.fn(), auth = {}, user = { uid: 'staff', getIdTokenResult: vi.fn().mockResolvedValue({ claims: { staff: true, staffVersion: 1 } }) };
@@ -27,6 +27,19 @@ test('migration refreshes missing version claims before exposing any owner contr
   expect(publish).not.toHaveBeenCalledWith(expect.objectContaining({ role: 'owner' }));
   await f.memberCallback({ data: () => ({ role: 'owner', status: 'active', accessVersion: 1 }) });
   expect(user.getIdTokenResult).toHaveBeenLastCalledWith(true);
+  expect(publish).toHaveBeenLastCalledWith({ status: 'ready', auth, user, role: 'owner' });
+  stop();
+});
+
+
+test('cached or missing initial membership never grants access or incorrectly signs out a migrated owner', async () => {
+  const publish = vi.fn(), auth = {}, user = { uid: 'owner', getIdTokenResult: vi.fn().mockResolvedValue({ claims: { owner: true, staffVersion: 1 } }) };
+  f.signOut.mockClear();
+  const stop = observeStaffSession({ auth, db: {} }, publish);
+  await f.authCallback(user);
+  await f.memberCallback({ metadata: { fromCache: true }, data: () => undefined });
+  expect(f.signOut).not.toHaveBeenCalled(); expect(publish).toHaveBeenLastCalledWith({ status: 'loading' });
+  await f.memberCallback({ metadata: { fromCache: false }, data: () => ({ role: 'owner', status: 'active', accessVersion: 1 }) });
   expect(publish).toHaveBeenLastCalledWith({ status: 'ready', auth, user, role: 'owner' });
   stop();
 });

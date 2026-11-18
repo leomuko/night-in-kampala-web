@@ -23,8 +23,9 @@ export function observeStaffSession({ auth, db }, publish) {
       publish({ status: 'ready', auth, user, role: null });
       try { await signOut(auth); } catch { /* Access is already hidden and server-denied. */ }
     }
-    stopMember = onSnapshot(doc(db, 'staffMembers', user.uid), async snapshot => {
+    stopMember = onSnapshot(doc(db, 'staffMembers', user.uid), { includeMetadataChanges: true }, async snapshot => {
       if (!active || current !== generation) return;
+      if (snapshot.metadata?.fromCache) { publish({ status: 'loading' }); return; }
       const member = snapshot.data();
       if (!member || member.status !== 'active' || member.accessPending === true) { await deny(); return; }
       if (!matchesMember(token.claims, member)) {

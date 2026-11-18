@@ -29,7 +29,15 @@ test('staff access uses password sign-in and gates controls by current claims', 
   fixture.session = { ...fixture.session, role: 'staff' };
   rerender(shell());
   expect(screen.getByText('Signed in as staff.')).toBeVisible();
+  expect(screen.queryByRole('button', { name: 'Team', exact: true })).toBeNull();
   expect(screen.getByRole('heading', { name: 'Store administration' })).toHaveFocus();
   await user.click(screen.getByRole('button', { name: 'Sign out' }));
   expect(fixture.signOut).toHaveBeenCalledWith(auth);
+});
+
+
+test('only owners receive the Team navigation entry', () => {
+  fixture.session = { status: 'ready', auth: {}, user: { uid: 'owner' }, role: 'owner' };
+  render(<MemoryRouter><AdminShell /></MemoryRouter>);
+  expect(screen.getByRole('button', { name: 'Team', exact: true })).toBeVisible();
 });
