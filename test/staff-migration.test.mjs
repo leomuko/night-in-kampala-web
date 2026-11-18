@@ -27,12 +27,13 @@ test('migration is explicit, dry-run first, idempotent and preserves real accoun
       await auth.setCustomUserClaims(user.uid, { ...user.customClaims, [role]: true, retained: true });
     }
     const before = await auth.getUserByEmail('fahkerahmed@nightinkampala.com');
+    const memberBefore = (await db.doc(`staffMembers/${before.uid}`).get()).data();
     const args = ['--project', project];
     const dry = run(args); assert.equal(dry.status, 0, dry.stderr);
     const report = JSON.parse(dry.stdout);
     assert.equal(report.mode, 'dry-run'); assert.deepEqual(report.blockers, []);
-    assert.equal((await db.doc(`staffMembers/${before.uid}`).get()).exists, false);
-    assert.equal((await auth.getUser(before.uid)).customClaims.staffVersion, undefined);
+    assert.deepEqual((await db.doc(`staffMembers/${before.uid}`).get()).data(), memberBefore);
+    assert.deepEqual((await auth.getUser(before.uid)).customClaims, before.customClaims);
     assert.notEqual(run([...args, '--execute', '--confirm', 'yes']).status, 0);
     const execute = () => run([...args, '--execute', '--confirm', `MIGRATE TEAM IN ${project}`]);
     const done = execute(); assert.equal(done.status, 0, done.stderr);

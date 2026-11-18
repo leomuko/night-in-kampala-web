@@ -27,7 +27,7 @@ The list shows Auth's last sign-in time. Use **Refresh team** to refresh it and 
 
 ## Account and audit history
 
-Every completed access change and interrupted synchronization records the actor, target and before/after membership state. Setup links and passwords are never written to membership or audit records. The two existing real accounts stay real: `superadmin@nightinkampala.com` is the permanent owner and `fahkerahmed@nightinkampala.com` is real staff. Neither gets a test-account marker. Membership records are always retained by launch cleanup, including suspended and historical test memberships.
+Every completed access change and interrupted synchronization records the actor, target and before/after membership state. Setup links and passwords are never written to membership or audit records. The two existing real accounts stay real: `superadmin@nightinkampala.com` is the permanent owner and `fahkerahmed@nightinkampala.com` is real staff. Neither gets a test-account marker. Membership records are always retained by launch cleanup, including suspended and historical test memberships. A disposable account is blocked in its membership before its Auth account can be removed, so its old token cannot keep staff access.
 
 The reviewed `scripts/grant-staff-role.mjs` remains an operator break-glass recovery tool. Normal team management needs neither that script nor the Firebase console. It updates both claims and membership, uses typed confirmation and preserves unrelated claims. Run it only during a controlled recovery window, not while someone else is editing Team.
 

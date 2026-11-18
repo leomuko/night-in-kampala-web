@@ -77,6 +77,7 @@ test('cleanup lists test data, blocks mixed stock, deletes reviewed candidates a
     'catalogueSizes/m': { label: 'M' },
     'catalogueSizeCounts/m': { count: 1 },
     'orderSettings/config': { overdueHours: 24 },
+    'staffMembers/test-staff': { name: 'Disposable fixture', role: 'staff', status: 'active', accessVersion: 1 },
     'staffMembers/permanent-owner': { name: 'Owner fixture', email: 'superadmin@nightinkampala.com', role: 'owner', status: 'active' },
     'staffMembers/permanent-staff': { name: 'Staff fixture', role: 'staff', status: 'active' },
     'staffMembers/former-test-staff': { name: 'Historical fixture', role: 'staff', status: 'suspended', isTestData: true },
@@ -95,7 +96,7 @@ test('cleanup lists test data, blocks mixed stock, deletes reviewed candidates a
     await batch.commit();
     await auth.createUser({ uid: 'test-staff' });
     await auth.setCustomUserClaims('test-staff', { staff: true, testAccount: true });
-    await auth.createUser({ uid: 'permanent-staff' });
+    await auth.createUser({ uid: 'permanent-staff', email: 'fahkerahmed@nightinkampala.com' });
     await auth.setCustomUserClaims('permanent-staff', { staff: true });
     await auth.createUser({ uid: 'permanent-owner', email: 'superadmin@nightinkampala.com' });
     await auth.setCustomUserClaims('permanent-owner', { owner: true });
@@ -106,6 +107,8 @@ test('cleanup lists test data, blocks mixed stock, deletes reviewed candidates a
     assert.equal(dry.status, 0, dry.stderr);
     const listed = await report();
     assert.equal(listed.mode, 'dry-run');
+    assert.deepEqual(listed.membershipChanges, ['staffMembers/test-staff']);
+    assert.equal((await db.doc('staffMembers/test-staff').get()).data().status, 'active');
     assert.deepEqual(listed.firestore, Object.keys(disposable).sort());
     assert.deepEqual(listed.auth, ['test-staff']);
     assert.deepEqual(listed.storage, [...disposableMedia].sort());
@@ -118,6 +121,9 @@ test('cleanup lists test data, blocks mixed stock, deletes reviewed candidates a
     assert.equal((await bucket.file(disposableMedia[0]).exists())[0], true);
     assert.equal((await auth.getUser('test-staff')).uid, 'test-staff');
 
+    await auth.setCustomUserClaims('permanent-owner', { owner: true, testAccount: true });
+    const protectedOwner = run(project); assert.equal(protectedOwner.status, 1); assert.match(protectedOwner.stderr, /permanent real account/);
+    await auth.setCustomUserClaims('permanent-owner', { owner: true });
     const mixed = db.doc('orders/mixed-order');
     await mixed.set({ isTestData: true, items: [{ slug: 'real-piece', isRealCatalogueStock: true }] });
     const blocked = run([...project, ...confirmation]);
@@ -134,6 +140,9 @@ test('cleanup lists test data, blocks mixed stock, deletes reviewed candidates a
     assert.ok(removed.every(row => !row.exists));
     const kept = await db.getAll(...Object.keys(retained).map(name => db.doc(name)));
     assert.ok(kept.every(row => row.exists));
+    const former = (await db.doc('staffMembers/test-staff').get()).data();
+    assert.equal(former.name, 'Disposable fixture'); assert.equal(former.status, 'suspended'); assert.equal(former.accessVersion, 2);
+    assert.equal((await db.doc('staffMembers/permanent-owner').get()).data().status, 'active');
     for (const name of disposableMedia) assert.equal((await bucket.file(name).exists())[0], false);
     for (const name of retainedMedia) assert.equal((await bucket.file(name).exists())[0], true);
     await assert.rejects(auth.getUser('test-staff'), { code: 'auth/user-not-found' });

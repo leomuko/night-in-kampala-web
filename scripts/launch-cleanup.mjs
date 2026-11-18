@@ -3,7 +3,9 @@ import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import { deleteApp, initializeApp } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
-import { getFirestore } from 'firebase-admin/firestore';
+import { FieldValue, getFirestore } from 'firebase-admin/firestore';
+import { permanentTeamEmails, memberAudit } from '../functions/team-membership.js';
+import { withTeamLock, protectLastOwner } from '../functions/team-lock.js';
 import { getStorage } from 'firebase-admin/storage';
 
 const cloudProject = 'night-in-kampala';
@@ -53,7 +55,9 @@ async function testAccounts(auth) {
   let next;
   do {
     const page = await auth.listUsers(1000, next);
-    accounts.push(...page.users.filter(user => user.customClaims?.testAccount === true).map(user => user.uid));
+    const markedUsers = page.users.filter(user => user.customClaims?.testAccount === true);
+    if (markedUsers.some(user => permanentTeamEmails.has(user.email?.toLowerCase()))) throw new Error('A permanent real account has a test marker. Cleanup refuses to remove it.');
+    accounts.push(...markedUsers.map(user => user.uid));
     next = page.pageToken;
   } while (next);
   return accounts.sort();
@@ -201,7 +205,8 @@ async function plan(db, auth, bucket) {
     if (!file.metadata.generation) blockers.add(`Object generation unavailable: ${file.name}`);
     objects.push(file);
   }
-  return { docs, accounts, objects, keptUnpublished, blockers: [...blockers].sort() };
+  const memberships = accounts.length ? await db.getAll(...accounts.map(uid => db.doc(`staffMembers/${uid}`))) : [];
+  return { docs, accounts, objects, keptUnpublished, membershipChanges: memberships.filter(row => row.exists).map(row => row.ref.path).sort(), blockers: [...blockers].sort() };
 }
 
 async function remove(db, auth, { docs, accounts, objects }) {
@@ -215,9 +220,24 @@ async function remove(db, auth, { docs, accounts, objects }) {
     await batch.commit();
   }
   for (const uid of accounts) {
-    const user = await auth.getUser(uid);
-    if (user.customClaims?.testAccount !== true) throw new Error(`Test account marking changed: ${uid}`);
-    await auth.deleteUser(uid);
+    await withTeamLock(db, { uid: 'operator:launch-cleanup', operator: true }, async () => {
+      const user = await auth.getUser(uid);
+      if (user.customClaims?.testAccount !== true || permanentTeamEmails.has(user.email?.toLowerCase())) throw new Error(`Test account marking changed or real account protected: ${uid}`);
+      // Retain names/history, but never leave an active membership behind an
+      // Auth deletion: old ID tokens can otherwise outlive the deleted account.
+      await db.runTransaction(async tx => {
+        const ref = db.doc(`staffMembers/${uid}`), previous = (await tx.get(ref)).data();
+        if (!previous) return;
+        const next = { ...previous, status: 'suspended', accessPending: false, accessVersion: (previous.accessVersion ?? 0) + 1 };
+        await protectLastOwner(tx, db, previous, next);
+        tx.update(ref, { status: next.status, accessPending: false, accessVersion: next.accessVersion,
+          suspendedAt: FieldValue.serverTimestamp(), suspendedBy: 'operator:launch-cleanup', updatedAt: FieldValue.serverTimestamp(), updatedBy: 'operator:launch-cleanup' });
+        tx.create(db.collection('auditLogs').doc(), { action: 'staff-test-account-cleanup', actorUid: 'operator:launch-cleanup', targetUid: uid,
+          before: memberAudit(previous), after: memberAudit(next), at: FieldValue.serverTimestamp() });
+      });
+      await auth.revokeRefreshTokens(uid);
+      await auth.deleteUser(uid);
+    });
   }
 }
 
@@ -236,6 +256,7 @@ async function main() {
       project, bucket: bucketName, mode: args.execute ? 'execute' : 'dry-run', generatedAt: new Date().toISOString(),
       firestore: candidates.docs.map(row => row.ref.path).sort(), auth: candidates.accounts,
       storage: candidates.objects.map(file => file.name).sort(), blockers: candidates.blockers,
+      membershipChanges: candidates.membershipChanges,
       keptUnpublished: {
         firestore: candidates.keptUnpublished.firestore.sort(),
         storage: candidates.keptUnpublished.storage.sort(),
