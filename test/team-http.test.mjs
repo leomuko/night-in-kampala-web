@@ -60,6 +60,9 @@ test('Team owner invite supports setup, explicit existing-account consent, quota
     const login = () => post(`${accounts}:signInWithPassword?key=demo-key`, { email, password, returnSecureToken: true });
     const firstToken = (await login()).body.idToken;
     assert.equal((await call('staffAccess', {}, firstToken)).status, 200);
+    const noChange = await call('staffSetRole', { uid: owner.uid, role: 'owner' }, owner.token);
+    assert.equal(noChange.status, 200); assert.equal(noChange.body.result.unchanged, true);
+    assert.equal((await db.doc(`staffMembers/${owner.uid}`).get()).data().accessVersion, 1);
     assert.equal((await call('staffSetRole', { uid: owner.uid, role: 'staff' }, owner.token)).status, 400);
     assert.equal((await call('staffSuspend', { uid: owner.uid }, owner.token)).status, 400);
     assert.equal((await call('staffSetRole', { uid: added.uid, role: 'owner' }, owner.token)).status, 200);

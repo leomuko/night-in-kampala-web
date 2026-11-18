@@ -105,6 +105,10 @@ export async function changeStaff(db, auth, data, actor, action) {
   return withTeamLock(db, actor, async () => {
     const previous = (await db.doc(`staffMembers/${uid}`).get()).data();
     if (!previous) throw new HttpsError('not-found', 'This team member was not found.');
+    if (action === 'role' && previous.role === newRole && previous.accessPending !== true) {
+      await audit(db, actor, uid, 'staff-role-unchanged', memberAudit(previous), memberAudit(previous));
+      return { uid, role: previous.role, status: previous.status, unchanged: true };
+    }
     const next = { ...previous, ...(newRole ? { role: newRole } : {}),
       status: action === 'suspend' ? 'suspended' : action === 'reactivate' ? 'active' : previous.status,
       accessVersion: previous.accessVersion + 1, accessPending: true, updatedAt: stamp(), updatedBy: actor.uid,
