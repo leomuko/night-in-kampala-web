@@ -1,5 +1,5 @@
 import { beforeEach, expect, test, vi } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import axe from 'axe-core';
 import TeamScreen from './TeamScreen.jsx';
@@ -107,4 +107,35 @@ test('failed email request preserves the private setup link instead of pretendin
   await user.click(within(dialog).getByRole('button', { name: 'Add member' }));
   await screen.findByText(/setup email could not be requested/);
   expect(screen.getByLabelText('One-time setup link')).toHaveValue('https://example.test/private-setup');
+});
+
+
+test('finishing an earlier setup email cannot clear the busy state of a later invitation', async () => {
+  const user = userEvent.setup(); mount();
+  await screen.findByRole('heading', { name: 'Staff fixture' });
+  let finishEmail, finishInvite;
+  f.resetEmail.mockImplementationOnce(() => new Promise(resolve => { finishEmail = resolve; }));
+  let invites = 0;
+  f.call.mockImplementation(async name => {
+    if (name === 'staffList') return { rows: f.rows, activeOwnerCount: 1 };
+    if (++invites === 1) return { email: 'first@example.test', setupLink: 'https://example.test/first-private-setup' };
+    return new Promise(resolve => { finishInvite = resolve; });
+  });
+  async function add(name, email) {
+    await user.click(screen.getByRole('button', { name: 'Add member' }));
+    const dialog = screen.getByRole('dialog');
+    await user.type(within(dialog).getByLabelText('Name'), name);
+    await user.type(within(dialog).getByLabelText('Email'), email);
+    await user.click(within(dialog).getByRole('button', { name: 'Add member' }));
+  }
+  await add('First fixture', 'first@example.test');
+  await user.click(await screen.findByRole('button', { name: 'Done' }));
+  await add('Second fixture', 'second@example.test');
+  const pending = within(screen.getByRole('dialog')).getByRole('button', { name: 'Add member' });
+  expect(pending).toBeDisabled();
+  await act(async () => { finishEmail(); });
+  expect(pending).toBeDisabled();
+  await act(async () => { finishInvite({ email: 'second@example.test', setupLink: 'https://example.test/second-private-setup' }); });
+  expect(await screen.findByRole('dialog', { name: 'Set up Second fixture' })).toBeVisible();
+  expect(screen.getByLabelText('One-time setup link')).toHaveValue('https://example.test/second-private-setup');
 });
