@@ -18,3 +18,8 @@ The owner must still reply **approved for launch** after reviewing Team on the r
 ## Local implementation status
 
 T1–T4 are implemented. Migration/retention tests, server/Storage membership guards, one-time invitation setup, existing-account consent, quota, owner concurrency/fail-closed recovery and accessible UI checks are covered locally. Source commits: 79b83c0, 411b773, 4cf56be, 3bcb0c6, e75e23f, b692ffe and e284e03. The final gate and hosted rollout evidence are recorded in docs/qa/team/README.md. T5 closes at the review handoff; real email/password setup and live suspension/reactivation remain owner checks. No production authorization is implied.
+
+
+## Review handoff
+
+The final local gate passes 181 tests. Membership migration, enforcing rules and affected Functions are deployed, and the review Hosting channel is renewed through 25 November 2026. [Evidence and exact suspended-token results](qa/team/README.md). T5 is at its required owner handoff. Real email/private-link setup, live sign-out/reactivation and existing staff sign-in are **pending owner review**. No cloud cleanup, secret regeneration, merge, push or production Hosting release has been performed.

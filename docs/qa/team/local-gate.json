@@ -1,0 +1,17 @@
+{
+  "date": "2026-11-18",
+  "command": "npm run check",
+  "result": "pass",
+  "total": 181,
+  "application": 112,
+  "metadataAndStaffGuard": 17,
+  "deployment": 7,
+  "rules": 11,
+  "emulatorHttp": 27,
+  "cleanupRoleMigration": 6,
+  "secretScan": 1,
+  "lint": "pass",
+  "offlineBuild": "pass",
+  "nativeBrowserQa": "not run for Team; owner review pending",
+  "cleanupSafety": "Retain membership; suspend/version/revoke disposable members before future Auth deletion; cloud cleanup not run"
+}

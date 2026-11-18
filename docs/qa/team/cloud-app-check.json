@@ -1,0 +1,43 @@
+{
+  "checkedAt": "2026-11-18T07:32:49.628Z",
+  "request": "No Auth or App Check credentials supplied; no handler should run",
+  "results": [
+    {
+      "name": "staffList",
+      "status": 401,
+      "error": "UNAUTHENTICATED",
+      "sdkAppCheckRejected": true
+    },
+    {
+      "name": "staffInvite",
+      "status": 401,
+      "error": "UNAUTHENTICATED",
+      "sdkAppCheckRejected": true
+    },
+    {
+      "name": "staffSetRole",
+      "status": 401,
+      "error": "UNAUTHENTICATED",
+      "sdkAppCheckRejected": true
+    },
+    {
+      "name": "staffSuspend",
+      "status": 401,
+      "error": "UNAUTHENTICATED",
+      "sdkAppCheckRejected": true
+    },
+    {
+      "name": "staffReactivate",
+      "status": 401,
+      "error": "UNAUTHENTICATED",
+      "sdkAppCheckRejected": true
+    },
+    {
+      "name": "staffAccess",
+      "status": 401,
+      "error": "UNAUTHENTICATED",
+      "sdkAppCheckRejected": true
+    }
+  ],
+  "privilegedCloudLifecycle": "Not run; owner review required"
+}

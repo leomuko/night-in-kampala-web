@@ -1,0 +1,41 @@
+{
+  "checkedAt": "2026-11-18T07:29:52.445Z",
+  "project": "night-in-kampala",
+  "dryRun": {
+    "memberCount": 2,
+    "blockers": []
+  },
+  "execution": "confirmed migration only",
+  "members": [
+    {
+      "email": "fahkerahmed@nightinkampala.com",
+      "role": "staff",
+      "status": "active",
+      "accessVersion": 1,
+      "accessPending": false,
+      "sameUid": true,
+      "claimsMatch": true,
+      "testAccount": false,
+      "disabled": false,
+      "createdAt": "2026-11-18T07:27:28.562Z",
+      "createdBy": "operator:migrate-staff-members"
+    },
+    {
+      "email": "superadmin@nightinkampala.com",
+      "role": "owner",
+      "status": "active",
+      "accessVersion": 1,
+      "accessPending": false,
+      "sameUid": true,
+      "claimsMatch": true,
+      "testAccount": false,
+      "disabled": false,
+      "createdAt": "2026-11-18T07:27:32.594Z",
+      "createdBy": "operator:migrate-staff-members"
+    }
+  ],
+  "accountsCreated": 0,
+  "passwordsChanged": 0,
+  "launchCleanupRun": false,
+  "productionReleased": false
+}

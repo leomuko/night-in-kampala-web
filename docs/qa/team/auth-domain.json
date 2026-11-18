@@ -1,0 +1,19 @@
+{
+  "checkedAt": "2026-11-18T07:22:11.351Z",
+  "before": [
+    "localhost",
+    "night-in-kampala.firebaseapp.com",
+    "night-in-kampala.web.app"
+  ],
+  "after": [
+    "localhost",
+    "night-in-kampala.firebaseapp.com",
+    "night-in-kampala.web.app",
+    "night-in-kampala--review-jrrv7tp2.web.app"
+  ],
+  "added": [
+    "night-in-kampala--review-jrrv7tp2.web.app"
+  ],
+  "appCheckEnforcementChanged": false,
+  "iamRolesGranted": []
+}
