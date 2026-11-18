@@ -183,3 +183,5 @@
 .team-dialog .dialog-heading { align-items: flex-start; }
 .team-dialog .dialog-heading h2 { min-width: 0; }
 .team-dialog .icon-button { flex-shrink: 0; }
+
+.reset-disclosure { align-self: flex-start; padding: var(--space-2) 0; min-height: var(--space-12); border: 0; color: var(--color-ink); background: transparent; text-decoration: underline; text-align: left; }

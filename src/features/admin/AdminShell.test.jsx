@@ -14,6 +14,7 @@ test('staff access uses password sign-in and gates controls by current claims', 
   fixture.session = { status: 'ready', auth };
   const shell = () => <MemoryRouter><AdminShell /></MemoryRouter>;
   const { rerender } = render(shell());
+  expect(screen.getByRole('button', { name: 'Forgot password?' })).toBeVisible();
   await user.type(screen.getByLabelText('Email'), 'staff@example.test');
   await user.type(screen.getByLabelText('Password'), 'fixture-input');
   await user.click(screen.getByRole('button', { name: 'Sign in' }));
@@ -30,6 +31,7 @@ test('staff access uses password sign-in and gates controls by current claims', 
   rerender(shell());
   expect(screen.getByText('Signed in as staff.')).toBeVisible();
   expect(screen.queryByRole('button', { name: 'Team', exact: true })).toBeNull();
+  expect(screen.queryByRole('button', { name: 'Forgot password?' })).toBeNull();
   expect(screen.getByRole('heading', { name: 'Store administration' })).toHaveFocus();
   await user.click(screen.getByRole('button', { name: 'Sign out' }));
   expect(fixture.signOut).toHaveBeenCalledWith(auth);

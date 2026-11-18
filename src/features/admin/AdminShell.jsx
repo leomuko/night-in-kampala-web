@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { Link } from 'react-router-dom';
-import { Button, ErrorState, Field, LoadingState } from '../../components/UI.jsx';
+import { Button, ErrorState, LoadingState } from '../../components/UI.jsx';
 import OrderQueue from './OrderQueue.jsx';
 import useOrderQueue from './useOrderQueue.js';
 import OrderSettings from './OrderSettings.jsx';
 import TeamScreen from './TeamScreen.jsx';
+import SignInForm from './SignInForm.jsx';
 import ContentEditor from './ContentEditor.jsx';
 import StaffCatalogue from './StaffCatalogue.jsx';
 import { useStaffSession } from './useStaffSession.js';
@@ -64,11 +65,7 @@ export default function AdminShell() {
     {status === 'loading' && <LoadingState />}
     {status === 'error' && <ErrorState>Staff sign-in is unavailable. Refresh the page to retry.</ErrorState>}
     {error && <ErrorState>{error}</ErrorState>}
-    {status === 'ready' && !user && <form className="stack" onSubmit={signIn}>
-      <Field label="Email" name="email" type="email" autoComplete="username" required />
-      <Field label="Password" name="password" type="password" autoComplete="current-password" required />
-      <Button type="submit" disabled={busy}>Sign in</Button>
-    </form>}
+    {status === 'ready' && !user && <SignInForm auth={auth} busy={busy} onSubmit={signIn} />}
     {status === 'ready' && user && <><p>This account does not have staff access.</p>{actions}</>}
     <Link className="text-link" to="/">Return to store</Link>
   </section>;

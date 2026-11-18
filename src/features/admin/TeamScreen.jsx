@@ -11,6 +11,7 @@ export default function TeamScreen({ user }) {
   const [modal, setModal] = useState(null), [error, setError] = useState(''), [status, setStatus] = useState('');
   const [emailStatus, setEmailStatus] = useState(''), [copied, setCopied] = useState(false);
   const errorRef = useRef(null), inviteSequence = useRef(0);
+  const invalidateInvites = useCallback(() => { inviteSequence.current++; }, []);
   useEffect(() => { if (error) errorRef.current?.focus(); }, [error]);
   const load = useCallback(async (after = null) => {
     try {
@@ -26,8 +27,8 @@ export default function TeamScreen({ user }) {
       if (active) { setRows(result.rows); setCursor(result.cursor); setOwners(result.activeOwnerCount); }
     }).catch(failure => { if (active) setError(staffError(failure)); })
       .finally(() => { if (active) setLoading(false); });
-    return () => { active = false; inviteSequence.current++; };
-  }, []);
+    return () => { active = false; invalidateInvites(); };
+  }, [invalidateInvites]);
   function open(value) { setError(''); setStatus(''); setCopied(false); setModal(value); }
   function close() { if (!busy) { inviteSequence.current++; setModal(null); setError(''); setEmailStatus(''); } }
   const errorMessage = error && <p ref={errorRef} tabIndex={-1} role="alert" className="field-error">{error}</p>;
