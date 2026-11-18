@@ -1,6 +1,6 @@
 # Soft-launch review — 17 November 2026
 
-Status: local preparation and hosted review checks passed; owner Settings sign-in/save and launch approval are pending. **Not approved for production.** This report will be completed before the Step 3 owner stop. Work stays on dev; no merge or push.
+Status: local preparation, hosted review and the owner Settings save passed. **Waiting at the Step 3 owner approval stop; not approved for production.** Work stays on dev; no merge or push.
 
 ## Local gate
 
@@ -24,7 +24,7 @@ The cloud presentation hides test/illustrative/non-real catalogue records; cloud
 
 [LAUNCH_WORDING.md](../../LAUNCH_WORDING.md) contains the supplied facts and exact approval list. Collection is Muyenga by appointment; payment is cash or MTN/Airtel Mobile Money on collection/delivery; contact/WhatsApp is +256759334383; the proposed returns text uses the supplied 10-day contact window. Delivery scope/quote wording, the returns-window starting point and newly written Help/privacy text still await owner approval. The review marker remains visible until approval. No delivery fee or automatic refund promise was invented.
 
-The supplied number is displayed as a call contact. **Owner Settings save is PENDING:** the current browser is at the sign-in screen, and the owner has been asked to sign in privately. WhatsApp links remain hidden until +256759334383 is saved through the validated, audited screen. Keep Wording reviewed unchecked until the launch-copy approval. No WhatsApp message was sent.
+The owner signed in privately and the validated Settings callable saved **+256759334383** and the three proposed wording fields at **revision 3**. The server read-back matches the safe public policy and its owner audit entry; see [settings-saved.json](settings-saved.json). The public “Chat on WhatsApp” link points to https://wa.me/256759334383. **Wording reviewed remains unchecked** (`copyReviewed: false`), and the public review marker remains visible. The limits stay 24 hours / 3 open requests / 1 active request per phone and piece / 50 submissions per source per hour. No password was handled and no WhatsApp message was sent. Screenshots: [saved Settings](screenshots/settings-saved.jpg), [public contact link](screenshots/whatsapp-contact-saved-mobile.jpg).
 
 ## Hosted review release
 
@@ -45,8 +45,8 @@ Review: https://night-in-kampala--review-jrrv7tp2.web.app — version **2cc59a3b
 | Missing Help documents | PASS | Final hosted delivery read has no application warning; unchanged rule regressions include missing/private pages |
 | Raw HTML, noindex and current assets | PASS | hosted-http.json; no indexing approval assumed |
 | Real staff / permanent owner claims | PASS | Server re-read in staff-access.json; no test marker or password handling |
-| Current owner UI sign-in / Settings save | PENDING OWNER | Sign-in form is ready; no password requested or entered |
-| WhatsApp number enabled | NOT YET | Intentionally remains hidden until audited Settings save |
+| Current owner UI sign-in / Settings save | PASS | Owner signed in privately; revision 3 saved through validated callable and matched its audit entry; no password handled |
+| WhatsApp number enabled | PASS | Correct public wa.me link observed after save; no message sent |
 | New App Check / full live sales flow | NOT RUN in this review | Prior preview test-stock checks are in ../preview-orders/README.md; production end-to-end check is Step 4 after approval |
 | Physical iPhone HEIC, complete screen-reader matrix | NOT RUN | iPhone unavailable; manual device/assistive-technology gaps remain |
 | Cleanup execution / key regeneration / merge / production release | NOT RUN | Explicit approval stop; dry run only |
@@ -55,7 +55,7 @@ Browser extension warnings were present in Chrome. The initial expected missing-
 
 ## Cleanup inventory (read only)
 
-See [cleanup-inventory.json](cleanup-inventory.json), a timestamped snapshot. The executable script defaults to dry run and the operator wrapper additionally refuses execution during this review. No deletion or secret regeneration has occurred. Re-run after approval before deletion; document-update and object-generation preconditions protect changed records.
+See [cleanup-inventory.json](cleanup-inventory.json), the timestamped dry run refreshed after the Settings save. The genuine Settings revision and its audit entry are not deletion candidates. The executable script defaults to dry run and the operator wrapper additionally refuses execution during this review. No deletion or secret regeneration has occurred. Re-run after approval before deletion; document-update and object-generation preconditions protect changed records.
 
 A photographed unapproved draft is retained. Ambiguous old preview test markers block execution rather than silently deleting genuine work. The new preview catalogue mode retains genuine staff drafts; shopper orders stay paused during review. Existing test markers are never silently removed.
 
@@ -98,5 +98,6 @@ Review the updated channel, wording and inventory, then reply **approved for lau
 | 7abe8f5 | Separate Help headings; clean lint |
 | 8f1b62b | Verified standard staff access evidence |
 | cf991f1 | Bounded optional Help queries and guest-rule regressions |
+| 4a1bc25 | Hosted review, accessibility/empty-state evidence and initial cleanup inventory |
 
-This evidence commit follows those focused changes. Git history was not rewritten. Everything remains local on dev; nothing was merged or pushed.
+The Settings follow-up evidence commit follows those focused changes. No application code changed in the follow-up; the latest full local gate remains 166 passing tests. The secret scan and staged-diff checks were repeated for this documentation commit. Git history was not rewritten. Everything remains local on dev; nothing was merged or pushed.

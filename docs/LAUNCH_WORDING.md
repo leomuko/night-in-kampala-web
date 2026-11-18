@@ -29,7 +29,7 @@ All fallback Help pages and the unreviewed checkout/receipt policy show “Launc
 
 Collection, delivery and payment wording live in owner Settings; saving validates and audits changes. Unreviewed exact old development defaults are displayed using the new proposed defaults, but custom or previously reviewed wording is preserved. Review and save the wording rather than assuming a new default changed the stored document.
 
-The owner Settings WhatsApp field remains blank until saved. The supplied phone is shown as a call contact in the fallback Help pages. Saving a valid business number also publishes it in the safe order policy for Contact/Help WhatsApp links and enables the saved-order handoff. No message is sent automatically.
+The owner Settings save has now recorded +256759334383 and the proposed collection/delivery/payment copy at revision 3. The supplied phone is shown as a call contact and public Contact/Help WhatsApp links are enabled. The saved-order handoff uses that validated business number. `copyReviewed` remains false pending the Step 3 approval. No message is sent automatically. See [the verified Settings evidence](qa/soft-launch/settings-saved.json).
 
 Staff can override fallback Help pages with approved Site pages using slugs how-to-order, delivery, collection, payment, returns, privacy, sizing or contact. The page editor and owner content approval already exist. The defaults are a small launch fallback, not fabricated published editorial records.
 

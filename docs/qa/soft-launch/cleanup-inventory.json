@@ -2,7 +2,7 @@
   "project": "night-in-kampala",
   "bucket": "night-in-kampala.firebasestorage.app",
   "mode": "dry-run",
-  "generatedAt": "2026-11-17T11:40:51.127Z",
+  "generatedAt": "2026-11-17T12:36:51.116Z",
   "firestore": [
     "auditLogs/29v7YID2YHbQICXwBO6h",
     "auditLogs/9NCLjz5WkrX8jhoc8Kie",

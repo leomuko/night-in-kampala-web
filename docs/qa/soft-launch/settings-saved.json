@@ -1,0 +1,40 @@
+{
+  "checkedAt": "2026-11-17T12:36:25.813Z",
+  "project": "night-in-kampala",
+  "workflow": "Owner signed in privately; Settings saved through the validated callable; read-only server re-read",
+  "settings": {
+    "copy": {
+      "collection": "Collect from Muyenga, by appointment.",
+      "payment": "Pay by cash or MTN/Airtel Mobile Money on collection or delivery.",
+      "delivery": "Delivery within Kampala by boda, with the fee agreed by phone. Outside Kampala and international delivery by quote."
+    },
+    "revision": 3,
+    "activePerPiece": 1,
+    "whatsappNumber": "+256759334383",
+    "submissionsPerHour": 50,
+    "overdueHours": 24,
+    "openPerPhone": 3,
+    "copyReviewed": false
+  },
+  "publicPolicyMatches": true,
+  "audit": {
+    "path": "auditLogs/213gZJmXt5mhCvu2Xocx",
+    "action": "order-settings-update",
+    "revision": 3,
+    "changedFields": [
+      "whatsappNumber",
+      "copy"
+    ],
+    "at": "2026-11-17T12:35:10.760Z",
+    "actorEmail": "superadmin@nightinkampala.com",
+    "actorOwner": true,
+    "actorTestAccount": false
+  },
+  "publicLink": {
+    "href": "https://wa.me/256759334383",
+    "verifiedInBrowser": true,
+    "messageSent": false
+  },
+  "passwordHandled": false,
+  "launchApproved": false
+}
